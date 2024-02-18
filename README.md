@@ -1,7 +1,6 @@
 # Hinotori Library
 
 **CopyLeft (c) 1995-2024 by PopolonY2k**
-
 **CopyLeft (c) since 2024 by Hinotori Team**
 
 
@@ -24,4 +23,4 @@ source or even using another restrict license your code won't be accepted in our
 branch.
 
 
-Hinotori team
+Hinotori Team
