@@ -35,8 +35,9 @@ ROOT
 |     |-- GUIDELINES (Team development guidelines)
 |     |    | -- project_toc_guidelines - Table of contents and guidelines;
 |     |
-|     -- MSX_TECH (MSX standard related documentation)
-|     |    |- sysvars.txt (System variables MSX Assembly Pages document)
+|     -- TECH_INFO (MSX standard related documentation)
+|     |    |- MSXDOS2 (MSXDOS2 related documents folder)
+|     |    |- MSX (MSX standard related documents)
 |     |
 |
 |
