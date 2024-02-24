@@ -7,6 +7,11 @@
 ## History
 Hinotori Library is the rebrand of PopolonY2k Framework  now moved to GitHub and open to community collaboration.
 
+The name Hinotori is a tribute to [Ozamu Tezuka's Hi no Tori unfinished manga (and movie) series](https://en.wikipedia.org/wiki/Phoenix_(manga))
+
+![Hi no Tori (Phoenix)](/resource/hinotori_logo.jpg)
+
+
 Original PopolonY2k Framework can be reached [here](https://sourceforge.net/projects/oldskooltech/) 
 
 
