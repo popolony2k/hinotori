@@ -1,23 +1,15 @@
 (*<dos2err.pas>
  * Wrapper to MSXDOS2 error messages management calls.
- * CopyLeft (c) since 1995 by PopolonY2k.
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-
-(**
-  *
-  * $Id: dos2err.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/dos2err.pas $
-  *)
 
 (*
  * This module depends on folowing include files (respect the order):
- * - memory.pas;
- * - types.pas;
- * - msxdos.pas;
- * - msxdos2.pas;
+ * - /system/memory.pas;
+ * - /system/types.pas;
+ * - /dos/msxdos.pas;
+ * - /dos/msxdos2.pas;
  *)
 
 Const       ctMSXDOSMsgSize = 65;  { Error message buffer size }
@@ -73,4 +65,3 @@ Begin
     End;
   End;
 End;
-

@@ -2,21 +2,13 @@
  * MSXDOS and CP/M structures definitions and functions.
  * Some data structures were converted from ASCII Corp. MSX-C Compiler and
  * others from books and specifications about MSX disk management.
- * CopyLeft (c) since 1995 by PopolonY2k.
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-
-(**
-  *
-  * $Id: msxdos.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/msxdos.pas $
-  *)
 
 (*
  * This module depends on folowing include files (respect the order):
- * - types.pas;
+ * - /system/types.pas;
  *)
 
 (* BDOS/MSXDOS functions list - Official function names *)
@@ -122,4 +114,3 @@ Begin
   regs.IY := nIY;
   regs.IX := nIX;
 End;
-

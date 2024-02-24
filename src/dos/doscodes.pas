@@ -1,15 +1,12 @@
 (*<doscodes.pas>
  * MSXDOS and CP/M return codes.
- * CopyLeft (c) since 1995 by PopolonY2k.
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
  *)
 
-(**
-  *
-  * $Id: doscodes.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/doscodes.pas $
+ (*
+  * This module depends on folowing include files (respect the order):
+  * -
   *)
 
 (* MSXDOS and CP/M80 DISKIO return codes *)
@@ -81,4 +78,3 @@ Const
     ctInvalidSubFnNumber     : Byte = $B8; { Invalid sub-function number }
                                            { passed to the IOCTL (4B) }
                                            { function }
-
