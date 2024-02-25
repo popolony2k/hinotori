@@ -10,12 +10,12 @@
 
 (* Please respect include dependency order *)
 
-{$i ../../src/system/types.pas;}
-{$i ../../src/bios/msxbios.pas;}
-{$i ../../src/bios/extbio.pas;}
-{$i ../../src/unapi/unapi.pas;}
-{$i ../../src/unapi/unapinfo.pas}
-{$i ../../src/unapi/utcpstat.pas}
+{$i ..\..\src\system\types.pas;}
+{$i ..\..\src\bios\msxbios.pas;}
+{$i ..\..\src\bios\extbio.pas;}
+{$i ..\..\src\unapi\unapi.pas;}
+{$i ..\..\src\unapi\unapinfo.pas}
+{$i ..\..\src\unapi\utcpstat.pas}
 
 
 (**

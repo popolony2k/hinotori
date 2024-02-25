@@ -5,8 +5,8 @@
  *)
 Program TestLoadable;
 
-{$i ../../src/system/types.pas}
-{$i ../../src/dynlib/loadable.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\dynlib\loadable.pas}
 
 
 (**

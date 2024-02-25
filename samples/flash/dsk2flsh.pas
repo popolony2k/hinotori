@@ -1,35 +1,27 @@
-(**<dsk2flsh.pas>
-  * This utility tool was created to work in conjunction with the
-  * Vincent Van Dam's DSK2ROM tool modified by PopolonY2k.
-  *
-  * Copyright (c) since 1995 by PopolonY2k.
-  *)
-
-(**
-  *
-  * $Id: dsk2flsh.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/dsk2flsh.pas $
-  *)
+(*<dsk2flsh.pas>
+ * This utility tool was created to work in conjunction with the
+ * Vincent Van Dam's DSK2ROM tool modified by PopolonY2k.
+ *
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
+ *)
 
 (*
  * This module depends on folowing include files (respect the order):
- * - types.pas;
- * - msxbios.pas;
- * - mflshrom.pas;
- * - msxdos.pas;
- * - msxdos2.pas;
- * - dos2file.pas;
+ * - /system/types.pas;
+ * - /bios/msxbios.pas;
+ * - /flash/mflshrom.pas;
+ * - /dos/msxdos.pas;
+ * - /dos/msxdos2.pas;
+ * - /dos/dos2file.pas;
  *)
 
-{$i types.pas}
-{$i msxbios.pas}
-{$i mflshrom.pas}
-{$i msxdos.pas}
-{$i msxdos2.pas}
-{$i dos2file.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\bios\msxbios.pas}
+{$i ..\..\src\flash\mflshrom.pas}
+{$i ..\..\src\dos\msxdos.pas}
+{$i ..\..\src\fos\msxdos2.pas}
+{$i ..\..\src\dos\dos2file.pas}
 
 
 (*
@@ -213,4 +205,3 @@ Begin
   Else
     ShowHelp( True );
 End.
-

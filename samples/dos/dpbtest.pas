@@ -12,8 +12,8 @@ Program DPB_Test;
  * - /dos/dpb.pas;
  *)
 
-{$i ../../src/system/types.pas}
-{$i ../../src/dos/dpb.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\dos\dpb.pas}
 
 Var      DPB      : TDPB;
          nError,

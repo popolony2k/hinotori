@@ -15,11 +15,11 @@
  * - /twidgets/tprogres.pas;
  *)
 
-{$i ../../src/system/intr.pas}
-{$i ../../src/system/types.pas}
-{$i ../../src/bios/msxbios.pas}
-{$i ../../src/console/conio.pas}
-{$i ../../src/twidgets/tprogres.pas}
+{$i ..\..\src\system\intr.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\bios\msxbios.pas}
+{$i ..\..\src\console\conio.pas}
+{$i ..\..\src\twidgets\tprogres.pas}
 
 Type TUserEntry = Record
  bFirstInit  : Boolean;

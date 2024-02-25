@@ -24,16 +24,16 @@ Program IDEInfo;
  * - /math/bigint.pas;
  *)
 
-{$i ../../src/memory/memory.pas}
-{$i ../../src/system/types.pas}
-{$i ../../src/bios/msxbios.pas}
-{$i ../../src/bit/bitwise.pas}
-{$i ../../src/slot/sltsrch.pas}
-{$i ../../src/sunrise/suntypes.pas}
-{$i ../../src/sunrise/sunwrksp.pas}
-{$i ../../src/math/math.pas}
-{$i ../../src/math/math16.pas}
-{$i ../../src/math/bigint.pas}
+{$i ..\..\src\memory\memory.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\bios\msxbios.pas}
+{$i ..\..\src\bit\bitwise.pas}
+{$i ..\..\src\slot\sltsrch.pas}
+{$i ..\..\src\sunrise\suntypes.pas}
+{$i ..\..\src\sunrise\sunwrksp.pas}
+{$i ..\..\src\math\math.pas}
+{$i ..\..\src\math\math16.pas}
+{$i ..\..\src\math\bigint.pas}
 
 
 (**

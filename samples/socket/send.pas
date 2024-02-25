@@ -2,56 +2,48 @@
  * Command line client tool to send files using any network card.
  * Supported cards:
  * - OPTO-TECH Network/RS232/SD-Card for the MSX platform.
- * CopyLeft (c) since 1995 by PopolonY2k.
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-
-(**
-  *
-  * $Id: send.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/send.pas $
-  *)
 
 (*
  * This module depends on folowing include files (respect the order):
- * - types.pas;
- * - funcptr.pas;
- * - sockdefs.pas;
- * - socket.pas;
- * - helpstr.pas;
- * - systypes.pas;
- * - sleep.pas;
- * - optodrv.pas;
- * - optonet.pas;
- * - fthelp.pas;
- * - mnfstver.pas;
- * - memory.pas;
- * - msxdos.pas;
- * - msxdos2.pas;
- * - dos2file.pas;
- * - ftdefs.pas;
+ * - /system/types.pas;
+ * - /callproc/funcptr.pas;
+ * - /socket/sockdefs.pas;
+ * - /socket/socket.pas;
+ * - /util/helpstr.pas;
+ * - /system/systypes.pas;
+ * - /timer/sleep.pas;
+ * - /comm/optonet/optodrv.pas;
+ * - /comm/optonet/optonet.pas;
+ * - ./common/fthelp.pas;
+ * - ./common/mnfstver.pas;
+ * - /memory/memory.pas;
+ * - /dos/msxdos.pas;
+ * - /dos/msxdos2.pas;
+ * - /dos/dos2file.pas;
+ * - ./common/ftdefs.pas;
  *)
 
 {$v-,c-,u-,a+,r-}
 
-{$i types.pas}
-{$i funcptr.pas}
-{$i sockdefs.pas}
-{$i socket.pas}
-{$i helpstr.pas}
-{$i systypes.pas}
-{$i sleep.pas}
-{$i optodrv.pas}
-{$i optonet.pas}
-{$i fthelp.pas}
-{$i mnfstver.pas}
-{$i memory.pas}
-{$i msxdos.pas}
-{$i msxdos2.pas}
-{$i dos2file.pas}
-{$i ftdefs.pas}
+{$i ..\..\src\\system\types.pas}
+{$i ..\..\src\callproc\funcptr.pas}
+{$i ..\..\src\socket\sockdefs.pas}
+{$i ..\..\src\socket\socket.pas}
+{$i ..\..\src\util\helpstr.pas}
+{$i ..\..\src\system\systypes.pas}
+{$i ..\..\src\timer\sleep.pas}
+{$i ..\..\src\comm\optinet\optodrv.pas}
+{$i ..\..\src\comm\optonet\optonet.pas}
+{$i .\common\fthelp.pas}
+{$i .\common\mnfstver.pas}
+{$i ..\..\src\memory\memory.pas}
+{$i ..\..\src\dos\msxdos.pas}
+{$i ..\..\src\\dos\msxdos2.pas}
+{$i ..\..\src\dos\dos2file.pas}
+{$i .\common\ftdefs.pas}
 
 
 (*
@@ -356,4 +348,3 @@ Begin
       ShowHelp;
   End;
 End.
-

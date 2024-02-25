@@ -1,26 +1,18 @@
-(**<mflshrom.pas>
-  * MegaFlashROM routines for using with MegaFlashROM cards.
-  *
-  * Boards compatibility:
-  *
-  * - Konami4 (AM29F040B chipset);
-  *
-  * Copyright (c) since 1995 by PopolonY2k.
-  *)
-
-(**
-  *
-  * $Id: mflshrom.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/mflshrom.pas $
-  *)
+(*<mflshrom.pas>
+ * MegaFlashROM routines for using with MegaFlashROM cards.
+ *
+ * Boards compatibility:
+ *
+ * - Konami4 (AM29F040B chipset);
+ *
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
+ *)
 
 (*
  * This module depends on folowing include files (respect the order):
- * - types.pas;
- * - msxbios.pas;
+ * - /system/types.pas;
+ * - /bios/msxbios.pas;
  *)
 
 (*
@@ -460,4 +452,4 @@ Begin
     status := FlashSelectionError;
 
   SelectInitialMFRPages := status;
-End;
+End;

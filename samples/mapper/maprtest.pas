@@ -17,14 +17,14 @@
 {                      PopolonY2k Framework dependencies                      }
 {-----------------------------------------------------------------------------}
 
-{$i ../../src/system/types.pas}
-{$i ../../src/util/helpchar.pas}
-{$i ../../src/bios/msxbios.pas}
-{$i ../../src/bios/extbio.pas}
-{$i ../../src/mapper/maprdefs.pas}
-{$i ../../src/mapper/maprbase.pas}
-{$i ../../src/mapper/maprallc.pas}
-{$i ../../src/mapper/maprpage.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\util\helpchar.pas}
+{$i ..\..\src\bios\msxbios.pas}
+{$i ..\..\src\bios\extbio.pas}
+{$i ..\..\src\mapper\maprdefs.pas}
+{$i ..\..\src\mapper\maprbase.pas}
+{$i ..\..\src\mapper\maprallc.pas}
+{$i ..\..\src\mapper\maprpage.pas}
 
 {-----------------------------------------------------------------------------}
 {                             Module definitions                              }
