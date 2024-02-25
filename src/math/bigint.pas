@@ -8,7 +8,7 @@
 
 (*
  * This source file depends on following include files (respect the order):
- * - /systypes/types.pas;
+ * - /system/types.pas;
  * - /math/math.pas;
  * - /math/math16.pas;
  *)

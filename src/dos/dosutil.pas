@@ -8,7 +8,7 @@
 (*
  * This module depends on folowing include files (respect the order):
  * - /system/types.pas;
- * - lnkdlist.pas;
+ * - /collectn/lnkdlist.pas;
  *)
 
 (**
