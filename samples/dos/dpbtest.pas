@@ -1,9 +1,9 @@
-(*<dostest.pas>
+(*<dpbtest.pas>
  * MSXDOS library sample test.
  * CopyLeft (c) 1995-2024 by PopolonY2k.
  * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-Program MSXDOS_Test;
+Program DPB_Test;
 
 
 (*
@@ -34,7 +34,8 @@ Begin
 
   strDrive := Char( Byte( 'A' ) + DPB.nDrvNum ) + ':';
 
-  WriteLn( 'MSXDD Tools. CopyLeft (c) 1995-2011 by PopolonY2k' );
+  WriteLn( 'DPB Test. CopyLeft (c) 1995 - 2024 by PopolonY2k' );
+  WriteLn( '          CopyLeft (c) since  2024 by Hinotori Team' );
   WriteLn;
   WriteLn;
   WriteLn( 'Disk parameter block' );
