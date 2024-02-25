@@ -19,11 +19,11 @@ Program TestBigNumbers4;
  * - /ptest/ptestbig.pas;
  *)
 
-{$i types.pas}
-{$i math.pas}
-{$i bigint.pas}
-{$i ptest.pas}
-{$i ptestbig.pas}
+{$i ../../src/system/types.pas}
+{$i ../../src/math/math.pas}
+{$i ../../src/math/bigint.pas}
+{$i ../../src/ptest/ptest.pas}
+{$i ../../src//ptest/ptestbig.pas}
 
 
 (**
