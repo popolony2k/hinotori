@@ -1,30 +1,22 @@
-(*<tstbig3.pas>
+(*<tstbig5.pas>
  * Implement unit tests and sample for using the Big Numbers
  * library <bigint.pas>, using TUint24.
  * Unit tests for:
- *    6) Multiplication operations;
- *    7) Division operations (reserved for future use);
+ *    10) Exception cases for multiplication operations;
+ *    11) Exception cases for division operations (reserved for future use);
  *
- * Copyleft (c) since 1995 by PopolonY2k.
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-Program TestBigNumbers3;
-
-(**
-  *
-  * $Id: tstbig3.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/tstbig3.pas $
-  *)
+Program TestBigNumbers5;
 
 (*
  * This source file depends on following include files (respect the order):
- * - types.pas;
- * - math.pas;
- * - bigint.pas;
- * - ptest.pas;
- * - ptestbig.pas;
+ * - /system/types.pas;
+ * - /math/math.pas;
+ * - /bigint/bigint.pas;
+ * - /ptest/ptest.pas;
+ * - /ptest/ptestbig.pas;
  *)
 
 {$i types.pas}
@@ -82,85 +74,63 @@ Var
   End;
 
   (**
-    * Execute test for big number multiplication operation.
+    * Execute exception tests for big number multiplication operation.
     *)
-  Procedure __MulTest;
+  Procedure __ExceptionMultTest;
   Const
-               ctMaxIterations : Integer = 12;
+           ctMaxIterations : Integer = 23;
   Var
-               nCount : Integer;
+           nCount : Integer;
   Begin
     bExit  := False;
     nCount := 0;
 
-    TRACE( '6 - Multiplying Big Numbers' );
+    TRACE( '10 - Exceptions for Multiplying Big Numbers' );
     TRACELN;
 
     PTRACE( pstrSep );
-    TRACE( '6.1 - Multiplying 24bit values starting by 500 and multiplying ' );
-    TRACE( '      by 2 until the result reach the result of 1500000' );
+    TRACE( '10.1 - Multiply 24bit values starting with 1 and multiplying ' );
+    TRACE( '       it by 2 until the result exceed the 24Bit limit.' );
     PTRACE( pstrSep );
 
-    bRet := TEST_OP( ' 6.1.1 - StrToBigInt()',
+    bRet := TEST_OP( ' 10.1.1 - StrToBigInt()',
                      StrToBigInt( big24ConstVal, '2' ), Success );
-    bRet := TEST_OP( ' 6.1.2 - StrToBigInt()',
-                     StrToBigInt( big24CompVal, '2048000' ), Success );
-    bRet := TEST_OP( ' 6.1.3 - ResetBigInt()',
+    bRet := TEST_OP( ' 10.1.2 - StrToBigInt()',
+                     StrToBigInt( big24Res, '1' ), Success );
+    bRet := TEST_OP( ' 10.1.3 - ResetBigInt()',
                      ResetBigInt( big24FirstOp ), Success );
-    bRet := TEST_OP( ' 6.1.4 - StrToBigInt()',
-                     StrToBigInt( big24Res, '500' ), Success );
 
     TRACELN;
-    TRACE( 'Starting big number multiplication operation' );
+    TRACE( 'Starting big number mult. operation' );
 
     Repeat
-      If( CompareBigInt( big24Res, big24CompVal ) <> LessThan ) Then
-        bExit := True
-      Else
+      opCode := MulBigInt( big24FirstOp, big24Res, big24ConstVal );
+
+      If( opCode = Success )  Then
       Begin
-        opCode := MulBigInt( big24FirstOp, big24Res, big24ConstVal );
+        opCode := AssignBigInt( big24Res, big24FirstOp );
 
-        If( opCode = Success )  Then
-        Begin
-          opCode := AssignBigInt( big24Res, big24FirstOp );
-
-          If( opCode <> Success )  Then
-          Begin
-            bExit := True;
-            bRet  := TEST_OP( '6.1.FatalError - CopyBigInt()',
-                              opCode, Success );
-          End;
-          nCount := nCount + 1;
-        End
-        Else
+        If( opCode <> Success )  Then
         Begin
           bExit := True;
-          bRet  := TEST_OP( '6.1.FatalError - MulBigInt()',
+          bRet  := TEST_OP( '10.1.FatalError - CopyBigInt()',
                             opCode, Success );
         End;
+        nCount := nCount + 1;
+      End
+      Else
+      Begin
+        bExit := True;
+        bRet  := TEST_OP( '10.1.4 - Overflow test', opCode, Overflow );
       End;
-    Until( ( bExit = True ) Or ( nCount = ctMaxIterations ) );
+    Until( ( bExit = True ) Or ( nCount > ctMaxIterations ) );
 
-    TRACE( 'Big number multiplication operation finished' );
+    TRACE( 'Big number mult. operation finished' );
     TRACELN;
 
-    bRet := TEST_BIGINT_CMP( ' 6.1.5 - Results',
-                             CompareBigInt( big24Res, big24CompVal ),
-                             Equals );
-
-    bRet := TEST_INT( '6.1.6 - Iterations until 24Bit limit',
+    bRet := TEST_INT( '10.1.5 - Iterations until 24Bit limit',
                       nCount,
                       ctMaxIterations );
-
-    If( bRet ) Then
-    Begin
-      bRet := TEST_OP( ' 6.1.7 - BigIntToStr()',
-                       BigIntToStr( strRet, big24Res ), Success );
-      If( bRet )  Then
-        TRACE( 'The calculated 24Bit number is ' + strRet )
-      Else
-        TRACE( 'Error to retrieve calculated 24Bit number' );
-    End;
 
     TRACELN;
   End;
@@ -169,7 +139,7 @@ Begin
   New( pStrSep );
   pstrSep^ := '-------------------------------------------------------------';
   __Setup;
-  __MulTest;
+  __ExceptionMultTest;
   Release( pstrSep );
 End;
 
@@ -187,4 +157,3 @@ Begin
 
   Execute24BitTests;  { Perform 24bits Big Number tests }
 End.
-

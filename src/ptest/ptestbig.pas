@@ -1,24 +1,16 @@
 (*<ptestbig.pas>
  * Implement the PopolonY2's unit test framework for use with
  * any Pascal application tests;
- * Copyleft (c) since 1995 by PopolonY2k.
+ * CopyLeft (c) 1995-2024 by PopolonY2k.
+ * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-
-(**
-  *
-  * $Id: ptestbig.pas 128 2020-07-08 17:51:23Z popolony2k $
-  * $Author: popolony2k $
-  * $Date: 2020-07-08 14:51:23 -0300 (Wed, 08 Jul 2020) $
-  * $Revision: 128 $
-  * $HeadURL: https://svn.code.sf.net/p/oldskooltech/code/msx/trunk/msxdos/pascal/ptestbig.pas $
-  *)
 
 (*
  * This source file depends on following include files (respect the order):
- * - types.pas;
- * - math.pas;
- * - ptest.pas;
- * - bigint.pas;
+ * - /system/types.pas;
+ * - /math/math.pas;
+ * - /ptest/ptest.pas;
+ * - /math/bigint.pas;
  *)
 
 (**
@@ -111,4 +103,3 @@ Begin
 
   TEST_BIGINT_CMP := ( compCode = compExpected );
 End;
-
