@@ -28,7 +28,7 @@
 
 {$v-,c-,u-,a+,r-}
 
-{$i ..\..\src\\system\types.pas}
+{$i ..\..\src\system\types.pas}
 {$i ..\..\src\callproc\funcptr.pas}
 {$i ..\..\src\socket\sockdefs.pas}
 {$i ..\..\src\socket\socket.pas}
