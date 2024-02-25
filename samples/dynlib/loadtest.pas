@@ -1,4 +1,4 @@
-(*<testload.pas>
+(*<lodtest.pas>
  * Loadable module library sample test.
  * CopyLeft (c) 1995-2024 by PopolonY2k.
  * CopyLeft (c) since 2024 by Hinotori Team.
