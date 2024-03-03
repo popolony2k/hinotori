@@ -32,6 +32,8 @@ branch.
 On Hinotori base path there's a sample set environment batch file called **setenv.sam** that can be used as reference to create your own environment file.
 Please rename it to **setenv.bat** and edit it's content like explained below: 
 
+
+```console
 REM Set envionment variables needed by Hinotori integration with TP33f
 REM
 REM 1) Change the TPPATH variable below to your TP33F compiler binaries path;
@@ -44,6 +46,7 @@ SET TP3=%TPPATH%\TURBO
 SET HPATH=<drive:\your_hinotori_library_path>
 SET PATH=%PATH% %HPATH%
 
+```
 
 The content of variable TPPATH below:
 
