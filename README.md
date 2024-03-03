@@ -27,5 +27,46 @@ written and released under this license, so if you're sending code based on clos
 source or even using another restrict license your code won't be accepted in our main 
 branch.
 
+## Setup Hinotori 
+
+On Hinotori base path there's a sample set environment batch file called **setenv.sam** that can be used as reference to create your own environment file.
+Please rename it to **setenv.bat** and edit it's content like explained below: 
+
+REM Set envionment variables needed by Hinotori integration with TP33f
+REM
+REM 1) Change the TPPATH variable below to your TP33F compiler binaries path;
+REM 2) Setup HPATH for Hinotori destination path;
+REM 3) After performing all settings rename the resulting file from setenv.sam
+REM    to setenv.bat;
+REM
+SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>
+SET TP3=%TPPATH%\TURBO
+SET HPATH=<drive:\your_hinotori_library_path>
+SET PATH=%PATH% %HPATH%
+
+
+The content of variable TPPATH below:
+
+**SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>**
+
+Must be replaced with the path of your TP33f installation, so suppose that your TP33 is in **C:\TP33F** it's content must replaced like below:
+
+**SET TPPATH=C:\TP33F**
+
+The same logic must be used to Hinitori installation path. Suppose that your Hinotori library is installed on **C:\HINOTORI**, so your variable must be set as below :
+
+**SET HPATH=C:\HINOTORI**
+
+After setting these variables and renaming the **setenv.sam** to **setenv.bat**, just call **setenv.bat** on DOS command prompt to setup all variables needed by hinotori project compilation.
+
+## Compiling Hinotori Samples and tests
+
+Compiling Hinotori samples and tests is easy. Only enter the desired test or samples to compile and type **HMAKE <your_pascal_source_code.pas>**.
+
+Eg:
+
+**cd SAMPLES\MAPPER**
+**HMAKE mappdemo.pas**
+
 
 Hinotori Team
