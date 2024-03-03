@@ -20,7 +20,7 @@
 {$i ..\..\src\bios\msxbios.pas}
 {$i ..\..\src\flash\mflshrom.pas}
 {$i ..\..\src\dos\msxdos.pas}
-{$i ..\..\src\fos\msxdos2.pas}
+{$i ..\..\src\dos\msxdos2.pas}
 {$i ..\..\src\dos\dos2file.pas}
 
 
@@ -205,3 +205,4 @@ Begin
   Else
     ShowHelp( True );
 End.
+

@@ -35,13 +35,13 @@
 {$i ..\..\src\util\helpstr.pas}
 {$i ..\..\src\system\systypes.pas}
 {$i ..\..\src\timer\sleep.pas}
-{$i ..\..\src\comm\optinet\optodrv.pas}
+{$i ..\..\src\comm\optonet\optodrv.pas}
 {$i ..\..\src\comm\optonet\optonet.pas}
 {$i .\common\fthelp.pas}
 {$i .\common\mnfstver.pas}
 {$i ..\..\src\memory\memory.pas}
 {$i ..\..\src\dos\msxdos.pas}
-{$i ..\..\src\\dos\msxdos2.pas}
+{$i ..\..\src\dos\msxdos2.pas}
 {$i ..\..\src\dos\dos2file.pas}
 {$i .\common\ftdefs.pas}
 
@@ -348,3 +348,4 @@ Begin
       ShowHelp;
   End;
 End.
+

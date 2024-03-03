@@ -21,14 +21,15 @@
 
 program mappdemo;
 
-{$i ..\..\src\system\types.inc}
-{$i ..\..\src\bios\msxbios.inc}
-{$i ..\..\src\bios\extbio.inc}
-{$i ..\..\src\mapper\maprbase.inc}
-{$i ..\..\src\mapper\maprvars.inc}
-{$i ..\..\src\mapper\maprrw.inc}
-{$i ..\..\src\\mapper\maprallc.inc}
-{$i ..\..\src\mapper\maprpage.inc}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\bios\msxbios.pas}
+{$i ..\..\src\bios\extbio.pas}
+{$i ..\..\src\mapper\maprdefs.pas}
+{$i ..\..\src\mapper\maprbase.pas}
+{$i ..\..\src\mapper\maprvars.pas}
+{$i ..\..\src\mapper\maprrw.pas}
+{$i ..\..\src\mapper\maprallc.pas}
+{$i ..\..\src\mapper\maprpage.pas}
 
 const
     Limit = 79;
@@ -64,7 +65,7 @@ begin
     writeln('MAPRBASE:');
     writeln('Get Mapper Var Table...');
     PointerMapperVarTable := GetMapperVarTable(Mapper);
-    writeln('Slot address of primary mapper: ', Mapper.nPriMapperSlot);
+    writeln('Slot address of primary mapper: ', Mapper.nPriMapperSlotId);
     writeln('Total segments of primary mapper: ', Mapper.nTotalMapperSegs);
     writeln('Free segments of primary mapper: ', Mapper.nFreePriMapperSegs);
     writeln('Slot id of the mapper slot: ', PointerMapperVarTable^.nSlotId);
@@ -153,7 +154,10 @@ end;
 Procedure MAPRALLC_and_MAPRRW;
 begin
     writeln('MAPRALLC and MAPRRW:');
-    writeln('Allocating segment: ', AllocMapperSegment(Mapper, Mapper.nPriMapperSlot, UserSegment, SegmentId));
+    writeln('Allocating segment: ', AllocMapperSegment(Mapper, 
+                                                       UseSpecifiedSlotOnly, 
+                                                       Mapper.nPriMapperSlotId, UserSegment, 
+                                                       SegmentId));
     writeln('Allocated segment: ', SegmentId);
 
     StringTest := 'MSX r0x a lot, dudez.';
@@ -164,7 +168,7 @@ begin
         AllRight := WriteMapperSegment(Mapper, SegmentId, i, ord(StringTest[i - addr(StringTest)]));
 
     writeln('Writing results: ', AllRight);
-    writeln('Releasing segment: ', FreeMapperSegment(Mapper, Mapper.nPriMapperSlot, SegmentId));
+    writeln('Releasing segment: ', FreeMapperSegment(Mapper, Mapper.nPriMapperSlotId, SegmentId));
 
     StringTest := '';
     writeln('Text: ', StringTest);
@@ -304,3 +308,4 @@ BEGIN
     end;
 END.
 
+

@@ -13,16 +13,18 @@ Program TestBigNumbers8;
  * This source file depends on following include files (respect the order):
  * - /system/types.pas;
  * - /math/math.pas;
+ * - /math/math16.pas;
  * - /bigint/bigint.pas;
  * - /ptest/ptest.pas;
  * - /ptest/ptestbig.pas;
  *)
 
-{$i ../../src/system/types.pas}
-{$i ../../src/math/math.pas}
-{$i ../../src/math/bigint.pas}
-{$i ../../src/ptest/ptest.pas}
-{$i ../../src//ptest/ptestbig.pas}
+{$i ..\..\src\system\types.pas}
+{$i ..\..\src\math\math.pas}
+{$i ..\..\src\math\math16.pas}
+{$i ..\..\src\math\bigint.pas}
+{$i ..\..\src\ptest\ptest.pas}
+{$i ..\..\src\ptest\ptestbig.pas}
 
 (**
   * Execute all mixed numbers (24bit vs 32bit, resulting 24bit),
@@ -238,3 +240,4 @@ Begin
 
   ExecuteAllTests;  { Perform mixed types tests }
 End.
+
