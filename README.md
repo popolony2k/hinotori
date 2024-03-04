@@ -29,8 +29,8 @@ branch.
 
 ## Setup Hinotori 
 
-On Hinotori base path there's a sample set environment batch file called **setenv.sam** that can be used as reference to create your own environment file.
-Please rename it to **setenv.bat** and edit it's content like explained below: 
+On Hinotori base path there's a sample set environment variable batch file called **setenv.sam** that can be used as reference to create your own customized environment variable set file.
+Please rename it to **setenv.bat** and edit its content like explained below: 
 
 
 ```console
@@ -43,8 +43,11 @@ REM    to setenv.bat;
 REM
 SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>
 SET TP3=%TPPATH%\TURBO
+SET TPPATH=
 SET HPATH=<drive:\your_hinotori_library_path>
 SET PATH=%PATH% %HPATH%
+SET HPATH=
+ECHO "Hinotori environment variables set"
 
 ```
 
@@ -52,11 +55,11 @@ The content of variable TPPATH below:
 
 **SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>**
 
-Must be replaced with the path of your TP33f installation, so suppose that your TP33 is in **C:\TP33F** it's content must replaced like below:
+Must be replaced with the path of your TP33f installation, so suppose that your TP33 is located at **C:\TP33F**, so its content must replaced like below:
 
 **SET TPPATH=C:\TP33F**
 
-The same logic must be used to Hinitori installation path. Suppose that your Hinotori library is installed on **C:\HINOTORI**, so your variable must be set as below :
+The same logic must be used to Hinitori installation path. Suppose that your Hinotori library is installed at **C:\HINOTORI**, so your variable must be set as below :
 
 **SET HPATH=C:\HINOTORI**
 
@@ -64,7 +67,7 @@ After setting these variables and renaming the **setenv.sam** to **setenv.bat**,
 
 ## Compiling Hinotori Samples and tests
 
-Compiling Hinotori samples and tests is easy. Only enter the desired test or samples to compile and type **HMAKE <your_pascal_source_code.pas>**.
+Compiling Hinotori samples and tests is easy. After performing all steps above, only enter the desired test or sample to compile and type **HMAKE <your_pascal_source_code.pas>**.
 
 Eg:
 
