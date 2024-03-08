@@ -33,7 +33,7 @@ On Hinotori base path there's a sample set environment variable batch file calle
 Please rename it to **setenv.bat** and edit its content like explained below: 
 
 
-```console
+```bat
 REM Set envionment variables needed by Hinotori integration with TP33f
 REM
 REM 1) Change the TPPATH variable below to your TP33F compiler binaries path;
@@ -48,20 +48,25 @@ SET HPATH=<drive:\your_hinotori_library_path>
 SET PATH=%PATH% %HPATH%
 SET HPATH=
 ECHO "Hinotori environment variables set"
-
 ```
 
 The content of variable TPPATH below:
 
-**SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>**
+```bat
+SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>
+```
 
 Must be replaced with the path of your TP33f installation, so suppose that your TP33 is located at **C:\TP33F**, so its content must replaced like below:
 
-**SET TPPATH=C:\TP33F**
+```bat
+SET TPPATH=C:\TP33F
+```
 
 The same logic must be used to Hinitori installation path. Suppose that your Hinotori library is installed at **C:\HINOTORI**, so your variable must be set as below :
 
-**SET HPATH=C:\HINOTORI**
+```bat
+SET HPATH=C:\HINOTORI
+```
 
 After setting these variables and renaming the **setenv.sam** to **setenv.bat**, just call **setenv.bat** on DOS command prompt to setup all variables needed by hinotori project compilation.
 
@@ -71,8 +76,9 @@ Compiling Hinotori samples and tests is easy. After performing all steps above, 
 
 Eg:
 
-**cd SAMPLES\MAPPER**
-**HMAKE mappdemo.pas**
-
+```bat
+CD SAMPLES\MAPPER
+HMAKE mappdemo.pas
+```
 
 Hinotori Team
