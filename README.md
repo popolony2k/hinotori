@@ -72,13 +72,13 @@ After setting these variables and renaming the **setenv.sam** to **setenv.bat**,
 
 ## Compiling Hinotori Samples and tests
 
-Compiling Hinotori samples and tests is easy. After performing all steps above, only enter the desired test or sample to compile and type **HMAKE <your_pascal_source_code.pas>**.
+Compiling Hinotori samples and tests is easy. After performing all steps above, only enter the desired test or sample to compile and type **HBUILD <your_pascal_source_code.pas>**.
 
 Eg:
 
 ```bat
 CD SAMPLES\MAPPER
-HMAKE mappdemo.pas
+HBUILD mappdemo.pas
 ```
 
 Hinotori Team
