@@ -19,6 +19,5 @@
 
 Begin
   WriteLn( 'hmake - MakeFile processor.' );
-  WriteLn( 'CopyLeft (c) since 2014 by Hinotori team.' );
+  WriteLn( 'CopyLeft (c) since 2024 by Hinotori team.' );
 End.
-
