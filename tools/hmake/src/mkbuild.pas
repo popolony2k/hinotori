@@ -50,7 +50,7 @@ begin
   begin
     { TODO: FINISH HIM !!! }
     handle.bOpen := false;
-  End;
+  end;
 
   MkClose := bRet;
 end;
@@ -65,11 +65,13 @@ function MkBuild( handle : TMakeHandle ) : boolean;
 var
       bRet   : boolean;
 begin
-  if( handle.bOpen )  then
+  bRet := handle.bOpen;
+
+  if( bRet )  then
   begin
     { TODO: FINISH HIM !!! }
 
-  End;
+  end;
 
   MkBuild := bRet;
 end;
