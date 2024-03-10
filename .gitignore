@@ -2,3 +2,8 @@
 *.err
 *.com
 setenv.bat
+*.o
+*.compiled
+*.lpi
+*.lps
+backup

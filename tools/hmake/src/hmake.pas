@@ -9,9 +9,13 @@
  * This module depends on folowing include files (respect the order):
  *
  * - /system/types.pas;
+ * - /collectn/lnkdlist.pas;
+ * - ./mkbuild.pas;
  *)
 
-{$i ..\..\src\system\types.pas}
+{$i ..\..\..\src\system\types.pas}
+{$i ..\..\..\src\collectn\lnkdlist.pas}
+{$i .\mkbuild.pas}
 
 
 { Main program }
