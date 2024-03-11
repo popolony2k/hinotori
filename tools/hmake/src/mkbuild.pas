@@ -17,8 +17,8 @@
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-  bOpen       : boolean;   { Make file is open }
- End;
+   bOpen       : boolean;   { Make file is open }
+ end;
 
 
 
