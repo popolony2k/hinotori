@@ -13,6 +13,8 @@
  * - ./mkbuild.pas;
  *)
 
+program hmake;
+
 {$i ..\..\..\src\system\types.pas}
 {$i ..\..\..\src\collectn\lnkdlist.pas}
 {$i .\mkbuild.pas}
@@ -21,7 +23,7 @@
 { Main program }
 
 
-Begin
+begin
   WriteLn( 'hmake - MakeFile processor.' );
   WriteLn( 'CopyLeft (c) since 2024 by Hinotori team.' );
-End.
+end.
