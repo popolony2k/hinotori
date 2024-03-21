@@ -17,7 +17,8 @@
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-   bOpen       : boolean;   { Make file is open }
+   bIsOpen     : boolean;   { Make file is open }
+   hFile       : file;      { Make file handle  }
  end;
 
 
@@ -32,8 +33,13 @@ function MkOpen( strFileName : TFileName ) : TMakeHandle;
 var 
          handle : TMakeHandle;
 begin
-  handle.bOpen := false;
-  { TODO: FINISH HIM !!! }
+
+  {$i-}
+  Assign( handle.hFile, strFileName );
+  Reset( handle.hFile );
+  {$i+}
+
+  handle.bIsOpen := ( IOResult = 0 );
   MkOpen := handle;
 end;
 
@@ -43,16 +49,16 @@ end;
  * The function will return true if the operation was successfull otherwise false;
  *)
 function MkClose( handle : TMakeHandle ) : boolean;
-var
-      bRet   : boolean;
 begin
-  if( handle.bOpen )  then
+  if( handle.bIsOpen )  then
   begin
-    { TODO: FINISH HIM !!! }
-    handle.bOpen := false;
+    {$i-}
+    close( handle.hFile );
+    {$i+}
+    handle.bIsOpen := false;
   end;
 
-  MkClose := bRet;
+  MkClose := ( IOResult = 0 );
 end;
 
 (**
@@ -65,7 +71,7 @@ function MkBuild( handle : TMakeHandle ) : boolean;
 var
       bRet   : boolean;
 begin
-  bRet := handle.bOpen;
+  bRet := handle.bIsOpen;
 
   if( bRet )  then
   begin

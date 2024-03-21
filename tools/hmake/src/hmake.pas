@@ -20,10 +20,45 @@ program hmake;
 {$i .\mkbuild.pas}
 
 
+(**
+  * Print hanle help message;
+  *)
+procedure PrintHelp;
+begin
+  WriteLn;
+  WriteLn( 'Usage - hmake <makefile>' );
+  WriteLn( '<makefile> - The file name (with path) of a valid makefile' );
+  WriteLn( 'to process;');
+  WriteLn;
+end;
+
+
 { Main program }
 
+Var 
+       handle : TMakeHandle;
 
 begin
   WriteLn( 'hmake - MakeFile processor.' );
   WriteLn( 'CopyLeft (c) since 2024 by Hinotori team.' );
+
+  if( ParamCount = 0 )  then
+    PrintHelp()
+  else
+  begin
+    handle := MkOpen( ParamStr( 1 ) );
+
+    if( handle.bIsOpen )  then
+    begin
+      if( MkBuild( handle ) )  then
+      begin
+        if( MkClose( handle ) ) then
+          WriteLn( 'Make file error on close' );
+        
+        WriteLn( 'build success' );
+      end
+      else
+        WriteLn( 'build failed' );
+    end;
+  end;
 end.
