@@ -13,11 +13,11 @@
 (**
   * The host interrupt timing.
   *)
-Type THostInterruptTiming = ( TimingUndefined, Timing50Hz, Timing60Hz );
+type THostInterruptTiming = ( TimingUndefined, Timing50Hz, Timing60Hz );
 
 
 (**
   * MSX system variables for timming control.
   *)
-Var
-         JIFFY     : Integer Absolute $FC9E; { MSX JIFFY variable  }
+var
+         JIFFY     : integer absolute $FC9E; { MSX JIFFY variable  }

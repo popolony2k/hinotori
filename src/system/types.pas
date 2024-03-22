@@ -13,69 +13,69 @@
 
 (* Module useful constants *)
 
-Const                  ctMaxPath         = 127; { Maximum path size - MSXDOS2 }
+const                  ctMaxPath         = 127; { Maximum path size - MSXDOS2 }
                        ctMaxDirName      = 11;  { Directory name entry size }
                        ctUnitializedSlot = 255; { Unitialized slot id }
 
 (**
   * New types definitions
   *)
-Type TWord          = Integer;                 { 16Bit Unsigned - reserved }
-     TInteger       = Integer;                 { Signed integer }
-     TChar          = Char;                    { Character (1 byte) }
-     TInt24         = Array[0..2] Of Byte;     { 24Bit integer }
-     TInt32         = Array[0..3] Of Byte;     { 32Bit integer }
-     TTinyString    = String[40];              { String 40 byte size }
+type TWord          = integer;                 { 16Bit Unsigned - reserved }
+     TInteger       = integer;                 { Signed integer }
+     TChar          = char;                    { Character (1 byte) }
+     TInt24         = array[0..2] of byte;     { 24Bit integer }
+     TInt32         = array[0..3] of byte;     { 32Bit integer }
+     TTinyString    = string[40];              { String 40 byte size }
      PTinyString    = ^TTinyString;            { TTinyString pointer }
-     TShortString   = String[80];              { String 80 byte size }
+     TShortString   = string[80];              { String 80 byte size }
      PShortString   = ^TShortString;           { TShortString pointer }
-     TString        = String[255];             { String 255 byte size }
+     TString        = string[255];             { String 255 byte size }
      PString        = ^TString;                { TString pointer }
-     TFileName      = String[ctMaxPath];       { File name path type }
+     TFileName      = string[ctMaxPath];       { File name path type }
      PFileName      = ^TFileName;              { TFileName pointer }
-     TDirectoryName = String[ctMaxDirName];    { Directory Name type }
+     TDirectoryName = string[ctMaxDirName];    { Directory Name type }
      PDirectoryName = ^TDirectoryName;         { TDirectoryName pointer }
-     THexadecimal   = String[2];               { Hexadecimal type }
-     Pointer        = ^Byte;                   { Pointer generic type }
-     TDynCharArray  = Array [0..0] Of Char;    { Dynamic char array }
+     THexadecimal   = string[2];               { Hexadecimal type }
+     Pointer        = ^byte;                   { Pointer generic type }
+     TDynCharArray  = array [0..0] of char;    { Dynamic char array }
      PDynCharArray  = ^TDynCharArray;          { Dynamic char array pointer }
-     TDynByteArray  = Array [0..0] Of Byte;    { Dynamic byte array }
+     TDynByteArray  = array [0..0] of byte;    { Dynamic byte array }
      PDynByteArray  = ^TDynByteArray;          { Dynamic byte array pointer }
-     TDynIntArray   = Array [0..0] Of Integer; { Dynamic int array }
+     TDynIntArray   = array [0..0] of integer; { Dynamic int array }
      PDynIntArray   = ^TDynIntArray;           { Dynamic int array pointer }
-     TDynRealArray  = Array [0..0] Of Real;    { Dynamic Real array }
+     TDynRealArray  = array [0..0] of real;    { Dynamic Real array }
      PDynRealArray  = ^TDynRealArray;          { Dynamic Real array pointer }
-     TSlotNumber    = Byte;                    { Slot identification }
+     TSlotNumber    = byte;                    { Slot identification }
 
 (**
   * Date and time structures for MSXDOS functions
   *)
-Type TTime = Record
+type TTime = record
   nHours,
   nMinutes,
   nSeconds,
-  nCentiSeconds  : Byte;
-End;
+  nCentiSeconds  : byte;
+end;
 
-Type TDate = Record
+type TDate = record
   nDay,
-  nMonth         : Byte;
-  nYear          : Integer;
-End;
+  nMonth         : byte;
+  nYear          : integer;
+end;
 
-Type TDateTime = Record
+type TDateTime = record
   date : TDate;
   time : TTime;
-End;
+end;
 
 (**
   * Z80 registers struct/union definition
   *)
-Type TRegs = Record
-  IX       : Integer;             { 16Bit index registers }
-  IY       : Integer;
+type TRegs = record
+  IX       : integer;                     { 16Bit index registers }
+  IY       : integer;
 
-  Case Byte Of    { 8Bit registers and 16Bit registers - WORD_REGS }
-    0 : ( C,B,E,D,L,H,F,A  : Byte );      { 8bit registers  }
-    1 : ( BC,DE,HL,AF      : Integer );   { 16bit registers }
-End;
+  case byte of    { 8Bit registers and 16Bit registers - WORD_REGS }
+    0 : ( C,B,E,D,L,H,F,A  : byte );      { 8bit registers  }
+    1 : ( BC,DE,HL,AF      : integer );   { 16bit registers }
+end;

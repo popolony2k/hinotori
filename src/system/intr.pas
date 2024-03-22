@@ -13,12 +13,12 @@
 (**
   * Modules types and constants.
   *)
-Type TInterruptAddress     = Array[0..2] Of Byte;   { Interrupt address }
+type TInterruptAddress     = array[0..2] of byte;   { Interrupt address }
 
 (**
   * Supported interrupt handler modes.
   *)
-Type TInterruptMode = ( SaferInterruptMode,
+type TInterruptMode = ( SaferInterruptMode,
                         FasterInterruptMode );
 
 
@@ -33,9 +33,9 @@ Type TInterruptMode = ( SaferInterruptMode,
   * implementation.
   * WARNING: Do not call this function directly.
   *)
-Procedure __SaferInterruptHandler;
-Begin
-  InLine( $F3/          { DI          }
+procedure __SaferInterruptHandler;
+begin
+  inline( $F3/          { DI          }
           $F5/          { PUSH AF     }
           $C5/          { PUSH BC     }
           $D5/          { PUSH DE     }
@@ -62,7 +62,7 @@ Begin
           $C1/          { POP BC'     }
           $F1/          { POP AF'     }
           $C3/$00/$00   { JP nnnn     } );
-End;
+end;
 
 (**
   * Interrupt handler manager used internally to call the registered interrupt
@@ -71,16 +71,16 @@ End;
   * with Turbo Pascal procedures.
   * WARNING: Do not call this function directly.
   *)
-Procedure __FasterInterruptHandler;
-Begin
-  InLine( $F3/          { DI          }
+procedure __FasterInterruptHandler;
+begin
+  inLine( $F3/          { DI          }
           $E5/          { PUSH HL     }
           $21/$00/$00/  { LD HL, word }
           $E5/          { PUSH HL     }
           $CD/$00/$00/  { CALL nnnn   }
           $E1/          { POP HL      }
           $C3/$00/$00   { JP nnnn     } );
-End;
+end;
 
 (**
   * Set a interrupt function to the interrupt vector.
@@ -101,22 +101,22 @@ End;
   * procedure. The returned value will be useful to restore the old interrupt
   * function by calling the @see RestoreInterrupt function;
   *)
-Procedure SetInterrupt( nUserIntrFnAddr,
-                        nUserParm     : Integer;
-                        interruptMode :TInterruptMode;
-                        Var aOldIntr  : TInterruptAddress );
-Var
+procedure SetInterrupt( nUserIntrFnAddr,
+                        nUserParm     : integer;
+                        interruptMode : TInterruptMode;
+                        var aOldIntr  : TInterruptAddress );
+var
         nLoUserParm,
         nHiUserParm,
         nLoUserIntrFnAddr,
         nHiUserIntrFnAddr,
         nIMIntr1,
         nIMIntr2,
-        nIMIntr3           : Byte;
-        nIntrFnAddr        : Integer;
-        aIM1Intr           : TInterruptAddress Absolute $0038;
+        nIMIntr3           : byte;
+        nIntrFnAddr        : integer;
+        aIM1Intr           : TInterruptAddress absolute $0038;
 
-Const   ctSafeLoUserParm       = 15;   { Safer interrupt parameters }
+const   ctSafeLoUserParm       = 15;   { Safer interrupt parameters }
         ctSafeHiUserParm       = 16;
         ctSafeLoUserIntrFnAddr = 19;
         ctSafeHiUserIntrFnAddr = 20;
@@ -132,11 +132,11 @@ Const   ctSafeLoUserParm       = 15;   { Safer interrupt parameters }
         ctFastIMIntr2          = 11;
         ctFastIMIntr3          = 12;
 
-Begin
+begin
   Move( aIM1Intr, aOldIntr, SizeOf( aOldIntr ) );
 
-  If( interruptMode = SaferInterruptMode )  Then
-  Begin
+  if( interruptMode = SaferInterruptMode )  then
+  begin
     nIntrFnAddr       := Addr( __SaferInterruptHandler );
     nLoUserParm       := ctSafeLoUserParm;
     nHiUserParm       := ctSafeHiUserParm;
@@ -145,9 +145,9 @@ Begin
     nIMIntr1          := ctSafeIMIntr1;
     nIMIntr2          := ctSafeIMIntr2;
     nIMIntr3          := ctSafeIMIntr3;
-  End
-  Else
-  Begin
+  end
+  else
+  begin
     nIntrFnAddr       := Addr( __FasterInterruptHandler );
     nLoUserParm       := ctFastLoUserParm;
     nHiUserParm       := ctFastHiUserParm;
@@ -156,7 +156,7 @@ Begin
     nIMIntr1          := ctFastIMIntr1;
     nIMIntr2          := ctFastIMIntr2;
     nIMIntr3          := ctFastIMIntr3;
-  End;
+  end;
 
   { Pass user parameter to the user interrupt handler }
   Mem[nIntrFnAddr+nLoUserParm] := Lo( nUserParm );
@@ -172,22 +172,22 @@ Begin
   Mem[nIntrFnAddr+nIMIntr3] := aIM1Intr[2];
 
   { Change the old interrupt handler by the new interrupt handler manager }
-  InLine( $F3 );  { DI }
+  inline( $F3 );  { DI }
   aIM1Intr[1] := Lo( nIntrFnAddr );
   aIM1Intr[2] := Hi( nIntrFnAddr );
-  InLine( $FB );  { EI }
-End;
+  inline( $FB );  { EI }
+end;
 
 (**
   * Restore the interrupt address passed by parameter.
   * @param aIntr The interrupt address to be restored;
   *)
-Procedure RestoreInterrupt( Var aIntr : TInterruptAddress );
-Var
-      aIM1Intr : TInterruptAddress Absolute $0038;
+procedure RestoreInterrupt( var aIntr : TInterruptAddress );
+var
+      aIM1Intr : TInterruptAddress absolute $0038;
 
-Begin
-  InLine( $F3 );  { DI }
+begin
+  inline( $F3 );  { DI }
   Move( aIntr, aIM1Intr, SizeOf( aIntr ) );
-  InLine( $FB );  { EI }
-End;
+  inline( $FB );  { EI }
+end;

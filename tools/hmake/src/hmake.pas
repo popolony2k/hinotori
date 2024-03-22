@@ -34,7 +34,7 @@ end;
 
 { Main program }
 
-Var 
+var 
        handle : TMakeHandle;
 
 begin
