@@ -14,13 +14,27 @@
 
 
 (**
+  * Variable data types.
+  *)
+type TVariableName  = String[10];
+     TVAriableValue = String[20];
+
+(**
+  * Variable data structure.
+  *)
+type TMakeVariablePair = record
+  strKey       : TVariableName;
+  strValue     : TVAriableValue;
+end;
+
+(**
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-   bIsOpen     : boolean;   { Make file is open }
-   hFile       : file;      { Make file handle  }
+   bIsOpen     : boolean;      { Make file is open }
+   hFile       : file;         { Make file handle  }
+   mkVars      : TLinkedList;  { Make variables    }
  end;
-
 
 
 (**
@@ -33,13 +47,16 @@ function MkOpen( strFileName : TFileName ) : TMakeHandle;
 var 
          handle : TMakeHandle;
 begin
-
   {$i-}
   Assign( handle.hFile, strFileName );
   Reset( handle.hFile );
   {$i+}
 
   handle.bIsOpen := ( IOResult = 0 );
+
+  if( handle.bIsOpen )  then
+    CreateLinkedList( handle.mkVars, sizeof( TMakeVariablePair ) );
+
   MkOpen := handle;
 end;
 
@@ -52,6 +69,7 @@ function MkClose( handle : TMakeHandle ) : boolean;
 begin
   if( handle.bIsOpen )  then
   begin
+    DestroyLinkedList( handle.mkVars );
     {$i-}
     close( handle.hFile );
     {$i+}

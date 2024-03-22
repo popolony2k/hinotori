@@ -27,8 +27,7 @@ procedure PrintHelp;
 begin
   WriteLn;
   WriteLn( 'Usage - hmake <makefile>' );
-  WriteLn( '<makefile> - The file name (with path) of a valid makefile' );
-  WriteLn( 'to process;');
+  WriteLn( '<makefile> - The file name (with path) of a valid makefile to process;');
   WriteLn;
 end;
 
@@ -39,7 +38,7 @@ Var
        handle : TMakeHandle;
 
 begin
-  WriteLn( 'hmake - MakeFile processor.' );
+  WriteLn( 'hmake - Hinotori MakeFile processor.' );
   WriteLn( 'CopyLeft (c) since 2024 by Hinotori team.' );
 
   if( ParamCount = 0 )  then
