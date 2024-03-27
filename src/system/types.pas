@@ -20,32 +20,32 @@ const                  ctMaxPath         = 127; { Maximum path size - MSXDOS2 }
 (**
   * New types definitions
   *)
-type TWord          = integer;                 { 16Bit Unsigned - reserved }
-     TInteger       = integer;                 { Signed integer }
-     TChar          = char;                    { Character (1 byte) }
-     TInt24         = array[0..2] of byte;     { 24Bit integer }
-     TInt32         = array[0..3] of byte;     { 32Bit integer }
-     TTinyString    = string[40];              { String 40 byte size }
-     PTinyString    = ^TTinyString;            { TTinyString pointer }
-     TShortString   = string[80];              { String 80 byte size }
-     PShortString   = ^TShortString;           { TShortString pointer }
-     TString        = string[255];             { String 255 byte size }
-     PString        = ^TString;                { TString pointer }
-     TFileName      = string[ctMaxPath];       { File name path type }
-     PFileName      = ^TFileName;              { TFileName pointer }
-     TDirectoryName = string[ctMaxDirName];    { Directory Name type }
-     PDirectoryName = ^TDirectoryName;         { TDirectoryName pointer }
-     THexadecimal   = string[2];               { Hexadecimal type }
-     Pointer        = ^byte;                   { Pointer generic type }
-     TDynCharArray  = array [0..0] of char;    { Dynamic char array }
-     PDynCharArray  = ^TDynCharArray;          { Dynamic char array pointer }
-     TDynByteArray  = array [0..0] of byte;    { Dynamic byte array }
-     PDynByteArray  = ^TDynByteArray;          { Dynamic byte array pointer }
-     TDynIntArray   = array [0..0] of integer; { Dynamic int array }
-     PDynIntArray   = ^TDynIntArray;           { Dynamic int array pointer }
-     TDynRealArray  = array [0..0] of real;    { Dynamic Real array }
-     PDynRealArray  = ^TDynRealArray;          { Dynamic Real array pointer }
-     TSlotNumber    = byte;                    { Slot identification }
+type TWord          = integer;                  { 16Bit Unsigned - reserved }
+     TInteger       = integer;                  { Signed integer }
+     TChar          = char;                     { Character (1 byte) }
+     TInt24         = array[0..2] of byte;      { 24Bit integer }
+     TInt32         = array[0..3] of byte;      { 32Bit integer }
+     TTinyString    = string[40];               { String 40 byte size }
+     PTinyString    = ^TTinyString;             { TTinyString pointer }
+     TShortString   = string[80];               { String 80 byte size }
+     PShortString   = ^TShortString;            { TShortString pointer }
+     TString        = string[255];              { String 255 byte size }
+     PString        = ^TString;                 { TString pointer }
+     TFileName      = string[ctMaxPath];        { File name path type }
+     PFileName      = ^TFileName;               { TFileName pointer }
+     TDirectoryName = string[ctMaxDirName];     { Directory Name type }
+     PDirectoryName = ^TDirectoryName;          { TDirectoryName pointer }
+     THexadecimal   = string[2];                { Hexadecimal type }
+     Pointer        = ^byte;                    { Pointer generic type }
+     TDynCharArray  = array [0..0] of char;     { Dynamic char array }
+     PDynCharArray  = ^TDynCharArray;           { Dynamic char array pointer }
+     TDynByteArray  = array [0..0] of byte;     { Dynamic byte array }
+     PDynByteArray  = ^TDynByteArray;           { Dynamic byte array pointer }
+     TDynIntArray   = array [0..0] of integer;  { Dynamic int array }
+     PDynIntArray   = ^TDynIntArray;            { Dynamic int array pointer }
+     TDynRealArray  = array [0..0] of real;     { Dynamic Real array }
+     PDynRealArray  = ^TDynRealArray;           { Dynamic Real array pointer }
+     TSlotNumber    = byte;                     { Slot identification }
 
 (**
   * Date and time structures for MSXDOS functions

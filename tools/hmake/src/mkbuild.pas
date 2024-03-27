@@ -17,7 +17,7 @@
   * Variable data types.
   *)
 type TVariableName  = string[10];
-     TVAriableValue = string[20];
+     TVariableValue = string[20];
 
 (**
   * Variable data structure.

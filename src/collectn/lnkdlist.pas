@@ -180,8 +180,8 @@ procedure CreateLinkedList( var list : TLinkedList; nItemSize : integer );
 begin
   list.pFirstItem   := nil;
   list.pCurrentItem := nil;
-  list.nItemSize := nItemSize;
-  list.nListSize := 0;
+  list.nItemSize  := nItemSize;
+  list.nListSize  := 0;
 end;
 
 (**
