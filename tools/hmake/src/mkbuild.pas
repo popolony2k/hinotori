@@ -87,20 +87,50 @@ end;
  *)
 function MkBuild( var handle : TMakeHandle ) : boolean;
 var
-      bRet    : boolean;
-      strLine : TString;
+      bRet      : boolean;
+      strLine   : TString;
+      chCSI     : char;
+      nCursor   : byte;
+      aCursor   : array[0..3] of char;
 
 begin
   bRet := handle.bIsOpen;
 
   if( bRet )  then
   begin
+    (* Control Sequence Introducer - On Unix is '[', on MSXDOS is empty char *)
+    chCSI       := '[';
+    nCursor     := 0;
+    aCursor[0]  := '|';
+    aCursor[1]  := '/';
+    aCursor[2]  := '-';
+    aCursor[3]  := '\';
+
+    Write( 'Processing ( )' );
+    Write( #27, chCSI, 'D' );
+  
     while( not eof( handle.hFile ) ) do
     begin
-        ReadLn( handle.hFile, strLine );
+      (*
+       * Progress indicator.
+       *)
+      Write( #27, chCSI, 'D' );
+      Write( aCursor[nCursor] );
 
-        // TODO: Parse it
+      if( nCursor = 3 )  then
+        nCursor := 0
+      else
+        nCursor := nCursor + 1;
+
+      ReadLn( handle.hFile, strLine );
+
+      // TODO: Parse it
     end;
+
+    Write( #27, chCSI, 'D' );
+    Write( '*' );
+    Write( #27, chCSI, 'C' );
+    WriteLn;
   end;
 
   MkBuild := bRet;
