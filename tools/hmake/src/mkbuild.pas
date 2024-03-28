@@ -17,35 +17,35 @@
   * Variable data types.
   *)
 type TVariableName  = string[10];
-     TVariableValue = string[20];
+     TVariableValue = TString;
 
 (**
   * Variable data structure.
   *)
 type TMakeVariablePair = record
   strKey       : TVariableName;
-  strValue     : TVAriableValue;
+  strValue     : TVariableValue;
 end;
 
 (**
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-   bIsOpen     : boolean;      { Make file is open }
-   hFile       : file;         { Make file handle  }
-   mkVars      : TLinkedList;  { Make variables    }
+   bIsOpen     : boolean;        { Make file is open }
+   hFile       : text;           { Make file handle  }
+   mkVars      : TLinkedList;    { Make variables    }
  end;
 
 
 (**
  * Open a make file for processing.
  * @param strFileName The make file name to open;
- * The function will return a @see TMakeHandle of the opened makefile
+ * @param handle A @see TMakeHandle of the opened makefile
  * that will be used to perform all make operations;
+ * The function will return true for success operation 
+ * otherwise false;
  *)
-function MkOpen( strFileName : TFileName ) : TMakeHandle;
-var 
-         handle : TMakeHandle;
+function MkOpen( strFileName : TFileName; var handle : TMakeHandle ) : boolean;
 begin
   {$i-}
   Assign( handle.hFile, strFileName );
@@ -57,7 +57,7 @@ begin
   if( handle.bIsOpen )  then
     CreateLinkedList( handle.mkVars, sizeof( TMakeVariablePair ) );
 
-  MkOpen := handle;
+  MkOpen := ( handle.bIsOpen );
 end;
 
 (**
@@ -65,13 +65,13 @@ end;
  * @param handle The handle of a makefile previously opened by @see MkOpen;
  * The function will return true if the operation was successfull otherwise false;
  *)
-function MkClose( handle : TMakeHandle ) : boolean;
+function MkClose( var handle : TMakeHandle ) : boolean;
 begin
   if( handle.bIsOpen )  then
   begin
     DestroyLinkedList( handle.mkVars );
     {$i-}
-    close( handle.hFile );
+    Close( handle.hFile );
     {$i+}
     handle.bIsOpen := false;
   end;
@@ -85,16 +85,22 @@ end;
  * @param handle The handle of a makefile previously opened by @see MkOpen;
  * The function will return true if the operation was successfull otherwise false;
  *)
-function MkBuild( handle : TMakeHandle ) : boolean;
+function MkBuild( var handle : TMakeHandle ) : boolean;
 var
-      bRet   : boolean;
+      bRet    : boolean;
+      strLine : TString;
+
 begin
   bRet := handle.bIsOpen;
 
   if( bRet )  then
   begin
-    { TODO: FINISH HIM !!! }
+    while( not eof( handle.hFile ) ) do
+    begin
+        ReadLn( handle.hFile, strLine );
 
+        // TODO: Parse it
+    end;
   end;
 
   MkBuild := bRet;

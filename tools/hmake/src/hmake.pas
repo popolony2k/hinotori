@@ -45,19 +45,19 @@ begin
     PrintHelp()
   else
   begin
-    handle := MkOpen( ParamStr( 1 ) );
-
-    if( handle.bIsOpen )  then
+    if( MkOpen( ParamStr( 1 ), handle ) ) then
     begin
       if( MkBuild( handle ) )  then
       begin
-        if( MkClose( handle ) ) then
-          WriteLn( 'Make file error on close' );
+        if( not MkClose( handle ) ) then
+          WriteLn( 'Error to close make file' );
         
-        WriteLn( 'build success' );
+        WriteLn( 'Build success' );
       end
       else
-        WriteLn( 'build failed' );
-    end;
+        WriteLn( 'Build failed' );
+    end
+    else
+      WriteLn( 'Error to open make file' );
   end;
 end.
