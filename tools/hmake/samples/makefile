@@ -1,4 +1,8 @@
-# My second makefile
+# Hinotori sample makefile for hmake
+#
+# CopyLeft (c) 1995-2024 by PopolonY2k.
+# CopyLeft (c) since 2024 by Hinotori Team.
+
 
 # Name of the project
 PROJ_NAME=printy
