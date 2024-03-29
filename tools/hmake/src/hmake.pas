@@ -17,6 +17,7 @@ program hmake;
 
 {$i ..\..\..\src\system\types.pas}
 {$i ..\..\..\src\collectn\lnkdlist.pas}
+{$i ..\..\..\src\util\helpstr.pas}
 {$i .\mkbuild.pas}
 
 

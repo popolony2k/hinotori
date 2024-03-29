@@ -10,19 +10,23 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - /util/helpstr.pas;
  *)
 
 
 (**
   * Variable data types.
   *)
-type TVariableName  = string[10];
+type PVariableName  = ^TVariableName;
+     TVariableName  = string[10];
+     PVariableValue = ^TVariableValue;
      TVariableValue = TString;
 
 (**
   * Variable data structure.
   *)
-type TMakeVariablePair = record
+type PMakeVariablePair = ^TMakeVariablePair;
+     TMakeVariablePair = record
   strKey       : TVariableName;
   strValue     : TVariableValue;
 end;
@@ -93,6 +97,59 @@ var
       nCursor   : byte;
       aCursor   : array[0..3] of char;
 
+  
+  (**
+    * Parse all make file valid tokens;
+    * If the parsing is successful bRet is set to true
+    * otherwise false;
+    *)
+  procedure __Parse;
+  var
+        nCount    : integer;
+        pItem     : PLinkedListItem;
+        tokenList : TLinkedList;
+        pair      : TMakeVariablePair;
+        pPair     : PMakeVariablePair;
+
+  begin
+    CreateLinkedList( tokenList, sizeof( TVariableValue ) );
+    nCount := SplitString( strLine, '=', tokenList );
+    WriteLn( 'NumItems -> ', nCount );
+
+    if( nCount > 0 )  then
+    begin
+      nCount := 0;
+      pItem  := GetFirstLinkedListItem( tokenList );
+
+      while( pItem <> nil )  do
+      begin
+        if( ( nCount mod 2 ) = 0 )  then
+          pair.strKey := PVariableName( pItem^.pValue )^
+        else
+        begin
+          pair.strValue := PVariableValue( pItem^.pValue )^;
+          AddLinkedListItem( handle.mkVars, {Ptr}( Addr( pair ) ) );
+        end;
+
+        nCount := Succ( nCount );
+        pItem  := GetNextLinkedListItem( tokenList );
+      end;
+      
+      pItem := GetFirstLinkedListItem( handle.mkVars );
+
+      while( pItem <> nil )  do
+      begin
+        pPair  := PMakeVariablePair( pItem^.pValue );
+        WriteLn( 'Item Key   -> ', pPair^.strKey );
+        WriteLn( 'Item Value -> ', pPair^.strValue );
+        pItem := GetNextLinkedListItem( handle.mkVars );
+      end;
+    end;
+  end;
+
+(*
+ * MkNuid main routine
+ *)
 begin
   bRet := handle.bIsOpen;
 
@@ -109,7 +166,7 @@ begin
     Write( 'Processing ( )' );
     Write( #27, chCSI, 'D' );
   
-    while( not eof( handle.hFile ) ) do
+    while( bRet and not eof( handle.hFile ) ) do
     begin
       (*
        * Progress indicator.
@@ -123,8 +180,7 @@ begin
         nCursor := nCursor + 1;
 
       ReadLn( handle.hFile, strLine );
-
-      // TODO: Parse it
+      __Parse;
     end;
 
     Write( #27, chCSI, 'D' );

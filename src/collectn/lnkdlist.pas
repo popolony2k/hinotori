@@ -217,3 +217,32 @@ begin
     nListSize    := 0;
   end;
 end;
+
+(**
+  * Append a source list into a destination list.
+  * @param dstList The destination list;
+  * @param srcList The source list;
+  *)
+function AppendLinkedList( var dstList, srcList : TLinkedList ) : boolean;
+var
+       pItem  : PLinkedListItem;
+       bRet   : boolean;
+
+begin
+  bRet := ( srcList.nListSize > 0 );
+
+  if( bRet )  then
+  begin
+    pItem := GetFirstLinkedListItem( srcList );
+
+    while( bRet and ( pItem <> nil ) ) do
+    begin
+      bRet := AddLinkedListItem( dstList, pItem^.pValue );
+
+      if( bRet )  then
+        pItem := GetNextLinkedListItem( srcList );
+    end;
+  end;
+
+  AppendLinkedList := bRet;
+end;
