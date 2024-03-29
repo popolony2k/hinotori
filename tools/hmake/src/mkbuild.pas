@@ -15,29 +15,39 @@
 
 
 (**
-  * Variable data types.
+  * Variable data struct.
   *)
-type PVariableName  = ^TVariableName;
-     TVariableName  = string[10];
-     PVariableValue = ^TVariableValue;
-     TVariableValue = TString;
+type PIdentifierName  = ^TIdentifierName;
+     TIdentifierName  = string[10];
+     PIdentifierValue = ^TIdentifierValue;
+     TIdentifierValue = TString;
 
 (**
   * Variable data structure.
   *)
 type PMakeVariablePair = ^TMakeVariablePair;
      TMakeVariablePair = record
-  strKey       : TVariableName;
-  strValue     : TVariableValue;
+  strName       : TIdentifierName;
+  strContent    : TIdentifierValue;
+end;
+
+(**
+  * Label data structure.
+  *)
+type PLabelContent = ^TLabelContent;
+     TLabelContent = record
+  strName       : TIdentifierName;
+  commands      : TLinkedList;
 end;
 
 (**
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-   bIsOpen     : boolean;        { Make file is open }
-   hFile       : text;           { Make file handle  }
-   mkVars      : TLinkedList;    { Make variables    }
+   bIsOpen     : boolean;        { Make file is open  }
+   hFile       : text;           { Make file handle   }
+   mkVars      : TLinkedList;    { Make variable list }
+   mkLabels    : TLinkedList;    { Make label list    }
  end;
 
 
@@ -59,7 +69,10 @@ begin
   handle.bIsOpen := ( IOResult = 0 );
 
   if( handle.bIsOpen )  then
+  begin
     CreateLinkedList( handle.mkVars, sizeof( TMakeVariablePair ) );
+    CreateLinkedList( handle.mkLabels, sizeof( TLabelContent ) );
+  end;
 
   MkOpen := ( handle.bIsOpen );
 end;
@@ -111,7 +124,7 @@ var
         pair      : TMakeVariablePair;
 
   begin
-    CreateLinkedList( tokenList, sizeof( TVariableValue ) );
+    CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
     nCount := SplitString( strLine, '=', tokenList );
     WriteLn( 'NumItems -> ', nCount );
 
@@ -123,10 +136,10 @@ var
       while( pItem <> nil )  do
       begin
         if( ( nCount mod 2 ) = 0 )  then
-          Move( pItem^.pValue^, pair.strKey, sizeof( pair.strKey ) )
+          Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
         else
         begin
-          Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
+          Move( pItem^.pValue^, pair.strContent, sizeof( pair.strContent ) );
           AddLinkedListItem( handle.mkVars, {Ptr}( Addr( pair ) ) );
         end;
 
@@ -139,8 +152,8 @@ var
       while( pItem <> nil )  do
       begin
         Move( pItem^.pValue^, pair, sizeof( pair ) );
-        WriteLn( 'Item Key   -> ', pair.strKey );
-        WriteLn( 'Item Value -> ', pair.strValue );
+        WriteLn( 'Item Name    -> ', pair.strName );
+        WriteLn( 'Item Content -> ', pair.strContent );
         pItem := GetNextLinkedListItem( handle.mkVars );
       end;
     end;
