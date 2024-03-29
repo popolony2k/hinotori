@@ -124,10 +124,10 @@ var
       while( pItem <> nil )  do
       begin
         if( ( nCount mod 2 ) = 0 )  then
-          pair.strKey := PVariableName( pItem^.pValue )^
+          Move( pItem^.pValue^, pair.strKey, sizeof( pair.strKey ) )
         else
         begin
-          pair.strValue := PVariableValue( pItem^.pValue )^;
+          Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
           AddLinkedListItem( handle.mkVars, {Ptr}( Addr( pair ) ) );
         end;
 
