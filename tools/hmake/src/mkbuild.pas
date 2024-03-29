@@ -109,7 +109,6 @@ var
         pItem     : PLinkedListItem;
         tokenList : TLinkedList;
         pair      : TMakeVariablePair;
-        pPair     : PMakeVariablePair;
 
   begin
     CreateLinkedList( tokenList, sizeof( TVariableValue ) );
@@ -139,9 +138,9 @@ var
 
       while( pItem <> nil )  do
       begin
-        pPair  := PMakeVariablePair( pItem^.pValue );
-        WriteLn( 'Item Key   -> ', pPair^.strKey );
-        WriteLn( 'Item Value -> ', pPair^.strValue );
+        Move( pItem^.pValue^, pair, sizeof( pair ) );
+        WriteLn( 'Item Key   -> ', pair.strKey );
+        WriteLn( 'Item Value -> ', pair.strValue );
         pItem := GetNextLinkedListItem( handle.mkVars );
       end;
     end;
