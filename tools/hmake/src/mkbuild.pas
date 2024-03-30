@@ -104,8 +104,8 @@ end;
  *)
 function MkBuild( var handle : TMakeHandle ) : boolean;
 var
-      bRet      : boolean;
       strLine   : TString;
+      bRet      : boolean;
       chCSI     : char;
       nCursor   : byte;
       aCursor   : array[0..3] of char;
@@ -179,7 +179,7 @@ var
   end;
 
 (*
- * MkNuid main routine
+ * MkBuid main routine
  *)
 begin
   bRet := handle.bIsOpen;
