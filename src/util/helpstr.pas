@@ -108,16 +108,14 @@ end;
 function Trim( strText: TString ) : TString;
 var
       nFirstPos, 
-      nLastPos   : integer;
+      nLastPos    : integer;
 
 begin
   nFirstPos := 1;
+  nLastPos  := Length( strText );
 
-  while( ( nFirstPos <= Length( strText ) ) and 
-         ( strText[nFirstPos] = #32 ) ) do
+  while( ( nFirstPos <= nLastPos ) and ( strText[nFirstPos] = #32 ) ) do
     nFirstPos := Succ( nFirstPos );
-
-  nLastPos := Length( strText );
 
   while( ( nLastPos >= 1 ) and ( strText[nLastPos] = #32 ) ) do
     nLastPos := Pred( nLastPos );
