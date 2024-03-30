@@ -9,3 +9,4 @@ Work in Progress
     - All environment variables are inherited by makefile scripts;
     https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment.
 7. Implement include on makefiles (check this);
+8. Excuting commands;
