@@ -110,6 +110,23 @@ var
       nCursor   : byte;
       aCursor   : array[0..3] of char;
 
+
+  (**
+   * Show progress indicator.
+   *)
+  procedure __DoProgress;
+  begin
+    (*
+      * Progress indicator.
+      *)
+    Write( #27, chCSI, 'D' );
+    Write( aCursor[nCursor] );
+
+    if( nCursor = 3 )  then
+      nCursor := 0
+    else
+      nCursor := nCursor + 1;
+  end;
   
   (**
     * Parse all make file valid tokens;
@@ -145,6 +162,8 @@ var
 
         nCount := Succ( nCount );
         pItem  := GetNextLinkedListItem( tokenList );
+
+        __DoProgress;
       end;
       
       pItem := GetFirstLinkedListItem( handle.mkVars );
@@ -180,17 +199,6 @@ begin
   
     while( bRet and not eof( handle.hFile ) ) do
     begin
-      (*
-       * Progress indicator.
-       *)
-      Write( #27, chCSI, 'D' );
-      Write( aCursor[nCursor] );
-
-      if( nCursor = 3 )  then
-        nCursor := 0
-      else
-        nCursor := nCursor + 1;
-
       ReadLn( handle.hFile, strLine );
       __Parse;
     end;
