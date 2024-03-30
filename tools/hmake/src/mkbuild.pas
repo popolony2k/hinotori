@@ -154,6 +154,7 @@ var
       begin
         { TODO : TRIM !!! }
         strValue := Copy( strValue, 1, ( nPos - 1 ) );
+        strValue := Trim( strValue );
         { TODO: implement variable reference (or copy) }
         bRet := __ReadFile;
 
@@ -171,7 +172,7 @@ var
           if( bMustRead )  then
           begin
             { TODO: implement variable reference (or copy) }
-            strValue := strValue + strLine;
+            strValue := strValue + ' ' + Trim( strLine );
           end;
         end
         else

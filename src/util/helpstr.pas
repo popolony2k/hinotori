@@ -91,7 +91,7 @@ end;
   * Convert the specified string to an upper case string.
   * @param strString The string that will be converted;
   *)
-function UpperCase( strString : TString ) : TString;
+function UpperCase( var strString : TString ) : TString;
 var
        nCount  : Byte;
 begin
@@ -99,4 +99,28 @@ begin
     strString[nCount] := UpCase( strString[nCount] );
 
   UpperCase := strString;
+end;
+
+(**
+  * Trim leading ad trailing spaces of a string;
+  * @param strText The text to be trimmed;
+  *)
+function Trim( strText: TString ) : TString;
+var
+      nFirstPos, 
+      nLastPos   : integer;
+
+begin
+  nFirstPos := 1;
+
+  while( ( nFirstPos <= Length( strText ) ) and 
+         ( strText[nFirstPos] = #32 ) ) do
+    nFirstPos := Succ( nFirstPos );
+
+  nLastPos := Length( strText );
+
+  while( ( nLastPos >= 1 ) and ( strText[nLastPos] = #32 ) ) do
+    nLastPos := Pred( nLastPos );
+
+  Trim := Copy( strText, nFirstPos, ( nLastPos - nFirstPos + 1 ) );
 end;
