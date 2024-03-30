@@ -35,10 +35,11 @@ end;
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-   bIsOpen     : boolean;        { Make file is open  }
-   hFile       : text;           { Make file handle   }
-   mkVars      : TLinkedList;    { Make variable list }
-   mkTargets   : TLinkedList;    { Make targets list  }
+   bIsOpen      : boolean;        { Make file is open     }
+   hFile        : text;           { Make file handle      }
+   mkVars       : TLinkedList;    { Make variable list    }
+   mkTargets    : TLinkedList;    { Make targets list     }
+   strLastError : TString;        { Last processing error }        
  end;
 
 
@@ -153,6 +154,7 @@ var
       begin
         { TODO : TRIM !!! }
         strValue := Copy( strValue, 1, ( nPos - 1 ) );
+        { TODO: implement variable reference (or copy) }
         bRet := __ReadFile;
 
         if( bRet )  then
@@ -171,7 +173,9 @@ var
             { TODO: implement variable reference (or copy) }
             strValue := strValue + strLine;
           end;
-        end;
+        end
+        else
+          handle.strLastError := 'Error reading makefile';
       end;
     until( not bRet or ( nPos <= 0 ) );
 

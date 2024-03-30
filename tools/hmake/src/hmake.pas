@@ -56,7 +56,8 @@ begin
         WriteLn( 'Build success' );
       end
       else
-        WriteLn( 'Build failed' );
+        WriteLn( 'Build failed with following error:' );
+        WriteLn( '[' + handle.strLastError + ']');
     end
     else
       WriteLn( 'Error to open make file' );
