@@ -10,6 +10,6 @@ Work in progress
 
 Check the following file below:
 
-![WIP document](./docs/wip.txt)
+[WIP document](./docs/wip.txt)
 
 Hinotori Team
