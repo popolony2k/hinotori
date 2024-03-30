@@ -23,21 +23,12 @@ type PIdentifierName  = ^TIdentifierName;
      TIdentifierValue = TString;
 
 (**
-  * Variable data structure.
+  * Identifier data structure.
   *)
-type PMakeVariablePair = ^TMakeVariablePair;
-     TMakeVariablePair = record
-  strName       : TIdentifierName;
-  strContent    : TIdentifierValue;
-end;
-
-(**
-  * Label data structure.
-  *)
-type PLabelContent = ^TLabelContent;
-     TLabelContent = record
-  strName       : TIdentifierName;
-  commands      : TLinkedList;
+type PIdentifierPair = ^TIdentifierPair;
+     TIdentifierPair = record
+  strName     : TIdentifierName;
+  strValue    : TIdentifierValue;
 end;
 
 (**
@@ -47,7 +38,7 @@ end;
    bIsOpen     : boolean;        { Make file is open  }
    hFile       : text;           { Make file handle   }
    mkVars      : TLinkedList;    { Make variable list }
-   mkLabels    : TLinkedList;    { Make label list    }
+   mkTargets   : TLinkedList;    { Make targets list  }
  end;
 
 
@@ -70,8 +61,8 @@ begin
 
   if( handle.bIsOpen )  then
   begin
-    CreateLinkedList( handle.mkVars, sizeof( TMakeVariablePair ) );
-    CreateLinkedList( handle.mkLabels, sizeof( TLabelContent ) );
+    CreateLinkedList( handle.mkVars, sizeof( TIdentifierPair ) );
+    CreateLinkedList( handle.mkTargets, sizeof( TIdentifierPair ) );
   end;
 
   MkOpen := ( handle.bIsOpen );
@@ -105,6 +96,7 @@ end;
 function MkBuild( var handle : TMakeHandle ) : boolean;
 var
       strLine   : TString;
+      bMustRead : boolean;
       bRet      : boolean;
       chCSI     : char;
       nCursor   : byte;
@@ -127,22 +119,84 @@ var
     else
       nCursor := nCursor + 1;
   end;
+
+  (**
+    * Read comtent from file.
+    * The function return true when operation is success
+    * otherwise false;
+    *)
+  function __ReadFile : boolean;
+  begin
+      {$i-}
+      ReadLn( handle.hFile, strLine );
+      {$i+}
+      __ReadFile := ( IOResult = 0 );
+  end;
   
+  (**
+    * Parse identifier value.
+    * @param strValue The value that will be parsed and the content
+    * will return into the same variable;  
+    *)
+  function __ParseValue( var strValue : TString ) : boolean;
+  var
+         nPos   : integer;
+         bRet   : boolean;
+
+  begin
+    bRet := true;
+
+    repeat
+      nPos := Pos( '\', strValue );
+
+      if( nPos > 0 )  then
+      begin
+        { TODO : TRIM !!! }
+        strValue := Copy( strValue, 1, ( nPos - 1 ) );
+        bRet := __ReadFile;
+
+        if( bRet )  then
+        begin
+          nPos := Pos( '\', strLine );
+
+          (*
+           * Already read data from file, process in the next loop.
+           *)
+          if( nPos <= 0 )  then
+            bMustRead := ( ( Pos( ':', strLine ) = 0 ) and 
+                           ( Pos( '=', strLine ) = 0 ) );
+
+          if( bMustRead )  then
+          begin
+            { TODO: implement variable reference (or copy) }
+            strValue := strValue + strLine;
+          end;
+        end;
+      end;
+    until( not bRet or ( nPos <= 0 ) );
+
+    __ParseValue := bRet;  
+  end;
+
   (**
     * Parse all make file valid tokens;
     * If the parsing is successful bRet is set to true
     * otherwise false;
     *)
-  procedure __Parse;
+  function __Parse : boolean;
   var
         nCount    : integer;
+        bRet      : boolean;
         pItem     : PLinkedListItem;
         tokenList : TLinkedList;
-        pair      : TMakeVariablePair;
+        pair      : TIdentifierPair;
 
   begin
     CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
-    nCount := SplitString( strLine, '=', tokenList );
+    nCount    := SplitString( strLine, '=', tokenList );
+    bRet      := true;
+    bMustRead := true;
+    
     WriteLn( 'NumItems -> ', nCount );
 
     if( nCount > 0 )  then
@@ -150,32 +204,43 @@ var
       nCount := 0;
       pItem  := GetFirstLinkedListItem( tokenList );
 
-      while( pItem <> nil )  do
+      while( bRet and ( pItem <> nil ) )  do
       begin
         if( ( nCount mod 2 ) = 0 )  then
           Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
         else
         begin
-          Move( pItem^.pValue^, pair.strContent, sizeof( pair.strContent ) );
-          AddLinkedListItem( handle.mkVars, {Ptr}( Addr( pair ) ) );
+          Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
+
+          if( __ParseValue( pair.strValue ) )  then
+            AddLinkedListItem( handle.mkVars, {Ptr}( Addr( pair ) ) )
+          else
+            bRet := false;
         end;
 
-        nCount := Succ( nCount );
-        pItem  := GetNextLinkedListItem( tokenList );
-
-        __DoProgress;
+        if( bRet )  then
+        begin
+          nCount := Succ( nCount );
+          pItem  := GetNextLinkedListItem( tokenList );
+          __DoProgress;
+        end;
       end;
       
-      pItem := GetFirstLinkedListItem( handle.mkVars );
-
-      while( pItem <> nil )  do
+      if( bRet )  then
       begin
-        Move( pItem^.pValue^, pair, sizeof( pair ) );
-        WriteLn( 'Item Name    -> ', pair.strName );
-        WriteLn( 'Item Content -> ', pair.strContent );
-        pItem := GetNextLinkedListItem( handle.mkVars );
+        pItem := GetFirstLinkedListItem( handle.mkVars );
+
+        while( pItem <> nil )  do
+        begin
+          Move( pItem^.pValue^, pair, sizeof( pair ) );
+          WriteLn( 'Item Name  -> ', pair.strName );
+          WriteLn( 'Item Value -> ', pair.strValue );
+          pItem := GetNextLinkedListItem( handle.mkVars );
+        end;
       end;
     end;
+
+    __Parse := bRet;
   end;
 
 (*
@@ -193,14 +258,18 @@ begin
     aCursor[1]  := '/';
     aCursor[2]  := '-';
     aCursor[3]  := '\';
+    bMustRead   := true;
 
     Write( 'Processing ( )' );
     Write( #27, chCSI, 'D' );
   
     while( bRet and not eof( handle.hFile ) ) do
     begin
-      ReadLn( handle.hFile, strLine );
-      __Parse;
+      if( bMustRead )  then
+        bRet := __ReadFile;
+
+      if( bRet )  then
+        bRet := __Parse;
     end;
 
     Write( #27, chCSI, 'D' );

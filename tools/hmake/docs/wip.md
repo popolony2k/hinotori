@@ -1,7 +1,7 @@
 Work in Progress
 
-1. Label storage implementation; 
-2. Implement multi-line variable content parsing (\) and storing;
+1. Implement multi-line variable content parsing (\) and storing; (WIP)
+2. Targets implementation; 
 3. Variable reference (macro substitution or linked list item reference ??) through $(var_name) on labels or another variable;
 4. Implement wildcard processing (eg. $(wildcard *.c));
 5. Implement remark processing (#);
