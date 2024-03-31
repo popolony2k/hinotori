@@ -15,6 +15,13 @@
 
 
 (**
+  * Identifier type
+  *)
+type TIdentifierType = ( IDENT_VARIABLE, 
+                         IDENT_TARGETS, 
+                         IDENT_COMMAND );
+
+(**
   * Variable data struct.
   *)
 type PIdentifierName  = ^TIdentifierName;
@@ -29,17 +36,17 @@ type PIdentifierPair = ^TIdentifierPair;
      TIdentifierPair = record
   strName     : TIdentifierName;
   strValue    : TIdentifierValue;
+  identType   : TIdentifierType;
 end;
 
 (**
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
-   bIsOpen      : boolean;        { Make file is open     }
-   hFile        : text;           { Make file handle      }
-   mkVars       : TLinkedList;    { Make variable list    }
-   mkTargets    : TLinkedList;    { Make targets list     }
-   strLastError : TString;        { Last processing error }        
+   bIsOpen       : boolean;        { Make file is open     }
+   hFile         : text;           { Make file handle      }
+   lstIdentifier : TLinkedList;    { Make variable list    }
+   strLastError  : TString;        { Last processing error }        
  end;
 
 
@@ -62,8 +69,7 @@ begin
 
   if( handle.bIsOpen )  then
   begin
-    CreateLinkedList( handle.mkVars, sizeof( TIdentifierPair ) );
-    CreateLinkedList( handle.mkTargets, sizeof( TIdentifierPair ) );
+    CreateLinkedList( handle.lstIdentifier, sizeof( TIdentifierPair ) );
   end;
 
   MkOpen := ( handle.bIsOpen );
@@ -78,7 +84,7 @@ function MkClose( var handle : TMakeHandle ) : boolean;
 begin
   if( handle.bIsOpen )  then
   begin
-    DestroyLinkedList( handle.mkVars );
+    DestroyLinkedList( handle.lstIdentifier );
     {$i-}
     Close( handle.hFile );
     {$i+}
@@ -119,6 +125,33 @@ var
       nCursor := 0
     else
       nCursor := nCursor + 1;
+  end;
+
+  (**
+    * Find the identifier based on its name;
+    * @param strName The identifier name to find;
+    * The function return the pointer to the requested identifier or
+    * nil if not found;
+    *)
+  function __FindIdentifier( var strName : TString ) : PIdentifierPair;
+  var
+        pItem  : PLinkedListItem;
+        pPair  : PIdentifierPair;
+        bFound : boolean;
+         
+  begin
+    bFound := false;
+    pItem  := GetFirstLinkedListItem( handle.lstIdentifier );
+
+    while( not bFound and ( pItem <> nil ) ) do
+    begin
+      pItem  := GetNextLinkedListItem( handle.lstIdentifier );
+      pPair  := {Ptr}( Addr( pItem^.pValue ) );
+      bFound := ( pPair^.strName = strName );
+    end;
+
+    if( not bFound )  then
+      pPair := nil;
   end;
 
   (**
@@ -194,12 +227,14 @@ var
         pItem     : PLinkedListItem;
         tokenList : TLinkedList;
         pair      : TIdentifierPair;
+        identType : TIdentifierType;
 
   begin
     CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
     nCount    := SplitString( strLine, '=', tokenList );
     bRet      := true;
     bMustRead := true;
+    identType := TIdentifierType.IDENT_VARIABLE;
     
     WriteLn( 'NumItems -> ', nCount );
 
@@ -210,6 +245,8 @@ var
 
       while( bRet and ( pItem <> nil ) )  do
       begin
+        pair.identType := identType;
+
         if( ( nCount mod 2 ) = 0 )  then
           Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
         else
@@ -217,7 +254,7 @@ var
           Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
 
           if( __ParseValue( pair.strValue ) )  then
-            AddLinkedListItem( handle.mkVars, {Ptr}( Addr( pair ) ) )
+            AddLinkedListItem( handle.lstIdentifier, {Ptr}( Addr( pair ) ) )
           else
             bRet := false;
         end;
@@ -232,14 +269,14 @@ var
       
       if( bRet )  then
       begin
-        pItem := GetFirstLinkedListItem( handle.mkVars );
+        pItem := GetFirstLinkedListItem( handle.lstIdentifier );
 
         while( pItem <> nil )  do
         begin
           Move( pItem^.pValue^, pair, sizeof( pair ) );
           WriteLn( 'Item Name  -> ', pair.strName );
           WriteLn( 'Item Value -> ', pair.strValue );
-          pItem := GetNextLinkedListItem( handle.mkVars );
+          pItem := GetNextLinkedListItem( handle.lstIdentifier );
         end;
       end;
     end;
