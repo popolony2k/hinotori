@@ -1,6 +1,7 @@
 Work in Progress
 
 1. Implement multi-line variable content parsing (\) and storing; (WIP)
+    - Macro substitution on variables;
 2. Targets implementation; 
 3. Variable reference (macro substitution or linked list item reference ??) through $(var_name) on labels or another variable;
 4. Implement wildcard processing (eg. $(wildcard *.c));
