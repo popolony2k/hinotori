@@ -152,7 +152,6 @@ var
 
       if( nPos > 0 )  then
       begin
-        { TODO : TRIM !!! }
         strValue := Copy( strValue, 1, ( nPos - 1 ) );
         strValue := Trim( strValue );
         { TODO: implement variable reference (or copy) }
