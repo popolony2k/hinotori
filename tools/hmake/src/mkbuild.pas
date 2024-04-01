@@ -131,13 +131,15 @@ end;
  * The function will return true if the operation was successfull otherwise false;
  *)
 function MkBuild( var handle : TMakeHandle ) : boolean;
+const 
+       __ctCSI   = '['; { Control Sequence Introducer.
+                          On Unix is '[', on MSXDOS is empty char }
 var
-      strLine   : TString;
-      bMustRead : boolean;
-      bRet      : boolean;
-      chCSI     : char;
-      nCursor   : byte;
-      aCursor   : array[0..3] of char;
+       strLine   : TString;
+       bMustRead : boolean;
+       bRet      : boolean;
+       nCursor   : byte;
+       aCursor   : array[0..3] of char;
 
 
   (**
@@ -148,7 +150,7 @@ var
     (*
       * Progress indicator.
       *)
-    Write( #27, chCSI, 'D' );
+    Write( #27, __ctCSI, 'D' );
     Write( aCursor[nCursor] );
 
     if( nCursor = 3 )  then
@@ -381,8 +383,6 @@ begin
 
   if( bRet )  then
   begin
-    (* Control Sequence Introducer - On Unix is '[', on MSXDOS is empty char *)
-    chCSI       := '[';
     nCursor     := 0;
     aCursor[0]  := '|';
     aCursor[1]  := '/';
@@ -391,7 +391,7 @@ begin
     bMustRead   := true;
 
     Write( 'Processing ( )' );
-    Write( #27, chCSI, 'D' );
+    Write( #27, __ctCSI, 'D' );
   
     while( bRet and not eof( handle.hFile ) ) do
     begin
@@ -402,9 +402,9 @@ begin
         bRet := __Parse;
     end;
 
-    Write( #27, chCSI, 'D' );
+    Write( #27, __ctCSI, 'D' );
     Write( '*' );
-    Write( #27, chCSI, 'C' );
+    Write( #27, __ctCSI, 'C' );
     WriteLn;
   end;
 
