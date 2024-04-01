@@ -19,7 +19,8 @@
   *)
 type TIdentifierType = ( IDENT_VARIABLE, 
                          IDENT_TARGETS, 
-                         IDENT_COMMAND );
+                         IDENT_COMMAND,
+                         IDENT_REMARK );
 
 (**
   * Variable data struct.
@@ -49,6 +50,35 @@ end;
    strLastError  : TString;        { Last processing error }        
  end;
 
+
+(**
+  * Helper function used by debug only operations,
+  * @param handle reference to a valid TMakeHandle with data;
+  *)
+procedure __PrintDebug( var handle : TMakeHandle );
+var
+    pItem     : PLinkedListItem;
+    pair      : TIdentifierPair;
+
+begin
+  pItem := GetFirstLinkedListItem( handle.lstIdentifier );
+
+  while( pItem <> nil )  do
+  begin
+    Move( pItem^.pValue^, pair, sizeof( pair ) );
+    WriteLn( 'Item Name  -> ', pair.strName );
+    WriteLn( 'Item Value -> ', pair.strValue );
+    Write( 'Item type    -> ' );
+
+    case pair.identType of
+      TIdentifierType.IDENT_COMMAND  : WriteLn( 'COMMAND' );
+      TIdentifierType.IDENT_REMARK   : WriteLn( 'REMARK' );
+      TIdentifierType.IDENT_TARGETS  : WriteLn( 'TARGETS' );
+      TIdentifierType.IDENT_VARIABLE : WriteLn( 'VARIABLE' );
+    end;
+    pItem := GetNextLinkedListItem( handle.lstIdentifier );
+  end;
+end;
 
 (**
  * Open a make file for processing.
@@ -128,6 +158,76 @@ var
   end;
 
   (**
+    * Read comtent from file.
+    * The function return true when operation is success
+    * otherwise false;
+    *)
+  function __ReadFile : boolean;
+  begin
+      {$i-}
+      ReadLn( handle.hFile, strLine );
+      {$i+}
+      __ReadFile := ( IOResult = 0 );
+  end;
+
+  (**
+    * Check identifier type.
+    * @param strToken The token to be checked;
+    *)
+  function __CheckIdentifier( var strToken : TString ) : TIdentifierType;
+  var
+        identType : TIdentifierType;
+        nPosToken : integer;
+        nPosRem   : integer;
+        nDiff     : integer;
+
+  begin
+    (* Check variables *)
+    nPosToken := Pos( '=', strToken );
+    nPosRem   := Pos( '#', strToken );
+    nDiff     := ( nPosRem - nPosToken );
+
+    (* Check targets and command *)
+    if( nDiff = 0 )  then
+    begin
+      nPosToken := Pos( ':', strToken );
+      nPosRem   := Pos( '#', strToken );
+      nDiff     := ( nPosRem - nPosToken );
+
+      if( nDiff = 0 )  then
+        identType := TIdentifierType.IDENT_COMMAND
+      else
+      begin
+        if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
+            ( ( nPosRem > 0 ) and ( nDiff < 0 ) ) ) then
+          identType := TIdentifierType.IDENT_REMARK
+        else
+        begin
+          identType := TIdentifierType.IDENT_TARGETS;
+
+          if( ( nDiff > 0 ) and ( nPosRem < nPosToken) )  then
+            identType := TIdentifierType.IDENT_REMARK;
+        end;
+      end;
+    end
+    else
+    begin
+      if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
+          ( ( nPosRem > 0 ) and ( nDiff < 0 ) ) ) then
+        identType := TIdentifierType.IDENT_REMARK
+      else
+      begin
+        identType := TIdentifierType.IDENT_VARIABLE;
+
+        if( ( nDiff > 0 ) and ( nPosRem < nPosToken ) )  then
+          identType := TIdentifierType.IDENT_REMARK;
+      end;
+    end;
+
+    __CheckIdentifier := identType;
+  end;
+
+  (**
     * Find the identifier based on its name;
     * @param strName The identifier name to find;
     * The function return the pointer to the requested identifier or
@@ -154,19 +254,6 @@ var
       pPair := nil;
   end;
 
-  (**
-    * Read comtent from file.
-    * The function return true when operation is success
-    * otherwise false;
-    *)
-  function __ReadFile : boolean;
-  begin
-      {$i-}
-      ReadLn( handle.hFile, strLine );
-      {$i+}
-      __ReadFile := ( IOResult = 0 );
-  end;
-  
   (**
     * Parse identifier value.
     * @param strValue The value that will be parsed and the content
@@ -224,62 +311,64 @@ var
   var
         nCount    : integer;
         bRet      : boolean;
+        chToken   : char;
         pItem     : PLinkedListItem;
         tokenList : TLinkedList;
         pair      : TIdentifierPair;
         identType : TIdentifierType;
 
   begin
-    CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
-    nCount    := SplitString( strLine, '=', tokenList );
     bRet      := true;
     bMustRead := true;
-    identType := TIdentifierType.IDENT_VARIABLE;
-    
-    WriteLn( 'NumItems -> ', nCount );
+    identType := __CheckIdentifier( strLine );
 
-    if( nCount > 0 )  then
-    begin
-      nCount := 0;
-      pItem  := GetFirstLinkedListItem( tokenList );
-
-      while( bRet and ( pItem <> nil ) )  do
-      begin
-        pair.identType := identType;
-
-        if( ( nCount mod 2 ) = 0 )  then
-          Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
-        else
-        begin
-          Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
-
-          if( __ParseValue( pair.strValue ) )  then
-            AddLinkedListItem( handle.lstIdentifier, {Ptr}( Addr( pair ) ) )
-          else
-            bRet := false;
-        end;
-
-        if( bRet )  then
-        begin
-          nCount := Succ( nCount );
-          pItem  := GetNextLinkedListItem( tokenList );
-          __DoProgress;
-        end;
-      end;
-      
-      if( bRet )  then
-      begin
-        pItem := GetFirstLinkedListItem( handle.lstIdentifier );
-
-        while( pItem <> nil )  do
-        begin
-          Move( pItem^.pValue^, pair, sizeof( pair ) );
-          WriteLn( 'Item Name  -> ', pair.strName );
-          WriteLn( 'Item Value -> ', pair.strValue );
-          pItem := GetNextLinkedListItem( handle.lstIdentifier );
-        end;
-      end;
+    case identType of
+      TIdentifierType.IDENT_VARIABLE :  chToken := '=';
+      TIdentifierType.IDENT_TARGETS  :  chToken := ':'; 
     end;
+
+    if( identType in [ TIdentifierType.IDENT_VARIABLE, 
+                       TIdentifierType.IDENT_TARGETS ] )  then
+      begin
+        CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
+        nCount := SplitString( strLine, chToken, tokenList );
+        
+        if( nCount > 0 )  then
+        begin
+          nCount := 0;
+          pItem  := GetFirstLinkedListItem( tokenList );
+
+          while( bRet and ( pItem <> nil ) )  do
+          begin
+            pair.identType := identType;
+
+            if( ( nCount mod 2 ) = 0 )  then
+              Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
+            else
+            begin
+              Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
+
+              if( __ParseValue( pair.strValue ) )  then
+                AddLinkedListItem( handle.lstIdentifier, {Ptr}( Addr( pair ) ) )
+              else
+                bRet := false;
+            end;
+
+            if( bRet )  then
+            begin
+              nCount := Succ( nCount );
+              pItem  := GetNextLinkedListItem( tokenList );
+              __DoProgress;
+            end;
+          end;         
+        end;
+
+        DestroyLinkedList( tokenList );
+      end
+      else
+      begin
+        { TODO: command processing }
+      end;
 
     __Parse := bRet;
   end;

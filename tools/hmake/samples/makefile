@@ -13,8 +13,8 @@ C_SOURCE=$(wildcard *.c)
 # .h files
 H_SOURCE=$(wildcard *.h)
 
-# Object files
-OBJ=$(C_SOURCE:.c=.o)
+# Object files (TODO: AJUST VARIABLE BELOW)
+#OBJ=$(C_SOURCE:.c=.o)
 
 # Compiler
 CC=gcc

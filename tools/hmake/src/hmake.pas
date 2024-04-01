@@ -50,6 +50,8 @@ begin
     begin
       if( MkBuild( handle ) )  then
       begin
+        __PrintDebug( handle );   { TODO: TEST ONLY }
+
         if( not MkClose( handle ) ) then
           WriteLn( 'Error to close make file' );
         
