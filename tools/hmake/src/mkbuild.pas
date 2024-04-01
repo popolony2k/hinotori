@@ -173,10 +173,10 @@ var
   end;
 
   (**
-    * Check identifier type.
+    * Return the identifier type for a given token.
     * @param strToken The token to be checked;
     *)
-  function __CheckIdentifier( var strToken : TString ) : TIdentifierType;
+  function __GetIdentifier( var strToken : TString ) : TIdentifierType;
   var
         identType : TIdentifierType;
         nPosToken : integer;
@@ -226,7 +226,7 @@ var
       end;
     end;
 
-    __CheckIdentifier := identType;
+    __GetIdentifier := identType;
   end;
 
   (**
@@ -322,7 +322,7 @@ var
   begin
     bRet      := true;
     bMustRead := true;
-    identType := __CheckIdentifier( strLine );
+    identType := __GetIdentifier( strLine );
 
     case identType of
       TIdentifierType.IDENT_VARIABLE :  chToken := '=';
