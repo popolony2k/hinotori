@@ -58,8 +58,10 @@ begin
         WriteLn( 'Build success' );
       end
       else
+      begin
         WriteLn( 'Build failed with following error:' );
         WriteLn( '[' + handle.strLastError + ']');
+      end;
     end
     else
       WriteLn( 'Error to open make file' );
