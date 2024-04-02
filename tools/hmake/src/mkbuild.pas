@@ -17,7 +17,8 @@
 (**
   * Identifier type
   *)
-type TIdentifierType = ( IDENT_VARIABLE, 
+type TIdentifierType = ( IDENT_NONE,
+                         IDENT_VARIABLE, 
                          IDENT_TARGETS, 
                          IDENT_COMMAND,
                          IDENT_REMARK );
@@ -71,6 +72,7 @@ begin
     Write( 'Item type    -> ' );
 
     case pair.identType of
+      TIdentifierType.IDENT_NONE     : WriteLn( 'NONE' );
       TIdentifierType.IDENT_COMMAND  : WriteLn( 'COMMAND' );
       TIdentifierType.IDENT_REMARK   : WriteLn( 'REMARK' );
       TIdentifierType.IDENT_TARGETS  : WriteLn( 'TARGETS' );
@@ -173,6 +175,17 @@ var
   end;
 
   (**
+    * Process a command in @see strLine;
+    *)
+  function __ProcessCommand : boolean;
+  begin
+    Writeln( 'COMMAND -> ', strLine );
+    { TODO: FINISH command processing. Add variable macro substitution here }
+    { Add multi-line command processing like variable content processing }
+    __ProcessCommand := true;
+  end;
+
+  (**
     * Return the identifier type for a given token.
     * @param strToken The token to be checked;
     *)
@@ -197,7 +210,12 @@ var
       nDiff     := ( nPosRem - nPosToken );
 
       if( nDiff = 0 )  then
-        identType := TIdentifierType.IDENT_COMMAND
+      begin
+        if( Length( Trim( strToken ) ) = 0 )  then
+          identType := TIdentifierType.IDENT_NONE
+        else
+          identType := TIdentifierType.IDENT_COMMAND;
+      end
       else
       begin
         if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
@@ -331,46 +349,49 @@ var
 
     if( identType in [ TIdentifierType.IDENT_VARIABLE, 
                        TIdentifierType.IDENT_TARGETS ] )  then
+    begin
+      CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
+      nCount := SplitString( strLine, chToken, tokenList );
+      
+      if( nCount > 0 )  then
       begin
-        CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
-        nCount := SplitString( strLine, chToken, tokenList );
-        
-        if( nCount > 0 )  then
+        nCount := 0;
+        pItem  := GetFirstLinkedListItem( tokenList );
+
+        while( bRet and ( pItem <> nil ) )  do
         begin
-          nCount := 0;
-          pItem  := GetFirstLinkedListItem( tokenList );
+          pair.identType := identType;
 
-          while( bRet and ( pItem <> nil ) )  do
+          if( ( nCount mod 2 ) = 0 )  then
+            Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
+          else
           begin
-            pair.identType := identType;
+            Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
 
-            if( ( nCount mod 2 ) = 0 )  then
-              Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
+            if( __ParseValue( pair.strValue ) )  then
+              AddLinkedListItem( handle.lstIdentifier, {Ptr}( Addr( pair ) ) )
             else
-            begin
-              Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
+              bRet := false;
+          end;
 
-              if( __ParseValue( pair.strValue ) )  then
-                AddLinkedListItem( handle.lstIdentifier, {Ptr}( Addr( pair ) ) )
-              else
-                bRet := false;
-            end;
-
-            if( bRet )  then
-            begin
-              nCount := Succ( nCount );
-              pItem  := GetNextLinkedListItem( tokenList );
-              __DoProgress;
-            end;
-          end;         
-        end;
-
-        DestroyLinkedList( tokenList );
-      end
-      else
-      begin
-        { TODO: command processing }
+          if( bRet )  then
+          begin
+            nCount := Succ( nCount );
+            pItem  := GetNextLinkedListItem( tokenList );
+            __DoProgress;
+          end;
+        end;         
       end;
+
+      DestroyLinkedList( tokenList );
+    end
+    else
+    begin
+      bRet := __ProcessCommand;
+
+      if( not bRet )  then
+        handle.strLastError := 'Error processing command [' + strLine + ']';
+    end;
 
     __Parse := bRet;
   end;
