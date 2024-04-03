@@ -71,7 +71,7 @@ begin
     begin
       strTemp := Copy( strValue, 1, ( nPos - 1 ) );
 
-      if( AddLinkedListItem( aResult, {Ptr}( Addr( strTemp ) ) ) ) then
+      if( AddLinkedListItem( aResult, {Ptr}( Addr( strTemp ) ) ) <> nil ) then
         Delete( strValue, 1, nPos )
       else
         nPos := -1;
@@ -79,7 +79,7 @@ begin
     else
     begin
       if( aResult.nListSize > 0 )  then
-        if( not AddLinkedListItem( aResult, {Ptr}( Addr( strValue ) ) ) ) then
+        if( AddLinkedListItem( aResult, {Ptr}( Addr( strValue ) ) ) = nil ) then
           nPos := -1;
     end;
   until( nPos <= 0 );

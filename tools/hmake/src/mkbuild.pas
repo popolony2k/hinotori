@@ -27,7 +27,7 @@ type TIdentifierType = ( IDENT_NONE,
   * Variable data struct.
   *)
 type PIdentifierName  = ^TIdentifierName;
-     TIdentifierName  = string[10];
+     TIdentifierName  = string[20];
      PIdentifierValue = ^TIdentifierValue;
      TIdentifierValue = TString;
 
@@ -42,12 +42,22 @@ type PIdentifierPair = ^TIdentifierPair;
 end;
 
 (**
+  * Target data structure.
+  *)
+type PTarget = ^TTarget;
+     TTarget = record
+  target        : TIdentifierPair; { Target name/prereq.   }
+  commandList   : TLinkedList;     { Command list          }
+end;
+
+(**
   * Makefile build handle used by parsing and build routines.
   *)
  type TMakeHandle = record
    bIsOpen       : boolean;        { Make file is open     }
    hFile         : text;           { Make file handle      }
-   lstIdentifier : TLinkedList;    { Make variable list    }
+   variableList  : TLinkedList;    { Make variable list    }
+   targetList    : TLinkedList;    { Make target list      }
    strLastError  : TString;        { Last processing error }        
  end;
 
@@ -59,27 +69,63 @@ end;
 procedure __PrintDebug( var handle : TMakeHandle );
 var
     pItem     : PLinkedListItem;
+    pCmdItem  : PLinkedListItem;
     pair      : TIdentifierPair;
+    target    : TTarget;
+    command   : TIdentifierValue;
 
 begin
-  pItem := GetFirstLinkedListItem( handle.lstIdentifier );
+  pItem := GetFirstLinkedListItem( handle.variableList );
 
+  WriteLn;
+  
+  if( pItem <> nil )  then
+    WriteLn( 'VARIABLES ======');
+
+  WriteLn;
+  
   while( pItem <> nil )  do
   begin
     Move( pItem^.pValue^, pair, sizeof( pair ) );
     WriteLn( 'Item Name  -> ', pair.strName );
     WriteLn( 'Item Value -> ', pair.strValue );
-    Write( 'Item type    -> ' );
+    WriteLn( '-----------------------' );
 
-    case pair.identType of
-      TIdentifierType.IDENT_NONE     : WriteLn( 'NONE' );
-      TIdentifierType.IDENT_COMMAND  : WriteLn( 'COMMAND' );
-      TIdentifierType.IDENT_REMARK   : WriteLn( 'REMARK' );
-      TIdentifierType.IDENT_TARGETS  : WriteLn( 'TARGETS' );
-      TIdentifierType.IDENT_VARIABLE : WriteLn( 'VARIABLE' );
-    end;
-    pItem := GetNextLinkedListItem( handle.lstIdentifier );
+    pItem := GetNextLinkedListItem( handle.variableList );
   end;
+
+  pItem := GetFirstLinkedListItem( handle.targetList );
+
+  Writeln;
+
+  if( pItem <> nil )  then
+    WriteLn( 'TARGETS ======');
+
+  WriteLn;
+
+  while( pItem <> nil )  do
+  begin
+    Move( pItem^.pValue^, target, sizeof( target ) );
+    WriteLn( 'Item Name  -> ', target.target.strName );
+    WriteLn( 'Item Value -> ', target.target.strValue );
+
+    pCmdItem := GetFirstLinkedListItem( target.commandList );
+
+    if( pCmdItem <> nil )  then
+      WriteLn( 'COMMANDS ======');
+
+    while( pCmdItem <> nil )  do
+    begin
+      Move( pCmdItem^.pValue^, command, sizeof( command ) );
+      WriteLn( 'CMD -> ', command );
+      pCmdItem := GetNextLinkedListItem( target.commandList );
+    end;
+
+    WriteLn( '-----------------------' );
+
+    pItem := GetNextLinkedListItem( handle.targetList );
+  end;
+
 end;
 
 (**
@@ -101,7 +147,8 @@ begin
 
   if( handle.bIsOpen )  then
   begin
-    CreateLinkedList( handle.lstIdentifier, sizeof( TIdentifierPair ) );
+    CreateLinkedList( handle.variableList, sizeof( TIdentifierPair ) );
+    CreateLinkedList( handle.targetList, sizeof( TTarget ) );
   end;
 
   MkOpen := ( handle.bIsOpen );
@@ -113,10 +160,27 @@ end;
  * The function will return true if the operation was successfull otherwise false;
  *)
 function MkClose( var handle : TMakeHandle ) : boolean;
+var
+      pItem     : PLinkedListItem;
+      target    : TTarget;
+
 begin
   if( handle.bIsOpen )  then
   begin
-    DestroyLinkedList( handle.lstIdentifier );
+    DestroyLinkedList( handle.variableList );
+
+    (* Destroy target list and its command list *)
+    pItem := GetFirstLinkedListItem( handle.targetList );
+
+    while( pItem <> nil )  do
+    begin
+      Move( pItem^.pValue^, target, sizeof( target ) );
+      DestroyLinkedList( target.commandList );
+      pItem := GetNextLinkedListItem( handle.targetList );
+    end;
+
+    DestroyLinkedList( handle.targetList );
+
     {$i-}
     Close( handle.hFile );
     {$i+}
@@ -137,12 +201,12 @@ const
        __ctCSI   = '['; { Control Sequence Introducer.
                           On Unix is '[', on MSXDOS is empty char }
 var
-       strLine   : TString;
-       bMustRead : boolean;
-       bRet      : boolean;
-       nCursor   : byte;
-       aCursor   : array[0..3] of char;
-
+       strLine      : TString;
+       bMustRead    : boolean;
+       bRet         : boolean;
+       nCursor      : byte;
+       aCursor      : array[0..3] of char;
+       pTargets     : PTarget;
 
   (**
    * Show progress indicator.
@@ -150,8 +214,8 @@ var
   procedure __DoProgress;
   begin
     (*
-      * Progress indicator.
-      *)
+     * Progress indicator.
+     *)
     Write( #27, __ctCSI, 'D' );
     Write( aCursor[nCursor] );
 
@@ -261,17 +325,19 @@ var
          
   begin
     bFound := false;
-    pItem  := GetFirstLinkedListItem( handle.lstIdentifier );
+    pItem  := GetFirstLinkedListItem( handle.variableList );
 
     while( not bFound and ( pItem <> nil ) ) do
     begin
-      pItem  := GetNextLinkedListItem( handle.lstIdentifier );
+      pItem  := GetNextLinkedListItem( handle.variableList );
       pPair  := {Ptr}( Addr( pItem^.pValue ) );
       bFound := ( pPair^.strName = strName );
     end;
 
     if( not bFound )  then
       pPair := nil;
+
+    __FindIdentifier := pPair;
   end;
 
   (**
@@ -329,13 +395,16 @@ var
     *)
   function __Parse : boolean;
   var
-        nCount    : integer;
-        bRet      : boolean;
-        chToken   : char;
-        pItem     : PLinkedListItem;
-        tokenList : TLinkedList;
-        pair      : TIdentifierPair;
-        identType : TIdentifierType;
+        nCount     : integer;
+        bRet       : boolean;
+        chToken    : char;
+        pItem      : PLinkedListItem;
+        pTemp      : PLinkedListItem;
+        tokenList  : TLinkedList;
+        target     : TTarget;
+        pair       : TIdentifierPair;
+        pPair      : PIdentifierPair;
+        identType  : TIdentifierType;
 
   begin
     bRet      := true;
@@ -353,23 +422,56 @@ var
       CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
       nCount := SplitString( strLine, chToken, tokenList );
       
+      (* Process identifier *)
       if( nCount > 0 )  then
       begin
         nCount := 0;
         pItem  := GetFirstLinkedListItem( tokenList );
 
+        case identType of
+          TIdentifierType.IDENT_VARIABLE : 
+            pPair := {Ptr}( Addr( pair ) );
+
+          TIdentifierType.IDENT_TARGETS  :
+          begin
+            CreateLinkedList( target.commandList, sizeof( TIdentifierValue ) );
+            pPair := {Ptr}( Addr( target.target ) );
+          end;
+        end;
+
+        pPair^.identType := identType;
+
         while( bRet and ( pItem <> nil ) )  do
         begin
-          pair.identType := identType;
-
           if( ( nCount mod 2 ) = 0 )  then
-            Move( pItem^.pValue^, pair.strName, sizeof( pair.strName ) )
+            Move( pItem^.pValue^, pPair^.strName, sizeof( pPair^.strName ) )
           else
           begin
-            Move( pItem^.pValue^, pair.strValue, sizeof( pair.strValue ) );
+            Move( pItem^.pValue^, pPair^.strValue, sizeof( pPair^.strValue ) );
 
-            if( __ParseValue( pair.strValue ) )  then
-              AddLinkedListItem( handle.lstIdentifier, {Ptr}( Addr( pair ) ) )
+            if( __ParseValue( pPair^.strValue ) )  then
+            begin
+              case identType of
+                TIdentifierType.IDENT_VARIABLE :
+                begin 
+                  pTemp := AddLinkedListItem( handle.variableList, 
+                                              {Ptr}( Addr( pPair^ ) ) );
+                  bRet := ( pTemp <> nil );
+                end;
+                TIdentifierType.IDENT_TARGETS  :
+                begin
+                  pTemp := AddLinkedListItem( handle.targetList, 
+                                              {Ptr}( Addr( target ) ) );
+                  bRet := ( pTemp <> nil );
+
+                  if( bRet )  then
+                    Move( pTemp^.pValue, pTargets, sizeof( pTargets ) );
+                end;
+              end;
+
+              if( not bRet )  then
+                handle.strLastError := 'Not enough memory -> ' + strLine;
+            end
             else
               bRet := false;
           end;
@@ -381,16 +483,29 @@ var
             __DoProgress;
           end;
         end;         
+      end
+      else
+      begin
+        handle.strLastError := 'Invalid identifier ' + strLine;
+        bRet := false; 
       end;
 
       DestroyLinkedList( tokenList );
     end
     else
-    begin
-      bRet := __ProcessCommand;
+    begin  (* Commands processing *)
+      if( ( pTargets <> nil ) and ( Trim( strLine ) <> '' ) )  then
+      begin
+        bRet := ( AddLinkedListItem( pTargets^.commandList, 
+                                     {Ptr}( Addr( strLine ) ) ) <> nil );
+        
+        if( bRet )  then
+        begin
+          handle.strLastError := 'Not enough memory -> '  + strLine;
+        end;
+      end;
 
-      if( not bRet )  then
-        handle.strLastError := 'Error processing command [' + strLine + ']';
+      __DoProgress;
     end;
 
     __Parse := bRet;
@@ -404,12 +519,13 @@ begin
 
   if( bRet )  then
   begin
-    nCursor     := 0;
-    aCursor[0]  := '|';
-    aCursor[1]  := '/';
-    aCursor[2]  := '-';
-    aCursor[3]  := '\';
-    bMustRead   := true;
+    nCursor    := 0;
+    aCursor[0] := '|';
+    aCursor[1] := '/';
+    aCursor[2] := '-';
+    aCursor[3] := '\';
+    bMustRead  := true;
+    pTargets   := nil;
 
     Write( 'Processing ( )' );
     Write( #27, __ctCSI, 'D' );

@@ -74,9 +74,10 @@ end;
   * Add an item at the end of a linked list.
   * @param list The list which the item will be added;
   * @param pValue The pointer to the list value which will be stored;
+  * The function return the pointer of added item;
   *)
 function AddLinkedListItem( var list : TLinkedList;
-                            pValue : Pointer ) : boolean;
+                            pValue : Pointer ) : PLinkedListItem;
 var
        pParentItem,
        pNewItem       : PLinkedListItem;
@@ -125,7 +126,7 @@ begin
   if( pNewItem <> nil )  then
     list.nListSize := Succ( list.nListSize );
 
-  AddLinkedListItem := ( pNewItem <> nil );
+  AddLinkedListItem := pNewItem;
 end;
 
 (**
@@ -237,7 +238,7 @@ begin
 
     while( bRet and ( pItem <> nil ) ) do
     begin
-      bRet := AddLinkedListItem( dstList, pItem^.pValue );
+      bRet := ( AddLinkedListItem( dstList, pItem^.pValue ) <> nil );
 
       if( bRet )  then
         pItem := GetNextLinkedListItem( srcList );
