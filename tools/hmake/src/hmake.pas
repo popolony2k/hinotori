@@ -64,10 +64,10 @@ begin
         WriteLn( 'Build success' );
  
         if( MkExecute( handle ) )  then        
-          WriteLn( 'Executing success' )
+          WriteLn( 'Execute success' )
         else
         begin
-          WriteLn( 'Executing failed with following error:' );
+          WriteLn( 'Execute failed with following error:' );
           WriteLn( '[' + handle.strLastError + ']');
         end;
       end
