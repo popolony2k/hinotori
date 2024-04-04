@@ -8,7 +8,7 @@
     - Targets processing (OK);
     - Targets macro substitution (including variables);
     - Review operation; (WIP)
-4. Excuting commands;
+4. Excuting commands; (WIP)
     - Commands macro substitution (including variables);
 5. Variable reference (macro substitution or linked list item reference ??) through $(var_name) on labels or another variable;
 6. Operating system environment variables access by makefile; 
