@@ -18,7 +18,11 @@ program hmake;
 {$i ..\..\..\src\system\types.pas}
 {$i ..\..\..\src\collectn\lnkdlist.pas}
 {$i ..\..\..\src\util\helpstr.pas}
+{$i .\mktypes.pas}
+{$i .\mkutils.pas}
+{$i .\mkfile.pas}
 {$i .\mkbuild.pas}
+{$i .\mkexec.pas}
 
 
 (**
@@ -46,16 +50,26 @@ begin
     PrintHelp()
   else
   begin
+    MkInit( handle );
+
     if( MkOpen( ParamStr( 1 ), handle ) ) then
     begin
       if( MkBuild( handle ) )  then
       begin
-        __PrintDebug( handle );   { TODO: TEST ONLY }
+        PrintDebug( handle );   { TODO: TEST ONLY }
 
         if( not MkClose( handle ) ) then
           WriteLn( 'Error to close make file' );
-        
+
         WriteLn( 'Build success' );
+ 
+        if( MkExecute( handle ) )  then        
+          WriteLn( 'Executing success' )
+        else
+        begin
+          WriteLn( 'Executing failed with following error:' );
+          WriteLn( '[' + handle.strLastError + ']');
+        end;
       end
       else
       begin

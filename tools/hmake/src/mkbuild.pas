@@ -11,219 +11,26 @@
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
  * - /util/helpstr.pas;
+ * - ./mktypes.pas;
+ * - ./mkutils.pas;
  *)
 
 
 (**
-  * Identifier type
-  *)
-type TIdentifierType = ( IDENT_NONE,
-                         IDENT_VARIABLE, 
-                         IDENT_TARGETS, 
-                         IDENT_COMMAND,
-                         IDENT_REMARK );
-
-(**
-  * Variable data struct.
-  *)
-type PIdentifierName  = ^TIdentifierName;
-     TIdentifierName  = string[20];
-     PIdentifierValue = ^TIdentifierValue;
-     TIdentifierValue = TString;
-
-(**
-  * Identifier data structure.
-  *)
-type PIdentifierPair = ^TIdentifierPair;
-     TIdentifierPair = record
-  strName     : TIdentifierName;
-  strValue    : TIdentifierValue;
-  identType   : TIdentifierType;
-end;
-
-(**
-  * Target data structure.
-  *)
-type PTarget = ^TTarget;
-     TTarget = record
-  target        : TIdentifierPair; { Target name/prereq.   }
-  commandList   : TLinkedList;     { Command list          }
-end;
-
-(**
-  * Makefile build handle used by parsing and build routines.
-  *)
- type TMakeHandle = record
-   bIsOpen       : boolean;        { Make file is open     }
-   hFile         : text;           { Make file handle      }
-   variableList  : TLinkedList;    { Make variable list    }
-   targetList    : TLinkedList;    { Make target list      }
-   strLastError  : TString;        { Last processing error }        
- end;
-
-
-(**
-  * Helper function used by debug only operations,
-  * @param handle reference to a valid TMakeHandle with data;
-  *)
-procedure __PrintDebug( var handle : TMakeHandle );
-var
-    pItem     : PLinkedListItem;
-    pCmdItem  : PLinkedListItem;
-    pair      : TIdentifierPair;
-    target    : TTarget;
-    command   : TIdentifierValue;
-
-begin
-  pItem := GetFirstLinkedListItem( handle.variableList );
-
-  WriteLn;
-  
-  if( pItem <> nil )  then
-    WriteLn( 'VARIABLES ======');
-
-  WriteLn;
-  
-  while( pItem <> nil )  do
-  begin
-    Move( pItem^.pValue^, pair, sizeof( pair ) );
-    WriteLn( 'Item Name  -> ', pair.strName );
-    WriteLn( 'Item Value -> ', pair.strValue );
-    WriteLn( '-----------------------' );
-
-    pItem := GetNextLinkedListItem( handle.variableList );
-  end;
-
-  pItem := GetFirstLinkedListItem( handle.targetList );
-
-  Writeln;
-
-  if( pItem <> nil )  then
-    WriteLn( 'TARGETS ======');
-
-  WriteLn;
-
-  while( pItem <> nil )  do
-  begin
-    Move( pItem^.pValue^, target, sizeof( target ) );
-    WriteLn( 'Item Name  -> ', target.target.strName );
-    WriteLn( 'Item Value -> ', target.target.strValue );
-
-    pCmdItem := GetFirstLinkedListItem( target.commandList );
-
-    if( pCmdItem <> nil )  then
-      WriteLn( 'COMMANDS ======');
-
-    while( pCmdItem <> nil )  do
-    begin
-      Move( pCmdItem^.pValue^, command, sizeof( command ) );
-      WriteLn( 'CMD -> ', command );
-      pCmdItem := GetNextLinkedListItem( target.commandList );
-    end;
-
-    WriteLn( '-----------------------' );
-
-    pItem := GetNextLinkedListItem( handle.targetList );
-  end;
-
-end;
-
-(**
- * Open a make file for processing.
- * @param strFileName The make file name to open;
- * @param handle A @see TMakeHandle of the opened makefile
- * that will be used to perform all make operations;
- * The function will return true for success operation 
+ * Parse and build the makefile data struct. This function will 
+ * parse the makefile, creating all needed infrastructure needed
+ * by building process of a project;
+ * @param handle The handle of a makefile previously opened by 
+ * @see MkOpen;
+ * The function will return true if the operation was successfull 
  * otherwise false;
  *)
-function MkOpen( strFileName : TFileName; var handle : TMakeHandle ) : boolean;
-begin
-  {$i-}
-  Assign( handle.hFile, strFileName );
-  Reset( handle.hFile );
-  {$i+}
-
-  handle.bIsOpen := ( IOResult = 0 );
-
-  if( handle.bIsOpen )  then
-  begin
-    CreateLinkedList( handle.variableList, sizeof( TIdentifierPair ) );
-    CreateLinkedList( handle.targetList, sizeof( TTarget ) );
-  end;
-
-  MkOpen := ( handle.bIsOpen );
-end;
-
-(**
- * Close a previously open make file.
- * @param handle The handle of a makefile previously opened by @see MkOpen;
- * The function will return true if the operation was successfull otherwise false;
- *)
-function MkClose( var handle : TMakeHandle ) : boolean;
-var
-      pItem     : PLinkedListItem;
-      target    : TTarget;
-
-begin
-  if( handle.bIsOpen )  then
-  begin
-    DestroyLinkedList( handle.variableList );
-
-    (* Destroy target list and its command list *)
-    pItem := GetFirstLinkedListItem( handle.targetList );
-
-    while( pItem <> nil )  do
-    begin
-      Move( pItem^.pValue^, target, sizeof( target ) );
-      DestroyLinkedList( target.commandList );
-      pItem := GetNextLinkedListItem( handle.targetList );
-    end;
-
-    DestroyLinkedList( handle.targetList );
-
-    {$i-}
-    Close( handle.hFile );
-    {$i+}
-    handle.bIsOpen := false;
-  end;
-
-  MkClose := ( IOResult = 0 );
-end;
-
-(**
- * Parse and build an open make file. This function will parse the makefile, creating
- * all needed infrastructure needed by making a Pascal project;
- * @param handle The handle of a makefile previously opened by @see MkOpen;
- * The function will return true if the operation was successfull otherwise false;
- *)
 function MkBuild( var handle : TMakeHandle ) : boolean;
-const 
-       __ctCSI   = '['; { Control Sequence Introducer.
-                          On Unix is '[', on MSXDOS is empty char }
 var
        strLine      : TString;
        bMustRead    : boolean;
        bRet         : boolean;
-       nCursor      : byte;
-       aCursor      : array[0..3] of char;
        pTargets     : PTarget;
-
-  (**
-   * Show progress indicator.
-   *)
-  procedure __DoProgress;
-  begin
-    (*
-     * Progress indicator.
-     *)
-    Write( #27, __ctCSI, 'D' );
-    Write( aCursor[nCursor] );
-
-    if( nCursor = 3 )  then
-      nCursor := 0
-    else
-      nCursor := nCursor + 1;
-  end;
 
   (**
     * Read comtent from file.
@@ -236,17 +43,6 @@ var
       ReadLn( handle.hFile, strLine );
       {$i+}
       __ReadFile := ( IOResult = 0 );
-  end;
-
-  (**
-    * Process a command in @see strLine;
-    *)
-  function __ProcessCommand : boolean;
-  begin
-    Writeln( 'COMMAND -> ', strLine );
-    { TODO: FINISH command processing. Add variable macro substitution here }
-    { Add multi-line command processing like variable content processing }
-    __ProcessCommand := true;
   end;
 
   (**
@@ -312,35 +108,6 @@ var
   end;
 
   (**
-    * Find the identifier based on its name;
-    * @param strName The identifier name to find;
-    * The function return the pointer to the requested identifier or
-    * nil if not found;
-    *)
-  function __FindIdentifier( var strName : TString ) : PIdentifierPair;
-  var
-        pItem  : PLinkedListItem;
-        pPair  : PIdentifierPair;
-        bFound : boolean;
-         
-  begin
-    bFound := false;
-    pItem  := GetFirstLinkedListItem( handle.variableList );
-
-    while( not bFound and ( pItem <> nil ) ) do
-    begin
-      pItem  := GetNextLinkedListItem( handle.variableList );
-      pPair  := {Ptr}( Addr( pItem^.pValue ) );
-      bFound := ( pPair^.strName = strName );
-    end;
-
-    if( not bFound )  then
-      pPair := nil;
-
-    __FindIdentifier := pPair;
-  end;
-
-  (**
     * Parse identifier value.
     * @param strValue The value that will be parsed and the content
     * will return into the same variable;  
@@ -360,7 +127,6 @@ var
       begin
         strValue := Copy( strValue, 1, ( nPos - 1 ) );
         strValue := Trim( strValue );
-        { TODO: implement variable reference (or copy) }
         bRet := __ReadFile;
 
         if( bRet )  then
@@ -376,7 +142,6 @@ var
 
           if( bMustRead )  then
           begin
-            { TODO: implement variable reference (or copy) }
             strValue := strValue + ' ' + Trim( strLine );
           end;
         end
@@ -480,7 +245,7 @@ var
           begin
             nCount := Succ( nCount );
             pItem  := GetNextLinkedListItem( tokenList );
-            __DoProgress;
+            UpdateProgress( handle );
           end;
         end;         
       end
@@ -505,7 +270,7 @@ var
         end;
       end;
 
-      __DoProgress;
+      UpdateProgress( handle );
     end;
 
     __Parse := bRet;
@@ -519,11 +284,6 @@ begin
 
   if( bRet )  then
   begin
-    nCursor    := 0;
-    aCursor[0] := '|';
-    aCursor[1] := '/';
-    aCursor[2] := '-';
-    aCursor[3] := '\';
     bMustRead  := true;
     pTargets   := nil;
 
