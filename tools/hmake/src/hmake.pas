@@ -26,44 +26,114 @@ program hmake;
 
 
 (**
-  * Print hanle help message;
+  * COmmand line parameter processing.
+  *)
+type TCmdLineParms = record
+  strMakeFile : TFileName;
+  strTarget   : TTinyString;
+  strError    : TString;
+  bPrintDebug : boolean;
+end;
+
+(**
+  * Print help message;
   *)
 procedure PrintHelp;
 begin
   WriteLn;
-  WriteLn( 'Usage - hmake <makefile>' );
-  WriteLn( '<makefile> - The file name (with path) of a valid makefile to process;');
+  WriteLn( 'Usage - hmake [-h] [-f <makefile>] [<target>]' );
+  WriteLn( '  [-h] Optional. Print this help screen.' );
+  WriteLn( '  [-d] Optional. Print makefile execution debug information.' );
+  WriteLn( '    Show all variables, targets and step processing execution.' );
+  WriteLn( '  [-f <makefile>] Optional. Informs the makefile that will be' );
+  WriteLn( '    processed. If not informed a file named makefile on current' );
+  WriteLn( '    directory will be processed, if exists.' );
+  WriteLn( '  [targets] Optional. The target that will be processed.' );
+  WriteLn( '    If not informed, the default target be used.');
   WriteLn;
+end;
+
+(**
+  * Get the command line passed as parameters.
+  * @param parms The data structure that will received all parameters received.
+  * The function return true if there's something to be processed or false
+  * to PrintHelp message;
+  *)
+function GetCmdLineParms( var parms : TCmdLineParms ) : boolean;
+var
+      bRet    : boolean;
+      nCount  : byte;
+
+begin
+  parms.strMakeFile := '.\Makefile';
+  parms.bPrintDebug := false;
+  bRet   := true;
+  nCount := 1; 
+
+  while( nCount <= ParamCount ) do
+  begin
+    case ParamStr( nCount ) of
+      '-h' :
+      begin 
+        bRet   := false;
+        nCount := ParamCount;
+      end;
+
+      '-d' :
+      begin 
+        parms.bPrintDebug := true;
+      end;
+
+      '-f' :
+      begin
+        if( ParamCount > nCount )  then
+        begin
+          nCount := Succ( nCount );
+          parms.strMakeFile := ParamStr( nCount )
+        end
+        else
+          parms.strError := 'Missing Makefile name parameter';
+      end;
+
+      else
+        parms.strTarget := ParamStr( nCount );
+    end;
+
+    nCount := Succ( nCount );
+  end;
+
+  GetCmdLineParms := bRet;
 end;
 
 
 { Main program }
-
 var 
        handle : TMakeHandle;
+       parms  : TCmdLineParms;
 
 begin
   WriteLn( 'hmake - Hinotori MakeFile processor.' );
   WriteLn( 'CopyLeft (c) since 2024 by Hinotori team.' );
 
-  if( ParamCount = 0 )  then
+  if( not GetCmdLineParms( parms ) )  then
     PrintHelp()
   else
   begin
     MkInit( handle );
 
-    if( MkOpen( ParamStr( 1 ), handle ) ) then
+    if( MkOpen( parms.strMakeFile, handle ) ) then
     begin
       if( MkBuild( handle ) )  then
       begin
-        PrintDebug( handle );   { TODO: TEST ONLY }
+        if( parms.bPrintDebug )  then
+          PrintDebug( handle );
 
         if( not MkClose( handle ) ) then
           WriteLn( 'Error to close make file' );
 
         WriteLn( 'Build success' );
  
-        if( MkExecute( handle ) )  then        
+        if( MkExecute( handle, parms.strTarget ) )  then        
           WriteLn( 'Execute success' )
         else
         begin
@@ -78,6 +148,6 @@ begin
       end;
     end
     else
-      WriteLn( 'Error to open make file' );
+      WriteLn( 'Error to open make file [' + parms.strMakeFile + ']' );
   end;
 end.

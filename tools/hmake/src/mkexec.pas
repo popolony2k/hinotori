@@ -17,8 +17,10 @@
   * Execute a previously compiled makefile.
   * @param handle The makefile handle struct containing
   * all previously processed makefile data.
+  * @param strTarget The target name that will be processed.
+  * If empty, the default will be processed;
   *)
-function MkExecute( var handle : TMakeHandle ) : boolean;
+function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 var
       bRet : boolean;
 
