@@ -1,13 +1,14 @@
-(*<tstbig11.pas>
+(*<bigint12.pas>
  * Implement unit tests and sample for using the Big Numbers
  * library <bigint.pas>, using TUint24.
  * Unit tests for:
- *    19) Data assignment operations between mixed types with exception cases;
+ *    20) Data comparision operations between mixed types
+ *        with exception cases;
  *
  * CopyLeft (c) 1995-2024 by PopolonY2k.
  * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-Program TestBigNumbers11;
+Program TestBigNumbers12;
 
 (*
  * This source file depends on following include files (respect the order):
@@ -81,43 +82,53 @@ Var
     * Execute test for big number sub operation between mixed
     * types.
     *)
-  Procedure __AssignTest;
+  Procedure __CompTest;
   Var
           bRet : Boolean;
 
   Begin
-    TRACE( '19 - Assigning Big Numbers (24 vs 32 bit operations)' );
+    TRACE( '20 - Comparing Big Numbers (24 vs 32 bit operations)' );
     TRACELN;
 
     PTRACE( pstrSep );
-    TRACE( '19.1 - Copying 24bit to 32bit data' );
+    TRACE( '20.1 - Comparing 24bit with 32bit data type' );
     PTRACE( pstrSep );
+    TRACELN;
+    TRACE( '20.1.1 - The values are equals.' );
+    TRACELN;
 
-    bRet := TEST_OP( '19.1.1 - StrToBigInt()',
+    bRet := TEST_OP( '20.1.2 - StrToBigInt()',
                      StrToBigInt( big24Op, '16777215' ), Success );
-    bRet := TEST_OP( '19.1.2 - CopyBigInt',
-                     AssignBigInt( big32Res, big24Op ), Success );
-    bRet := TEST_BIGINT_CMP( '19.1.3 - CompareBigInt()',
-                             CompareBigInt( big32Res, big24Op ), Equals );
-    TRACELN;
-    PTRACE( pstrSep );
-    TRACE( '19.1.4 - Copying a 24Bit value of 32bit variable to 24bit data' );
-    PTRACE( pstrSep );
-
-    bRet := TEST_OP( '19.1.5 - StrToBigInt()',
+    bRet := TEST_OP( '20.1.3 - StrToBigInt()',
                      StrToBigInt( big32Op, '16777215' ), Success );
-    bRet := TEST_OP( '19.1.6 - CopyBigInt',
-                     AssignBigInt( big24Res, big32Op ), Success );
-    bRet := TEST_BIGINT_CMP( '19.1.7 - CompareBigInt()',
-                             CompareBigInt( big24Res, big32Op ), Equals );
+    bRet := TEST_BIGINT_CMP( '20.1.4 - CompareBigInt()',
+                             CompareBigInt( big24Op, big32Op ), Equals );
+
     TRACELN;
-    TRACE( '1o Overflow case - Copying a 32Bit value to 24Bit variable' );
+    TRACE( '20.1.5 - The 32bit is greater than 24bit variable.' );
     TRACELN;
 
-    bRet := TEST_OP( '19.1.8 - StrToBigInt()',
+    bRet := TEST_OP( '20.1.6 - StrToBigInt()',
+                     StrToBigInt( big24Op, '16777215' ), Success );
+    bRet := TEST_OP( '20.1.7 - StrToBigInt()',
                      StrToBigInt( big32Op, '16777216' ), Success );
-    bRet := TEST_OP( '19.1.9 - CopyBigInt',
-                     AssignBigInt( big24Res, big32Op ), Overflow );
+    bRet := TEST_BIGINT_CMP( '20.1.8 - CompareBigInt()',
+                             CompareBigInt( big24Op, big32Op ), LessThan );
+    bRet := TEST_BIGINT_CMP( '20.1.9 - CompareBigInt()',
+                             CompareBigInt( big32Op, big24Op ), GreaterThan );
+
+    TRACELN;
+    TRACE( '20.1.10 - The 32bit is less than 24bit variable.' );
+    TRACELN;
+
+    bRet := TEST_OP( '20.1.11 - StrToBigInt()',
+                     StrToBigInt( big24Op, '16777215' ), Success );
+    bRet := TEST_OP( '20.1.12 - StrToBigInt()',
+                     StrToBigInt( big32Op, '16777214' ), Success );
+    bRet := TEST_BIGINT_CMP( '20.1.13 - CompareBigInt()',
+                             CompareBigInt( big24Op, big32Op ), GreaterThan );
+    bRet := TEST_BIGINT_CMP( '20.1.14 - CompareBigInt()',
+                             CompareBigInt( big32Op, big24Op ), LessThan );
     TRACELN;
   End;
 
@@ -125,7 +136,7 @@ Begin
   New( pStrSep );
   pstrSep^ := '-------------------------------------------------------------';
   __Setup;
-  __AssignTest;
+  __CompTest;
   Release( pstrSep );
 End;
 

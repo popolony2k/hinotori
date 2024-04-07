@@ -1,4 +1,4 @@
-(*<tstbig4.pas>
+(*<bigint4.pas>
  * Implement unit tests and sample for using the Big Numbers
  * library <bigint.pas>, using TUint24.
  * Unit tests for:

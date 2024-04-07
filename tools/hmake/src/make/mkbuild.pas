@@ -12,9 +12,9 @@
  * - /collectn/lnkdlist.pas;
  * - /memory/pointer.pas;
  * - /util/helpstr.pas;
- * - ./mktypes.pas;
- * - ./mkhelper.pas;
- * - ./mkutils.pas;
+ * - ./make/mktypes.pas;
+ * - ./make/mkhelper.pas;
+ * - ./make/mkutils.pas;
  *)
 
 

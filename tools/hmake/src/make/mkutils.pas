@@ -10,7 +10,7 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - ./mktypes.pas;
+ * - ./make/mktypes.pas;
  *)
 
 (**

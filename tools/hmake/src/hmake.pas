@@ -12,12 +12,12 @@
  * - /collectn/lnkdlist.pas;
  * - /memory/pointer.pas;
  * - /util/helpstr.pas;
- * - ./mktypes.pas;
- * - ./mkhelper.pas;
- * - ./mkbuild.pas;
- * - ./mkfile.pas;
- * - ./mkbuild.pas;
- * - ./mkexec.pas;
+ * - ./make/mktypes.pas;
+ * - ./make/mkhelper.pas;
+ * - ./make/mkbuild.pas;
+ * - ./make/mkfile.pas;
+ * - ./make/mkbuild.pas;
+ * - ./make/mkexec.pas;
  *)
 
 program hmake;
@@ -26,12 +26,12 @@ program hmake;
 {$i ..\..\..\src\collectn\lnkdlist.pas}
 {$i ..\..\..\src\memory\pointer.pas}
 {$i ..\..\..\src\util\helpstr.pas}
-{$i .\mktypes.pas}
-{$i .\mkhelper.pas}
-{$i .\mkutils.pas}
-{$i .\mkfile.pas}
-{$i .\mkbuild.pas}
-{$i .\mkexec.pas}
+{$i .\make\mktypes.pas}
+{$i .\make\mkhelper.pas}
+{$i .\make\mkutils.pas}
+{$i .\make\mkfile.pas}
+{$i .\make\mkbuild.pas}
+{$i .\make\mkexec.pas}
 
 
 (**

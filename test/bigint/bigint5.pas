@@ -1,13 +1,14 @@
-(*<tstbig6.pas>
+(*<bigint5.pas>
  * Implement unit tests and sample for using the Big Numbers
  * library <bigint.pas>, using TUint24.
- * Unit tests for :
- *   12) TBigInt value assignment exceptions;
+ * Unit tests for:
+ *    10) Exception cases for multiplication operations;
+ *    11) Exception cases for division operations (reserved for future use);
  *
  * CopyLeft (c) 1995-2024 by PopolonY2k.
  * CopyLeft (c) since 2024 by Hinotori Team.
  *)
-Program TestBigNumbers6;
+Program TestBigNumbers5;
 
 (*
  * This source file depends on following include files (respect the order):
@@ -75,40 +76,72 @@ Var
   End;
 
   (**
-    * Execute Big Int variable assign exception test.
+    * Execute exception tests for big number multiplication operation.
     *)
-  Procedure __AssignValuesExceptionTest;
+  Procedure __ExceptionMultTest;
+  Const
+           ctMaxIterations : Integer = 23;
   Var
-         nCount : Integer;
-         strTmp : String[3];
-
+           nCount : Integer;
   Begin
-    TRACE( '12 - Exception tests when setting big numbers' );
+    bExit  := False;
+    nCount := 0;
+
+    TRACE( '10 - Exceptions for Multiplying Big Numbers' );
     TRACELN;
 
-    (* 12.1- Setting a TBigInt from String - Value matching *)
     PTRACE( pstrSep );
-    TRACE( '12.1 - Setting the maximum value to a 24bit variable' );
+    TRACE( '10.1 - Multiply 24bit values starting with 1 and multiplying ' );
+    TRACE( '       it by 2 until the result exceed the 24Bit limit.' );
     PTRACE( pstrSep );
 
-    For nCount := 216 To 266 Do
-    Begin
-      Str( nCount, strRet );
-      Str( nCount - 215, strTmp );
-      strRet := '16777' + strRet;
-      bRet   := TEST_OP( ' 12.1.' + strTmp + ' - StrToBigInt()',
-                         StrToBigInt( big24FirstOp, strRet ), Overflow );
-    End;
+    bRet := TEST_OP( ' 10.1.1 - StrToBigInt()',
+                     StrToBigInt( big24ConstVal, '2' ), Success );
+    bRet := TEST_OP( ' 10.1.2 - StrToBigInt()',
+                     StrToBigInt( big24Res, '1' ), Success );
+    bRet := TEST_OP( ' 10.1.3 - ResetBigInt()',
+                     ResetBigInt( big24FirstOp ), Success );
+
+    TRACELN;
+    TRACE( 'Starting big number mult. operation' );
+
+    Repeat
+      opCode := MulBigInt( big24FirstOp, big24Res, big24ConstVal );
+
+      If( opCode = Success )  Then
+      Begin
+        opCode := AssignBigInt( big24Res, big24FirstOp );
+
+        If( opCode <> Success )  Then
+        Begin
+          bExit := True;
+          bRet  := TEST_OP( '10.1.FatalError - CopyBigInt()',
+                            opCode, Success );
+        End;
+        nCount := nCount + 1;
+      End
+      Else
+      Begin
+        bExit := True;
+        bRet  := TEST_OP( '10.1.4 - Overflow test', opCode, Overflow );
+      End;
+    Until( ( bExit = True ) Or ( nCount > ctMaxIterations ) );
+
+    TRACE( 'Big number mult. operation finished' );
+    TRACELN;
+
+    bRet := TEST_INT( '10.1.5 - Iterations until 24Bit limit',
+                      nCount,
+                      ctMaxIterations );
 
     TRACELN;
   End;
 
-{ Main procedure entry point }
 Begin
   New( pStrSep );
   pstrSep^ := '-------------------------------------------------------------';
   __Setup;
-  __AssignValuesExceptionTest;
+  __ExceptionMultTest;
   Release( pstrSep );
 End;
 

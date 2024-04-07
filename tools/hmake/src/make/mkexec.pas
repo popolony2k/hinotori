@@ -11,8 +11,8 @@
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
  * - /memory/pointer.pas;
- * - ./mktypes.pas;
- * - ./mkhelper.pas;
+ * - ./make/mktypes.pas;
+ * - ./make/mkhelper.pas;
  *)
 
  (**
