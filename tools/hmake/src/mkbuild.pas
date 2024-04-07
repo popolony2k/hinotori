@@ -13,6 +13,7 @@
  * - /memory/pointer.pas;
  * - /util/helpstr.pas;
  * - ./mktypes.pas;
+ * - ./mkhelper.pas;
  * - ./mkutils.pas;
  *)
 
@@ -44,68 +45,6 @@ var
       ReadLn( handle.hFile, strLine );
       {$i+}
       __ReadFile := ( IOResult = 0 );
-  end;
-
-  (**
-    * Return the identifier type for a given token.
-    * @param strToken The token to be checked;
-    *)
-  function __GetIdentifier( var strToken : TString ) : TIdentifierType;
-  var
-        identType : TIdentifierType;
-        nPosToken : integer;
-        nPosRem   : integer;
-        nDiff     : integer;
-
-  begin
-    (* Check variables *)
-    nPosToken := Pos( '=', strToken );
-    nPosRem   := Pos( '#', strToken );
-    nDiff     := ( nPosRem - nPosToken );
-
-    (* Check targets and command *)
-    if( nDiff = 0 )  then
-    begin
-      nPosToken := Pos( ':', strToken );
-      nPosRem   := Pos( '#', strToken );
-      nDiff     := ( nPosRem - nPosToken );
-
-      if( nDiff = 0 )  then
-      begin
-        if( Length( Trim( strToken ) ) = 0 )  then
-          identType := TIdentifierType.IDENT_NONE
-        else
-          identType := TIdentifierType.IDENT_COMMAND;
-      end
-      else
-      begin
-        if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
-            ( ( nPosRem > 0 ) and ( nDiff < 0 ) ) ) then
-          identType := TIdentifierType.IDENT_REMARK
-        else
-        begin
-          identType := TIdentifierType.IDENT_TARGETS;
-
-          if( ( nDiff > 0 ) and ( nPosRem < nPosToken) )  then
-            identType := TIdentifierType.IDENT_REMARK;
-        end;
-      end;
-    end
-    else
-    begin
-      if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
-          ( ( nPosRem > 0 ) and ( nDiff < 0 ) ) ) then
-        identType := TIdentifierType.IDENT_REMARK
-      else
-      begin
-        identType := TIdentifierType.IDENT_VARIABLE;
-
-        if( ( nDiff > 0 ) and ( nPosRem < nPosToken ) )  then
-          identType := TIdentifierType.IDENT_REMARK;
-      end;
-    end;
-
-    __GetIdentifier := identType;
   end;
 
   (**
@@ -176,7 +115,7 @@ var
   begin
     bRet      := true;
     bMustRead := true;
-    identType := __GetIdentifier( strLine );
+    identType := MkGetIdentifier( strLine );
 
     case identType of
       TIdentifierType.IDENT_VARIABLE :  chToken := '=';

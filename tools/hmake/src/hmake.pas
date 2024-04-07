@@ -13,6 +13,7 @@
  * - /memory/pointer.pas;
  * - /util/helpstr.pas;
  * - ./mktypes.pas;
+ * - ./mkhelper.pas;
  * - ./mkbuild.pas;
  * - ./mkfile.pas;
  * - ./mkbuild.pas;
@@ -26,6 +27,7 @@ program hmake;
 {$i ..\..\..\src\memory\pointer.pas}
 {$i ..\..\..\src\util\helpstr.pas}
 {$i .\mktypes.pas}
+{$i .\mkhelper.pas}
 {$i .\mkutils.pas}
 {$i .\mkfile.pas}
 {$i .\mkbuild.pas}
@@ -33,7 +35,7 @@ program hmake;
 
 
 (**
-  * COmmand line parameter processing.
+  * Command line parameter processing.
   *)
 type TCmdLineParms = record
   strMakeFile : TFileName;

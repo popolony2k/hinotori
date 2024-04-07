@@ -12,6 +12,7 @@
  * - /collectn/lnkdlist.pas;
  * - /memory/pointer.pas;
  * - ./mktypes.pas;
+ * - ./mkhelper.pas;
  *)
 
  (**
