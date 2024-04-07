@@ -10,6 +10,7 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - /memory/pointer.pas;
  * - ./mktypes.pas;
  *)
 
@@ -34,6 +35,7 @@ var
   var
         pItem  : PLinkedListItem;
         pPair  : PIdentifierPair;
+        pPtr   : TPointer;
         bFound : boolean;
          
   begin
@@ -42,8 +44,9 @@ var
 
     while( not bFound and ( pItem <> nil ) ) do
     begin
-      pItem  := GetNextLinkedListItem( handle.variableList );
-      pPair  := {Ptr}( Addr( pItem^.pValue ) );
+      pItem := GetNextLinkedListItem( handle.variableList );
+      pPtr  := ToPointer( pItem^.pValue );
+      Move( pPtr, pPair, sizeof( pPair ) );
       bFound := ( pPair^.strName = strName );
     end;
 

@@ -10,6 +10,7 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - /memory/pointer.pas;
  * - /util/helpstr.pas;
  * - ./mktypes.pas;
  * - ./mkutils.pas;
@@ -170,6 +171,7 @@ var
         pair       : TIdentifierPair;
         pPair      : PIdentifierPair;
         identType  : TIdentifierType;
+        pPtr       : TPointer;
 
   begin
     bRet      := true;
@@ -194,13 +196,17 @@ var
         pItem  := GetFirstLinkedListItem( tokenList );
 
         case identType of
-          TIdentifierType.IDENT_VARIABLE : 
-            pPair := {Ptr}( Addr( pair ) );
+          TIdentifierType.IDENT_VARIABLE :
+          begin 
+            pPtr := ToPointer( pair );
+            Move( pPtr, pPair, sizeof( pPair ) );
+          end;
 
           TIdentifierType.IDENT_TARGETS  :
           begin
             CreateLinkedList( target.commandList, sizeof( TIdentifierValue ) );
-            pPair := {Ptr}( Addr( target.target ) );
+            pPtr := ToPointer( target.target );
+            Move( pPtr, pPair, sizeof( pPair ) );
           end;
         end;
 
@@ -220,13 +226,13 @@ var
                 TIdentifierType.IDENT_VARIABLE :
                 begin 
                   pTemp := AddLinkedListItem( handle.variableList, 
-                                              {Ptr}( Addr( pPair^ ) ) );
+                                              ToPointer( pPair^ ) );
                   bRet := ( pTemp <> nil );
                 end;
                 TIdentifierType.IDENT_TARGETS  :
                 begin
                   pTemp := AddLinkedListItem( handle.targetList, 
-                                              {Ptr}( Addr( target ) ) );
+                                              ToPointer( target ) );
                   bRet := ( pTemp <> nil );
 
                   if( bRet )  then
@@ -262,7 +268,7 @@ var
       if( ( pTargets <> nil ) and ( Trim( strLine ) <> '' ) )  then
       begin
         bRet := ( AddLinkedListItem( pTargets^.commandList, 
-                                     {Ptr}( Addr( strLine ) ) ) <> nil );
+                                     ToPointer( strLine ) ) <> nil );
         
         if( bRet )  then
         begin

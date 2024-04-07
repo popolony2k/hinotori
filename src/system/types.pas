@@ -37,6 +37,7 @@ type TWord          = integer;                  { 16Bit Unsigned - reserved }
      PDirectoryName = ^TDirectoryName;          { TDirectoryName pointer }
      THexadecimal   = string[2];                { Hexadecimal type }
      Pointer        = ^byte;                    { Pointer generic type }
+     TPointer       = Pointer;                  { Pointer alias }
      TDynCharArray  = array [0..0] of char;     { Dynamic char array }
      PDynCharArray  = ^TDynCharArray;           { Dynamic char array pointer }
      TDynByteArray  = array [0..0] of byte;     { Dynamic byte array }

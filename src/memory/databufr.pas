@@ -18,10 +18,10 @@
   * @param nBufferIndex The starting index inside the buffer to be retrieved;
   * @param nCount The number of bytes to copy into the return pointer;
   *)
-Procedure GetData( nBufferAddr,
+procedure GetData( nBufferAddr,
                    nReturnValueAddr,
-                   nBufferIndex, nCount : Integer );
-Begin
+                   nBufferIndex, nCount : integer );
+begin
   Move( Mem[nBufferAddr + nBufferIndex],
         Mem[nReturnValueAddr], nCount );
-End;
+end;

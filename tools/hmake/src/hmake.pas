@@ -10,13 +10,20 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - /memory/pointer.pas;
+ * - /util/helpstr.pas;
+ * - ./mktypes.pas;
  * - ./mkbuild.pas;
+ * - ./mkfile.pas;
+ * - ./mkbuild.pas;
+ * - ./mkexec.pas;
  *)
 
 program hmake;
 
 {$i ..\..\..\src\system\types.pas}
 {$i ..\..\..\src\collectn\lnkdlist.pas}
+{$i ..\..\..\src\memory\pointer.pas}
 {$i ..\..\..\src\util\helpstr.pas}
 {$i .\mktypes.pas}
 {$i .\mkutils.pas}

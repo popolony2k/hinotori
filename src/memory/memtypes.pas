@@ -12,19 +12,19 @@
 
 (* Module definitions *)
 
-Const    ctMemPage0Addr : Integer = $0000;   { Memory page 0 base address }
-         ctMemPage1Addr : Integer = $4000;   { Memory page 1 base address }
-         ctMemPage2Addr : Integer = $8000;   { Memory page 2 base address }
-         ctMemPage3Addr : Integer = $C000;   { Memory page 3 base address }
+const    ctMemPage0Addr : integer = $0000;   { Memory page 0 base address }
+         ctMemPage1Addr : integer = $4000;   { Memory page 1 base address }
+         ctMemPage2Addr : integer = $8000;   { Memory page 2 base address }
+         ctMemPage3Addr : integer = $C000;   { Memory page 3 base address }
 
 (**
   * Supported memory types.
   *)
-Type TMemoryType = ( MemAnyMemory,
+type TMemoryType = ( MemAnyMemory,
                      MemMemoryMapper,
                      MemMegaRAM );
 
 (**
   * Set for TMemoryType.
   *)
-Type TMemoryTypeSet = Set Of TMemoryType;
+type TMemoryTypeSet = set of TMemoryType;

@@ -16,17 +16,17 @@
   * After execution of this function, the nAddress value points
   * to the next address position (Word step).
   *)
-Function GetInteger( Var nAddress : Integer ) : Integer;
-Var
-        nCount  : Byte;
-        nResult : Integer;
+function GetInteger( var nAddress : integer ) : integer;
+var
+        nCount  : byte;
+        nResult : integer;
 
-Begin
-  nCount := SizeOf( Integer );
+begin
+  nCount := SizeOf( integer );
   Move( Mem[nAddress], Mem[Addr( nResult )], nCount );
   nAddress := nAddress + nCount;
   GetInteger := nResult;
-End;
+end;
 
 (**
   * Get the a byte memory position based on address passed
@@ -34,17 +34,17 @@ End;
   * @param nAddress The reference value with address position
   * to retrieve.
   * After execution of this function, the nAddress value points
-  * to the next address position (Byte step).
+  * to the next address position (byte step).
   *)
-Function GetByte( Var nAddress : Integer ) : Byte;
-Var
-        nResult : Byte;
+function GetByte( var nAddress : integer ) : byte;
+var
+        nResult : byte;
 
-Begin
+begin
   nResult  := Mem[nAddress];
   nAddress := nAddress + 1;
   GetByte  := nResult;
-End;
+end;
 
 (**
   * When we're using a uni-dimensional vector and want to
@@ -57,7 +57,7 @@ End;
   * @param nMaxCol the maximum number of columns of 'virtual'
   * bi-dimensional array;
   *)
-Function IndexArray( nCol, nRow, nMaxCol : Byte) : Integer;
-Begin
+function IndexArray( nCol, nRow, nMaxCol : byte) : integer;
+begin
  IndexArray := ( ( nMaxCol * nCol ) + nRow );
-End;
+end;

@@ -7,6 +7,7 @@
 (*
  * This source file depends on following include files (respect the order):
  * - /system/types;
+ * - /memory/pointer.pas;
  * - /collectn/lnkdlist.pas;
  *)
 
@@ -71,7 +72,7 @@ begin
     begin
       strTemp := Copy( strValue, 1, ( nPos - 1 ) );
 
-      if( AddLinkedListItem( aResult, {Ptr}( Addr( strTemp ) ) ) <> nil ) then
+      if( AddLinkedListItem( aResult, ToPointer( strTemp ) ) <> nil ) then
         Delete( strValue, 1, nPos )
       else
         nPos := -1;
@@ -79,7 +80,7 @@ begin
     else
     begin
       if( aResult.nListSize > 0 )  then
-        if( AddLinkedListItem( aResult, {Ptr}( Addr( strValue ) ) ) = nil ) then
+        if( AddLinkedListItem( aResult, ToPointer( strValue ) ) = nil ) then
           nPos := -1;
     end;
   until( nPos <= 0 );
