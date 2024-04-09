@@ -33,6 +33,8 @@ begin
     aCursor[1] := '/';
     aCursor[2] := '-';
     aCursor[3] := '\';
+    pDefaultTarget := nil;
+    bIsOpen := false;
   end;
 end;
 
@@ -60,12 +62,45 @@ end;
   * @param handle reference to a valid TMakeHandle with data;
   *)
 procedure PrintDebug( var handle : TMakeHandle );
+
+  (**
+    * Print target list.
+    * @param pItem Pointer to the target object on list;
+    *)
+  procedure __PrintTarget( pItem : TPointer );
+  var
+          pCmdItem    : PLinkedListItem;
+          command     : TIdentifierValue;
+          pItemTarget : PTarget;
+
+  begin
+    Move( pItem, pItemTarget, sizeof( pItemTarget ) );
+    WriteLn( 'Name  -> ', pItemTarget^.target.strName );
+    WriteLn( 'Value -> ', pItemTarget^.target.strValue );
+
+    pCmdItem := GetFirstLinkedListItem( pItemTarget^.commandList );
+
+    if( pCmdItem <> nil )  then
+      WriteLn( 'COMMANDS ======');
+
+    while( pCmdItem <> nil )  do
+    begin
+      Move( pCmdItem^.pValue^, command, sizeof( command ) );
+      WriteLn( 'CMD -> ', command );
+      pCmdItem := GetNextLinkedListItem( pItemTarget^.commandList );
+    end;
+
+    WriteLn( '-----------------------' );
+  end;
+
+
+(*
+ * PrintDebug main entry point.
+ *)
 var
-    pItem     : PLinkedListItem;
-    pCmdItem  : PLinkedListItem;
-    pair      : TIdentifierPair;
-    target    : TTarget;
-    command   : TIdentifierValue;
+    pTargetPtr : TPointer;
+    pItem      : PLinkedListItem;
+    pair       : TIdentifierPair;
 
 begin
   pItem := GetFirstLinkedListItem( handle.variableList );
@@ -80,8 +115,8 @@ begin
   while( pItem <> nil )  do
   begin
     Move( pItem^.pValue^, pair, sizeof( pair ) );
-    WriteLn( 'Item Name  -> ', pair.strName );
-    WriteLn( 'Item Value -> ', pair.strValue );
+    WriteLn( 'Name  -> ', pair.strName );
+    WriteLn( 'Value -> ', pair.strValue );
     WriteLn( '-----------------------' );
 
     pItem := GetNextLinkedListItem( handle.variableList );
@@ -96,26 +131,19 @@ begin
 
   WriteLn;
 
+  (* Print all targets *)
   while( pItem <> nil )  do
-  begin
-    Move( pItem^.pValue^, target, sizeof( target ) );
-    WriteLn( 'Item Name  -> ', target.target.strName );
-    WriteLn( 'Item Value -> ', target.target.strValue );
-
-    pCmdItem := GetFirstLinkedListItem( target.commandList );
-
-    if( pCmdItem <> nil )  then
-      WriteLn( 'COMMANDS ======');
-
-    while( pCmdItem <> nil )  do
     begin
-      Move( pCmdItem^.pValue^, command, sizeof( command ) );
-      WriteLn( 'CMD -> ', command );
-      pCmdItem := GetNextLinkedListItem( target.commandList );
+      __PrintTarget( pItem^.pValue );
+      pItem := GetNextLinkedListItem( handle.targetList );
     end;
 
-    WriteLn( '-----------------------' );
+  if( handle.pDefaultTarget <> nil )  then
+  begin
+    Writeln;
+    WriteLn( 'DEFAULT TARGET ======');
 
-    pItem := GetNextLinkedListItem( handle.targetList );
-  end;
+    Move( handle.pDefaultTarget, pTargetPtr, sizeof( pTargetPtr ) ); 
+    __PrintTarget( pTargetPtr );
+  end
 end;
