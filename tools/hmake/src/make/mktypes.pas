@@ -44,7 +44,7 @@ end;
   *)
 type PTarget = ^TTarget;
      TTarget = record
-  target        : TIdentifierPair;        { Target name/prereq.        }
+  targetPair    : TIdentifierPair;        { Target name/prereq.        }
   commandList   : TLinkedList;            { Command list               }
 end;
 

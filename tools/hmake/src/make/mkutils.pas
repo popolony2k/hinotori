@@ -76,8 +76,8 @@ procedure PrintDebug( var handle : TMakeHandle );
 
   begin
     Move( pItem, pItemTarget, sizeof( pItemTarget ) );
-    WriteLn( 'Name  -> ', pItemTarget^.target.strName );
-    WriteLn( 'Value -> ', pItemTarget^.target.strValue );
+    WriteLn( 'Name  -> ', pItemTarget^.targetPair.strName );
+    WriteLn( 'Value -> ', pItemTarget^.targetPair.strValue );
 
     pCmdItem := GetFirstLinkedListItem( pItemTarget^.commandList );
 

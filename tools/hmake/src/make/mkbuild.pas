@@ -153,7 +153,7 @@ var
           TIdentifierType.IDENT_TARGETS  :
           begin
             CreateLinkedList( target.commandList, sizeof( TIdentifierValue ) );
-            pPtr := ToPointer( target.target );
+            pPtr := ToPointer( target.targetPair );
             Move( pPtr, pPair, sizeof( pPair ) );
           end;
         end;
