@@ -147,13 +147,13 @@ begin
         else
         begin
           WriteLn( 'Execute failed with following error:' );
-          WriteLn( '[' + handle.strLastError + ']');
+          WriteLn( handle.strLastError );
         end;
       end
       else
       begin
         WriteLn( 'Build failed with following error:' );
-        WriteLn( '[' + handle.strLastError + ']');
+        WriteLn( 'Line (', handle.nLastLine, ') - ', handle.strLastError );
       end;
     end
     else

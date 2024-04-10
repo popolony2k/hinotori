@@ -33,6 +33,7 @@ begin
     aCursor[1] := '/';
     aCursor[2] := '-';
     aCursor[3] := '\';
+    nLastLine  := 0;
     pDefaultTarget := nil;
     bIsOpen := false;
   end;

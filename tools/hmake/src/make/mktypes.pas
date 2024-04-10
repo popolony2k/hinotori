@@ -57,7 +57,8 @@ end;
    pDefaultTarget : PTarget;              { Pointer to default target  }
    variableList   : TLinkedList;          { Make variable list         }
    targetList     : TLinkedList;          { Make target list           }
-   strLastError   : TString;              { Last processing error      }        
+   strLastError   : TString;              { Last processing error      }
+   nLastLine      : integer;              { Last processed line        }
    nCursor        : byte;                 { Cursor position control    }
    aCursor        : array[0..3] of char;  { Cursor array char sequence }
  end;

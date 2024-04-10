@@ -74,3 +74,31 @@ begin
 
   MkGetIdentifier := identType;
 end;
+
+(**
+  * Check if an indentifier is valid.
+  * param handle The @see TMakeHandle of a makefile that 
+  * has been checked;
+  * @param pair The identifier that will be checked;
+  *)
+function MkCheckValidIdentifier( var handle : TMakeHandle; 
+                                 var pair : TIdentifierPair ) : boolean;
+var
+    bRet     : boolean;
+    nPos     : integer;
+begin
+  bRet := true;
+
+  case pair.identType of
+    TIdentifierType.IDENT_VARIABLE : 
+    begin
+      nPos := Pos( ':', pair.strValue ) + Pos( '=', pair.strValue );
+      bRet := ( nPos = 0 );
+
+      if( not bRet )  then
+        handle.strLastError := 'Not supported variable referencing mode';
+    end;
+  end;
+
+  MkCheckValidIdentifier := bRet;
+end;

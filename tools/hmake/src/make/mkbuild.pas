@@ -44,51 +44,60 @@ var
       {$i-}
       ReadLn( handle.hFile, strLine );
       {$i+}
+
+      handle.nLastLine := Succ( handle.nLastLine );
       __ReadFile := ( IOResult = 0 );
   end;
 
   (**
     * Parse identifier value.
-    * @param strValue The value that will be parsed and the content
-    * will return into the same variable;  
+    * @param pair The containing @see TIdentifierPair value that 
+    * will be parsed and the content will return into the same 
+    * variable;  
     *)
-  function __ParseValue( var strValue : TString ) : boolean;
+  function __ParseValue( var pair : TIdentifierPair ) : boolean;
   var
          nPos   : integer;
          bRet   : boolean;
 
   begin
-    bRet := true;
+    bRet := ( MkCheckValidIdentifier( handle, pair ) );
 
-    repeat
-      nPos := Pos( '\', strValue );
-
-      if( nPos > 0 )  then
-      begin
-        strValue := Copy( strValue, 1, ( nPos - 1 ) );
-        strValue := Trim( strValue );
-        bRet := __ReadFile;
-
-        if( bRet )  then
+    if( bRet )  then
+    begin
+      repeat
+        with pair do
         begin
-          nPos := Pos( '\', strLine );
+          nPos := Pos( '\', strValue );
 
-          (*
-           * Already read data from file, process in the next loop.
-           *)
-          if( nPos <= 0 )  then
-            bMustRead := ( ( Pos( ':', strLine ) = 0 ) and 
-                           ( Pos( '=', strLine ) = 0 ) );
-
-          if( bMustRead )  then
+          if( nPos > 0 )  then
           begin
-            strValue := strValue + ' ' + Trim( strLine );
+            strValue := Copy( strValue, 1, ( nPos - 1 ) );
+            strValue := Trim( strValue );
+            bRet := __ReadFile;
+
+            if( bRet )  then
+            begin
+              nPos := Pos( '\', strLine );
+
+              (*
+              * Already read data from file, process in the next loop.
+              *)
+              if( nPos <= 0 )  then
+                bMustRead := ( ( Pos( ':', strLine ) = 0 ) and 
+                              ( Pos( '=', strLine ) = 0 ) );
+
+              if( bMustRead )  then
+              begin
+                strValue := strValue + ' ' + Trim( strLine );
+              end;
+            end
+            else
+              handle.strLastError := 'Error reading makefile';
           end;
-        end
-        else
-          handle.strLastError := 'Error reading makefile';
-      end;
-    until( not bRet or ( nPos <= 0 ) );
+        end;
+      until( not bRet or ( nPos <= 0 ) );
+    end;
 
     __ParseValue := bRet;  
   end;
@@ -128,7 +137,7 @@ var
       CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
       nCount := SplitString( strLine, chToken, tokenList );
       
-      (* Process identifier *)
+      (* Process identifier - Only create and dereference pointers *)
       if( nCount > 0 )  then
       begin
         nCount := 0;
@@ -136,7 +145,7 @@ var
 
         case identType of
           TIdentifierType.IDENT_VARIABLE :
-          begin 
+          begin
             pPtr := ToPointer( pair );
             Move( pPtr, pPair, sizeof( pPair ) );
           end;
@@ -151,6 +160,7 @@ var
 
         pPair^.identType := identType;
 
+        (* Assign identifier values *)
         while( bRet and ( pItem <> nil ) )  do
         begin
           if( ( nCount mod 2 ) = 0 )  then
@@ -159,7 +169,7 @@ var
           begin
             Move( pItem^.pValue^, pPair^.strValue, sizeof( pPair^.strValue ) );
 
-            if( __ParseValue( pPair^.strValue ) )  then
+            if( __ParseValue( pPair^ ) )  then
             begin
               case identType of
                 TIdentifierType.IDENT_VARIABLE :
