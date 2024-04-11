@@ -85,7 +85,7 @@ var
               *)
               if( nPos <= 0 )  then
                 bMustRead := ( ( Pos( ':', strLine ) = 0 ) and 
-                              ( Pos( '=', strLine ) = 0 ) );
+                               ( Pos( '=', strLine ) = 0 ) );
 
               if( bMustRead )  then
               begin
