@@ -54,7 +54,7 @@ begin
   WriteLn( '  [-h] Optional. Print this help screen.' );
   WriteLn( '  [-d] Optional. Print makefile execution debug information.' );
   WriteLn( '    Show all variables, targets and step processing execution.' );
-  WriteLn( '  [-f <makefile>] Optional. Informs the makefile that will be' );
+  WriteLn( '  [-f <makefile>] Optional. Set the makefile that will be' );
   WriteLn( '    processed. If not informed a file named makefile on current' );
   WriteLn( '    directory will be processed, if exists.' );
   WriteLn( '  [targets] Optional. The target that will be processed.' );
