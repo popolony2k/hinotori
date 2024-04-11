@@ -81,8 +81,8 @@ var
               nPos := Pos( '\', strLine );
 
               (*
-              * Already read data from file, process in the next loop.
-              *)
+               * Already read data from file, process in the next loop.
+               *)
               if( nPos <= 0 )  then
                 bMustRead := ( ( Pos( ':', strLine ) = 0 ) and 
                                ( Pos( '=', strLine ) = 0 ) );
