@@ -146,8 +146,17 @@ var
         case identType of
           TIdentifierType.IDENT_VARIABLE :
           begin
-            pPtr := ToPointer( pair );
-            Move( pPtr, pPair, sizeof( pPair ) );
+            (* Cannot assign variable in targets *)
+            if( handle.pDefaultTarget <> nil )  then
+            begin
+              handle.strLastError := 'Cannot assign variable in targets';
+              bRet := false;
+            end
+            else
+            begin
+              pPtr := ToPointer( pair );
+              Move( pPtr, pPair, sizeof( pPair ) );
+            end;
           end;
 
           TIdentifierType.IDENT_TARGETS  :
