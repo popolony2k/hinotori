@@ -8,6 +8,7 @@
     - Targets processing (OK);
     - Targets macro substitution (including variables);
     - Review operation; (WIP)
+    - Implement conditional statements (ifeq, ifneq);
 4. Excuting commands; (WIP)
     - Commands macro substitution (including variables);
 5. Variable reference (macro substitution or linked list item reference ??) through $(var_name) on labels or another variable;
