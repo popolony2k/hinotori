@@ -29,13 +29,6 @@ begin
   {$i+}
 
   handle.bIsOpen := ( IOResult = 0 );
-
-  if( handle.bIsOpen )  then
-  begin
-    CreateLinkedList( handle.variableList, sizeof( TIdentifierPair ) );
-    CreateLinkedList( handle.targetList, sizeof( TTarget ) );
-  end;
-
   MkOpen := ( handle.bIsOpen );
 end;
 
@@ -45,27 +38,9 @@ end;
  * The function will return true if the operation was successfull otherwise false;
  *)
 function MkClose( var handle : TMakeHandle ) : boolean;
-var
-      pItem     : PLinkedListItem;
-      target    : TTarget;
-
 begin
   if( handle.bIsOpen )  then
   begin
-    DestroyLinkedList( handle.variableList );
-
-    (* Destroy target list and its command list *)
-    pItem := GetFirstLinkedListItem( handle.targetList );
-
-    while( pItem <> nil )  do
-    begin
-      Move( pItem^.pValue^, target, sizeof( target ) );
-      DestroyLinkedList( target.commandList );
-      pItem := GetNextLinkedListItem( handle.targetList );
-    end;
-
-    DestroyLinkedList( handle.targetList );
-
     {$i-}
     Close( handle.hFile );
     {$i+}

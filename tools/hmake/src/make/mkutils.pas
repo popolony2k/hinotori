@@ -29,14 +29,43 @@ begin
   with handle do
   begin
     nCursor    := 0;
+    nLastLine  := 0;
+    bIsOpen    := false;
     aCursor[0] := '|';
     aCursor[1] := '/';
     aCursor[2] := '-';
     aCursor[3] := '\';
-    nLastLine  := 0;
+    strLastError   := '';
     pDefaultTarget := nil;
-    bIsOpen := false;
+
+    CreateLinkedList( handle.variableList, sizeof( TIdentifierPair ) );
+    CreateLinkedList( handle.targetList, sizeof( TTarget ) );
   end;
+end;
+
+(**
+  * Destroy all resources allocated by makefile processing.
+  * @param handle The handle to be released;
+  *)
+procedure MkDestroy( var handle : TMakeHandle );
+var
+      pItem     : PLinkedListItem;
+      target    : TTarget;
+
+begin
+  DestroyLinkedList( handle.variableList );
+
+  (* Destroy target list and its command list *)
+  pItem := GetFirstLinkedListItem( handle.targetList );
+
+  while( pItem <> nil )  do
+  begin
+    Move( pItem^.pValue^, target, sizeof( target ) );
+    DestroyLinkedList( target.commandList );
+    pItem := GetNextLinkedListItem( handle.targetList );
+  end;
+
+  DestroyLinkedList( handle.targetList );
 end;
 
 (**

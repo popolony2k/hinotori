@@ -23,8 +23,6 @@
   * If empty, the default will be processed;
   *)
 function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
-var
-      bRet : boolean;
 
   (**
     * Find the identifier based on its name;
@@ -32,11 +30,10 @@ var
     * The function return the pointer to the requested identifier or
     * nil if not found;
     *)
-  function __FindIdentifier( var strName : TString ) : PIdentifierPair;
+  function __FindIdentifier( var strName : TIdentifierName ) : PIdentifierPair;
   var
         pItem  : PLinkedListItem;
         pPair  : PIdentifierPair;
-        pPtr   : TPointer;
         bFound : boolean;
          
   begin
@@ -45,10 +42,9 @@ var
 
     while( not bFound and ( pItem <> nil ) ) do
     begin
-      pItem := GetNextLinkedListItem( handle.variableList );
-      pPtr  := ToPointer( pItem^.pValue );
-      Move( pPtr, pPair, sizeof( pPair ) );
+      Move( pItem^.pValue, pPair, sizeof( pPair ) );
       bFound := ( pPair^.strName = strName );
+      pItem  := GetNextLinkedListItem( handle.variableList );
     end;
 
     if( not bFound )  then
@@ -57,11 +53,70 @@ var
     __FindIdentifier := pPair;
   end;
 
+  (**
+    * Find a target based on its name;
+    * @param strName The target name to find;
+    * The function return the pointer to the requested target or
+    * nil if not found;
+    *)
+  function __FindTarget( var strName : TIdentifierName ) : PTarget;
+  var
+        pItem       : PLinkedListItem;
+        pItemTarget : PTarget;
+        bFound      : boolean;
+         
+  begin
+    bFound := false;
+    pItem  := GetFirstLinkedListItem( handle.targetList );
+
+    while( not bFound and ( pItem <> nil ) ) do
+    begin
+      Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
+      bFound := ( pItemTarget^.targetPair.strName = strName );
+      pItem  := GetNextLinkedListItem( handle.targetList );
+    end;
+
+    if( not bFound )  then
+      pItemTarget := nil;
+
+    __FindTarget := pItemTarget;
+  end;
+
+  (**
+    * Execute a commandlist passed as parameter.
+    * @param commandList The command list to execute;
+    *)
+  function __ExecCommands( var commandList : TLinkedList ) : boolean;
+  var
+         bRet : boolean;
+
+  begin
+    bRet := true;
+
+    { TODO: FINISH HIM !!!! }
+
+    __ExecCommands := bRet;
+  end;
+
+var
+      bRet        : boolean;
+      pTargetItem : PTarget;
+
 (*
  * MkExecute main routine
  *)
 begin
-  bRet := true;
+  if( strTarget = '' )  then
+    pTargetItem := handle.pDefaultTarget
+  else
+    pTargetItem := __FindTarget( strTarget );
+
+  bRet := ( pTargetItem <> nil );
+
+  if( bRet )  then
+    bRet := __ExecCommands( pTargetItem^.commandList )
+  else
+    handle.strLastError := 'Invalid target [' + strTarget + ']';
 
   MkExecute := bRet;
 end;

@@ -158,5 +158,7 @@ begin
     end
     else
       WriteLn( 'Error to open make file [' + parms.strMakeFile + ']' );
+
+    MkDestroy( handle );
   end;
 end.

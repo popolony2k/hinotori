@@ -236,7 +236,7 @@ var
         bRet := ( AddLinkedListItem( pTargets^.commandList, 
                                      ToPointer( strLine ) ) <> nil );
         
-        if( bRet )  then
+        if( not bRet )  then
         begin
           handle.strLastError := 'Not enough memory -> '  + strLine;
         end;
