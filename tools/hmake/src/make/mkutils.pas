@@ -31,6 +31,7 @@ begin
     nCursor    := 0;
     nLastLine  := 0;
     bIsOpen    := false;
+    bDebugMode := false;
     aCursor[0] := '|';
     aCursor[1] := '/';
     aCursor[2] := '-';

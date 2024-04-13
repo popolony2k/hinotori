@@ -17,7 +17,7 @@
   * Return the identifier type for a given token.
   * @param strToken The token to be checked;
   *)
-function MkGetIdentifier( var strToken : TString ) : TIdentifierType;
+function MkGetIdentifier( var strToken : TIdentifierValue ) : TIdentifierType;
 var
       identType : TIdentifierType;
       nPosToken : integer;

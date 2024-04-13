@@ -13,6 +13,9 @@
  * - /memory/pointer.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;
+ * - ./make/fpc/mkoscmd.pas   (depemds on archtecture)
+ * - ./make/msx/mkoscmd.pas   (depends on archtecture)
+ 
  *)
 
  (**
@@ -88,12 +91,29 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     *)
   function __ExecCommands( var commandList : TLinkedList ) : boolean;
   var
-         bRet : boolean;
+         bRet         : boolean;
+         bHasCommands : boolean;
+         strCommand   : TIdentifierValue;
+         pItem        : PLinkedListItem;
 
   begin
-    bRet := true;
+    bRet  := true;
+    pItem := GetFirstLinkedListItem( commandList );
+    bHasCommands := ( pItem <> nil );
 
-    { TODO: FINISH HIM !!!! }
+    while( bRet and ( pItem <> nil ) ) do
+    begin
+      Move( pItem^.pValue^, strCommand, sizeof( strCommand ) );
+      pItem  := GetNextLinkedListItem( commandList );
+
+      if( handle.bDebugMode )  then
+        WriteLn( '=> ', strCommand );
+      
+      bRet := MkExecCommand( handle, strCommand );
+    end;
+
+    if( handle.bDebugMode and not bHasCommands )  then
+      WriteLn( 'No commands to execute on this target' );
 
     __ExecCommands := bRet;
   end;
@@ -112,6 +132,9 @@ begin
     pTargetItem := __FindTarget( strTarget );
 
   bRet := ( pTargetItem <> nil );
+
+  if( handle.bDebugMode )  then
+    WriteLn( 'Executing target [', strTarget, ']' );
 
   if( bRet )  then
     bRet := __ExecCommands( pTargetItem^.commandList )

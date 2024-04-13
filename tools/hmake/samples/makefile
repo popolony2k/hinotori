@@ -41,5 +41,10 @@ main.o: main.c $(H_SOURCE)
 	$(CC) -o $@ $< $(CC_FLAGS)
 
 clean:
-	rm -rf *.o $(PROJ_NAME) *~
+	echo "cleaning"
+	echo "rm -rf *.o $(PROJ_NAME) *~"
 # INVALID_VAR=-c
+
+test:
+	echo "Testing project"
+	echo $(PROJ_NAME)

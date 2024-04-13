@@ -17,6 +17,8 @@
  * - ./make/mkbuild.pas;
  * - ./make/mkfile.pas;
  * - ./make/mkbuild.pas;
+ * - ./make/fpc/mkoscmd.pas   (depemds on archtecture)
+ * - ./make/msx/mkoscmd.pas   (depends on archtecture)
  * - ./make/mkexec.pas;
  *)
 
@@ -31,8 +33,9 @@ program hmake;
 {$i .\make\mkutils.pas}
 {$i .\make\mkfile.pas}
 {$i .\make\mkbuild.pas}
+{$i .\make\fpc\mkoscmd.pas}
+{i .\make\msx\mkoscmd.pas}
 {$i .\make\mkexec.pas}
-
 
 (**
   * Command line parameter processing.
@@ -41,7 +44,7 @@ type TCmdLineParms = record
   strMakeFile : TFileName;
   strTarget   : TTinyString;
   strError    : TString;
-  bPrintDebug : boolean;
+  bDebugMode  : boolean;
 end;
 
 (**
@@ -52,7 +55,7 @@ begin
   WriteLn;
   WriteLn( 'Usage - hmake [-h] [-f <makefile>] [<target>]' );
   WriteLn( '  [-h] Optional. Print this help screen.' );
-  WriteLn( '  [-d] Optional. Print makefile execution debug information.' );
+  WriteLn( '  [-d] Optional. Show makefile build/execution debug information.' );
   WriteLn( '    Show all variables, targets and step processing execution.' );
   WriteLn( '  [-f <makefile>] Optional. Set the makefile that will be' );
   WriteLn( '    processed. If not informed a file named makefile on current' );
@@ -75,7 +78,7 @@ var
 
 begin
   parms.strMakeFile := '.\Makefile';
-  parms.bPrintDebug := false;
+  parms.bDebugMode  := false;
   bRet   := true;
   nCount := 1; 
 
@@ -90,7 +93,7 @@ begin
 
       '-d' :
       begin 
-        parms.bPrintDebug := true;
+        parms.bDebugMode := true;
       end;
 
       '-f' :
@@ -130,11 +133,13 @@ begin
   begin
     MkInit( handle );
 
+    handle.bDebugMode := parms.bDebugMode;
+
     if( MkOpen( parms.strMakeFile, handle ) ) then
     begin
       if( MkBuild( handle ) )  then
       begin
-        if( parms.bPrintDebug )  then
+        if( parms.bDebugMode )  then
           PrintDebug( handle );
 
         if( not MkClose( handle ) ) then

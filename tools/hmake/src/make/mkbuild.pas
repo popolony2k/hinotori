@@ -29,7 +29,7 @@
  *)
 function MkBuild( var handle : TMakeHandle ) : boolean;
 var
-       strLine      : TString;
+       strLine      : TIdentifierValue;
        bMustRead    : boolean;
        bRet         : boolean;
        pTargets     : PTarget;
