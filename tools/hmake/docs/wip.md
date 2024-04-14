@@ -25,3 +25,5 @@
 1. Implement include on makefiles (check this);
 2. Implement wildcard processing (eg. $(wildcard *.c));
 3. Implement constants (:=);
+    - Add some builtin constants
+        - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS); 
