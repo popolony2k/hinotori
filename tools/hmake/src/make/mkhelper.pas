@@ -111,9 +111,9 @@ end;
   *)
 function MkFindIdentifier( var handle : TMakeHandle; var strName : TIdentifierName ) : PIdentifierPair;
 var
-      pItem  : PLinkedListItem;
-      pPair  : PIdentifierPair;
-      bFound : boolean;
+      pItem     : PLinkedListItem;
+      pItemPair : PIdentifierPair;
+      bFound    : boolean;
         
 begin
   bFound := false;
@@ -121,15 +121,15 @@ begin
 
   while( not bFound and ( pItem <> nil ) ) do
   begin
-    Move( pItem^.pValue, pPair, sizeof( pPair ) );
-    bFound := ( pPair^.strName = strName );
+    Move( pItem^.pValue, pItemPair, sizeof( pItemPair ) );
+    bFound := ( pItemPair^.strName = strName );
     pItem  := GetNextLinkedListItem( handle.variableList );
   end;
 
   if( not bFound )  then
-    pPair := nil;
+    pItemPair := nil;
 
-  MkFindIdentifier := pPair;
+  MkFindIdentifier := pItemPair;
 end;
 
 (**
