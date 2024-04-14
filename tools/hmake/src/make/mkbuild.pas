@@ -74,7 +74,7 @@ var
           if( nPos > 0 )  then
           begin
             strValue := Copy( strValue, 1, ( nPos - 1 ) );
-            strValue := Trim( strValue );
+            strValue := RemoveChar( Trim( strValue ), ctTAB );
             bRet := __ReadFile;
 
             if( bRet )  then

@@ -19,9 +19,9 @@ H_SOURCE=$(wildcard *.h)
 # Compiler
 CC=gcc
 
-# Flags for compiler
+# Flags for compiler (Mixed TAB and space identation)
 CC_FLAGS=-c         \
-         -W         \
+		 -W         \
          -Wall      \
          -ansi      \
          -pedantic
