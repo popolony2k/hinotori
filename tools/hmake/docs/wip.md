@@ -1,20 +1,23 @@
 ## Work in Progress
 
 1. Implement multi-line variable content parsing (\) and storing; (OK)
-    - Variables macro substitution; (WIP - item 5)
 2. Implement remark processing (#); (OK)
-3. Targets implementation; (WIP)
+3. Targets implementation; (OK)
     - Targets parsing; (OK);
     - Targets processing (OK);
-    - Targets macro substitution (including variables);
-    - Review operation; (WIP)
-    - Implement conditional statements (ifeq, ifneq);
+    - Review operation; (OK)
 4. Excuting commands; (WIP)
-    - Commands macro substitution (including variables);
-5. Variable reference (macro substitution or linked list item reference ??) through $(var_name) on labels or another variable;
-6. Operating system environment variables access by makefile; 
+    - Variables macro substitution; (WIP)
+    - Targets macro substitution (including variables); (WIP)
+    - Commands macro substitution (including variables); (WIP)
+    - Execution logic - When execute or not; (WIP)
+    - OS Specific command calls;
+    - Environment variables (OS specific calls);
+        - Runtime variable avaibility checking (when executing a command);
+5. Operating system environment variables access by makefile; 
     - All environment variables are inherited by makefile scripts;
     https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment.
+6. Implement conditional statements (ifeq, ifneq);
 7. Force identation by tab instead spaces. If make file is idented by space, force make failure.
 
 ## Whish list
