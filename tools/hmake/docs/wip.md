@@ -10,7 +10,8 @@
     - Variables macro substitution; (WIP)
     - Targets macro substitution (including variables); (WIP)
     - Commands macro substitution (including variables); (WIP)
-    - Execution logic - When execute or not; (WIP)
+    - Execution logic - When execute or not (based on makefile rules); (WIP)
+    - Implement multi-line command parsing and executing;
     - OS Specific command calls;
     - Environment variables (OS specific calls);
         - Runtime variable avaibility checking (when executing a command);
@@ -23,7 +24,7 @@
     - Test multiple targets and already defined targets;
 8. Force identation by tab instead spaces. If make file is idented by space, force make failure.
 
-## Whish list
+## Wish list
 
 1. Implement include on makefiles (check this);
 2. Implement wildcard processing (eg. $(wildcard *.c));
