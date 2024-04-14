@@ -160,8 +160,6 @@ var
 
                 TIdentifierType.IDENT_TARGETS  :
                 begin
-                  CreateLinkedList( target.commandList, 
-                                    sizeof( TIdentifierValue ) );
                   pPtr := ToPointer( target.targetPair );
                   Move( pPtr, pPair, sizeof( pPair ) );
                   Move( pItem^.pValue^, 
@@ -171,7 +169,10 @@ var
                   (* Check if target was already defined previously *)
                   bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
 
-                  if( not bRet )  then
+                  if( bRet )  then
+                    CreateLinkedList( target.commandList, 
+                                      sizeof( TIdentifierValue ) )
+                  else
                     handle.strLastError := 'target [' + pPair^.strName + 
                                            '] already defined';
                 end;
