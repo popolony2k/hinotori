@@ -247,10 +247,10 @@ var
               handle.strLastError := 'Not enough memory';
             end;
           end;
-
-          UpdateProgress( handle );
         end;
     end;
+
+    UpdateProgress( handle );
 
     __Parse := bRet;
   end;
