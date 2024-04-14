@@ -1,4 +1,4 @@
-(*<mkoscmd.pas>
+(*<mkoscall.pas>
  * Hinotori make file specific operating system calls.
  * Free Pascal specific operating system calls.
  *

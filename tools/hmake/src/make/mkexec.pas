@@ -13,8 +13,8 @@
  * - /memory/pointer.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;
- * - ./make/fpc/mkoscmd.pas   (depemds on archtecture)
- * - ./make/msx/mkoscmd.pas   (depends on archtecture)
+ * - ./make/fpc/mkoscall.pas   (depemds on archtecture)
+ * - ./make/msx/mkoscall.pas   (depends on archtecture)
  
  *)
 
@@ -107,7 +107,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       pItem  := GetNextLinkedListItem( commandList );
 
       if( handle.bDebugMode )  then
-        WriteLn( '=> ', strCommand );
+        WriteLn( '(cmd) => ', strCommand );
       
       bRet := MkExecCommand( handle, strCommand );
     end;
@@ -134,12 +134,21 @@ begin
   bRet := ( pTargetItem <> nil );
 
   if( handle.bDebugMode )  then
+  begin
+    WriteLn;
     WriteLn( 'Executing target [', strTarget, ']' );
+    WriteLn( '-----------------------' );
+  end;
 
   if( bRet )  then
     bRet := __ExecCommands( pTargetItem^.commandList )
   else
     handle.strLastError := 'Invalid target [' + strTarget + ']';
+
+  if( handle.bDebugMode )  then
+  begin
+    WriteLn( '-----------------------' );
+  end;
 
   MkExecute := bRet;
 end;

@@ -17,8 +17,8 @@
  * - ./make/mkbuild.pas;
  * - ./make/mkfile.pas;
  * - ./make/mkbuild.pas;
- * - ./make/fpc/mkoscmd.pas   (depemds on archtecture)
- * - ./make/msx/mkoscmd.pas   (depends on archtecture)
+ * - ./make/fpc/mkoscall.pas   (depemds on archtecture)
+ * - ./make/msx/mkoscall.pas   (depends on archtecture)
  * - ./make/mkexec.pas;
  *)
 
@@ -33,8 +33,8 @@ program hmake;
 {$i .\make\mkutils.pas}
 {$i .\make\mkfile.pas}
 {$i .\make\mkbuild.pas}
-{$i .\make\fpc\mkoscmd.pas}
-{i .\make\msx\mkoscmd.pas}
+{$i .\make\fpc\mkoscall.pas}
+{i .\make\msx\mkoscall.pas}
 {$i .\make\mkexec.pas}
 
 (**

@@ -14,11 +14,13 @@
  *)
 
 (**
-  * Internal module variable definition.
+  * Module constant definitions.
   *)
 const 
-       __ctCSI   = '['; { Control Sequence Introducer.
-                          On Unix is '[', on MSXDOS is empty char }
+       ctTAB   = #9;  { TAB chracter definition }
+       ctCSI   = '['; { Control Sequence Introducer.
+                        On Unix is '[', on MSXDOS is empty char }
+
 
 (**
   * Initialize build engine.
@@ -78,7 +80,7 @@ procedure UpdateProgress( var handle : TMakeHandle );
 begin
   with handle do
   begin
-    Write( #27, __ctCSI, 'D' );
+    Write( #27, ctCSI, 'D' );
     Write( aCursor[nCursor] );
 
     if( nCursor = 3 )  then

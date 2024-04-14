@@ -123,3 +123,25 @@ begin
 
   Trim := Copy( strText, nFirstPos, ( nLastPos - nFirstPos + 1 ) );
 end;
+
+(**
+  * Remove all occurences of specified charater from string.
+  * @param strSource The string where all character occurrences will be 
+  * removed;
+  * @param chChar The character that will be removed;
+  *)
+function RemoveChar( strSource : TString; chChar : char ) : TString;
+var 
+      nCount  : integer;
+
+begin
+  for nCount := 1 to Length( strSource ) do 
+  begin
+    if( strSource[nCount] = chChar ) then 
+    begin
+      delete( strSource, nCount, 1 );
+    end;
+  end;
+
+  RemoveChar := strSource;
+end;

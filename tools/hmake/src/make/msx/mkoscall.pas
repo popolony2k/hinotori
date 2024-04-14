@@ -1,4 +1,4 @@
-(*<mkoscmd.pas>
+(*<mkoscall.pas>
  * Hinotori make file specific operating system calls.
  * TP3.3f MSX specific operating system calls.
  *
