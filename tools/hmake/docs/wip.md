@@ -21,7 +21,7 @@
 7. Final tests
     - Test multiple variable set (the same variable set several times);
     - Test multiple targets and already defined targets;
-7. Force identation by tab instead spaces. If make file is idented by space, force make failure.
+8. Force identation by tab instead spaces. If make file is idented by space, force make failure.
 
 ## Whish list
 
