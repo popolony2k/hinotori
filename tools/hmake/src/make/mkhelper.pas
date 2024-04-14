@@ -102,3 +102,61 @@ begin
 
   MkCheckValidIdentifier := bRet;
 end;
+
+(**
+  * Find the identifier based on its name;
+  * @param strName The identifier name to find;
+  * The function return the pointer to the requested identifier or
+  * nil if not found;
+  *)
+function MkFindIdentifier( var handle : TMakeHandle; var strName : TIdentifierName ) : PIdentifierPair;
+var
+      pItem  : PLinkedListItem;
+      pPair  : PIdentifierPair;
+      bFound : boolean;
+        
+begin
+  bFound := false;
+  pItem  := GetFirstLinkedListItem( handle.variableList );
+
+  while( not bFound and ( pItem <> nil ) ) do
+  begin
+    Move( pItem^.pValue, pPair, sizeof( pPair ) );
+    bFound := ( pPair^.strName = strName );
+    pItem  := GetNextLinkedListItem( handle.variableList );
+  end;
+
+  if( not bFound )  then
+    pPair := nil;
+
+  MkFindIdentifier := pPair;
+end;
+
+(**
+  * Find a target based on its name;
+  * @param strName The target name to find;
+  * The function return the pointer to the requested target or
+  * nil if not found;
+  *)
+function MkFindTarget( var handle : TMakeHandle; var strName : TIdentifierName ) : PTarget;
+var
+      pItem       : PLinkedListItem;
+      pItemTarget : PTarget;
+      bFound      : boolean;
+        
+begin
+  bFound := false;
+  pItem  := GetFirstLinkedListItem( handle.targetList );
+
+  while( not bFound and ( pItem <> nil ) ) do
+  begin
+    Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
+    bFound := ( pItemTarget^.targetPair.strName = strName );
+    pItem  := GetNextLinkedListItem( handle.targetList );
+  end;
+
+  if( not bFound )  then
+    pItemTarget := nil;
+
+  MkFindTarget := pItemTarget;
+end;

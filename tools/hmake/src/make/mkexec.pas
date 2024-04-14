@@ -28,64 +28,6 @@
 function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
   (**
-    * Find the identifier based on its name;
-    * @param strName The identifier name to find;
-    * The function return the pointer to the requested identifier or
-    * nil if not found;
-    *)
-  function __FindIdentifier( var strName : TIdentifierName ) : PIdentifierPair;
-  var
-        pItem  : PLinkedListItem;
-        pPair  : PIdentifierPair;
-        bFound : boolean;
-         
-  begin
-    bFound := false;
-    pItem  := GetFirstLinkedListItem( handle.variableList );
-
-    while( not bFound and ( pItem <> nil ) ) do
-    begin
-      Move( pItem^.pValue, pPair, sizeof( pPair ) );
-      bFound := ( pPair^.strName = strName );
-      pItem  := GetNextLinkedListItem( handle.variableList );
-    end;
-
-    if( not bFound )  then
-      pPair := nil;
-
-    __FindIdentifier := pPair;
-  end;
-
-  (**
-    * Find a target based on its name;
-    * @param strName The target name to find;
-    * The function return the pointer to the requested target or
-    * nil if not found;
-    *)
-  function __FindTarget( var strName : TIdentifierName ) : PTarget;
-  var
-        pItem       : PLinkedListItem;
-        pItemTarget : PTarget;
-        bFound      : boolean;
-         
-  begin
-    bFound := false;
-    pItem  := GetFirstLinkedListItem( handle.targetList );
-
-    while( not bFound and ( pItem <> nil ) ) do
-    begin
-      Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
-      bFound := ( pItemTarget^.targetPair.strName = strName );
-      pItem  := GetNextLinkedListItem( handle.targetList );
-    end;
-
-    if( not bFound )  then
-      pItemTarget := nil;
-
-    __FindTarget := pItemTarget;
-  end;
-
-  (**
     * Execute a commandlist passed as parameter.
     * @param commandList The command list to execute;
     *)
@@ -129,7 +71,7 @@ begin
   if( strTarget = '' )  then
     pTargetItem := handle.pDefaultTarget
   else
-    pTargetItem := __FindTarget( strTarget );
+    pTargetItem := MkFindTarget( handle, strTarget );
 
   bRet := ( pTargetItem <> nil );
 

@@ -18,6 +18,9 @@
     - All environment variables are inherited by makefile scripts;
     https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment.
 6. Implement conditional statements (ifeq, ifneq);
+7. Final tests
+    - Test multiple variable set (the same variable set several times);
+    - Test multiple targets and already defined targets;
 7. Force identation by tab instead spaces. If make file is idented by space, force make failure.
 
 ## Whish list

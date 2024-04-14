@@ -48,3 +48,6 @@ clean:
 test:
 	echo "Testing project"
 	echo $(PROJ_NAME)
+
+# test:
+# 	echo true

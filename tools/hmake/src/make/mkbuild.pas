@@ -138,91 +138,111 @@ var
           begin
             nCount := 0;
             pItem  := GetFirstLinkedListItem( tokenList );
+            bRet   := ( pItem <> nil ); 
 
-            case identType of
-              TIdentifierType.IDENT_VARIABLE :
-              begin
-                (* Cannot assign variable in targets *)
-                if( handle.pDefaultTarget <> nil )  then
+            if( bRet )  then
+            begin
+              case identType of
+                TIdentifierType.IDENT_VARIABLE :
                 begin
-                  handle.strLastError := 'Cannot assign variable in targets';
-                  bRet := false;
-                end
-                else
+                  (* Cannot assign variable in targets *)
+                  if( handle.pDefaultTarget <> nil )  then
+                  begin
+                    handle.strLastError := 'Cannot assign variable in targets';
+                    bRet := false;
+                  end
+                  else
+                  begin
+                    pPtr := ToPointer( pair );
+                    Move( pPtr, pPair, sizeof( pPair ) );
+                  end;
+                end;
+
+                TIdentifierType.IDENT_TARGETS  :
                 begin
-                  pPtr := ToPointer( pair );
+                  CreateLinkedList( target.commandList, 
+                                    sizeof( TIdentifierValue ) );
+                  pPtr := ToPointer( target.targetPair );
                   Move( pPtr, pPair, sizeof( pPair ) );
+                  Move( pItem^.pValue^, 
+                        pPair^.strName, 
+                        sizeof( pPair^.strName ) );
+
+                  (* Check if target was already defined previously *)
+                  bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
+
+                  if( not bRet )  then
+                    handle.strLastError := 'target [' + pPair^.strName + 
+                                           '] already defined';
                 end;
               end;
 
-              TIdentifierType.IDENT_TARGETS  :
+              pPair^.identType := identType;
+
+              (* Assign identifier values *)
+              while( bRet and ( pItem <> nil ) )  do
               begin
-                CreateLinkedList( target.commandList, 
-                                  sizeof( TIdentifierValue ) );
-                pPtr := ToPointer( target.targetPair );
-                Move( pPtr, pPair, sizeof( pPair ) );
-              end;
-            end;
-
-            pPair^.identType := identType;
-
-            (* Assign identifier values *)
-            while( bRet and ( pItem <> nil ) )  do
-            begin
-              if( ( nCount mod 2 ) = 0 )  then
-                Move( pItem^.pValue^, 
-                      pPair^.strName, 
-                      sizeof( pPair^.strName ) )
-              else
-              begin
-                Move( pItem^.pValue^, 
-                      pPair^.strValue, 
-                      sizeof( pPair^.strValue ) );
-
-                if( __ParseValue( pPair^ ) )  then
+                if( ( nCount mod 2 ) = 0 )  then
                 begin
-                  case identType of
-                    TIdentifierType.IDENT_VARIABLE :
-                    begin 
-                      pTemp := AddLinkedListItem( handle.variableList, 
-                                                  ToPointer( pPair^ ) );
-                      bRet := ( pTemp <> nil );
-                    end;
-                    TIdentifierType.IDENT_TARGETS  :
-                    begin
-                      pTemp := AddLinkedListItem( handle.targetList, 
-                                                  ToPointer( target ) );
-                      bRet := ( pTemp <> nil );
-
-                      (* 
-                      * If there's no default target, it means that is 
-                      * the first target being processed, so according makefile 
-                      * rules (GNU), the first target id the default target.
-                      *)
-                      if( ( handle.pDefaultTarget = nil ) and bRet )  then
-                        Move( pTemp^.pValue, 
-                              handle.pDefaultTarget, 
-                              sizeof( pTemp^.pValue ) );
-
-                      if( bRet )  then
-                        Move( pTemp^.pValue, pTargets, sizeof( pTargets ) );
-                    end;
-                  end;
-
-                  if( not bRet )  then
-                    handle.strLastError := 'Not enough memory -> ' + strLine;
+                  Move( pItem^.pValue^, 
+                        pPair^.strName, 
+                        sizeof( pPair^.strName ) );
                 end
                 else
-                  bRet := false;
-              end;
+                begin
+                  Move( pItem^.pValue^, 
+                        pPair^.strValue, 
+                        sizeof( pPair^.strValue ) );
 
-              if( bRet )  then
-              begin
-                nCount := Succ( nCount );
-                pItem  := GetNextLinkedListItem( tokenList );
-                UpdateProgress( handle );
+                  if( __ParseValue( pPair^ ) )  then
+                  begin
+                    case identType of
+                      TIdentifierType.IDENT_VARIABLE :
+                      begin 
+                        pTemp := AddLinkedListItem( handle.variableList, 
+                                                    ToPointer( pPair^ ) );
+                        bRet := ( pTemp <> nil );
+                      end;
+                      TIdentifierType.IDENT_TARGETS  :
+                      begin
+                        pTemp := AddLinkedListItem( handle.targetList, 
+                                                    ToPointer( target ) );
+                        bRet := ( pTemp <> nil );
+
+                        (* 
+                        * If there's no default target, it means that is 
+                        * the first target being processed, so according makefile 
+                        * rules (GNU), the first target id the default target.
+                        *)
+                        if( ( handle.pDefaultTarget = nil ) and bRet )  then
+                          Move( pTemp^.pValue, 
+                                handle.pDefaultTarget, 
+                                sizeof( pTemp^.pValue ) );
+
+                        if( bRet )  then
+                          Move( pTemp^.pValue, pTargets, sizeof( pTargets ) );
+                      end;
+                    end;
+
+                    if( not bRet )  then
+                      handle.strLastError := 'Not enough memory -> ' + strLine;
+                  end
+                  else
+                    bRet := false;
+                end;
+
+                if( bRet )  then
+                begin
+                  nCount := Succ( nCount );
+                  pItem  := GetNextLinkedListItem( tokenList );
+                  UpdateProgress( handle );
+                end;
               end;
-            end;         
+            end
+            else
+            begin
+              handle.strLastError := 'Catastrophic parsing error';
+            end;       
           end
           else
           begin
