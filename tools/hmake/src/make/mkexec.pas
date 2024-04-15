@@ -28,6 +28,23 @@
 function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
   (**
+    * Replace reference on command passed as parameter.
+    * @param strCommand Reference to the command that will be replaced;
+    *)
+  function __ReplaceReferences( var strCommand : TIdentifierValue ) : boolean;
+  var
+        bRet : boolean;
+
+  begin
+    bRet := true;
+
+    (** TODO: FINISH REFERENCE PARSING AND REPLACEMENT *)
+    (** Set Last error here when it happens *)
+
+    __ReplaceReferences := bRet;
+  end;
+
+  (**
     * Execute a commandlist passed as parameter.
     * @param commandList The command list to execute;
     *)
@@ -46,12 +63,18 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     while( bRet and ( pItem <> nil ) ) do
     begin
       Move( pItem^.pValue^, strCommand, sizeof( strCommand ) );
-      pItem  := GetNextLinkedListItem( commandList );
+      bRet := __ReplaceReferences( strCommand );
 
-      if( handle.bDebugMode )  then
-        WriteLn( '(cmd) => ', strCommand );
-      
-      bRet := MkExecCommand( handle, strCommand );
+      (* TODO: ADD MULTI-LINE PROCESSING HERE *)
+    
+      if( bRet )  then
+      begin
+        if( handle.bDebugMode )  then
+          WriteLn( '(cmd) => ', strCommand );
+        
+        bRet  := MkExecCommand( handle, strCommand );
+        pItem := GetNextLinkedListItem( commandList );
+      end;
     end;
 
     if( handle.bDebugMode and not bHasCommands )  then
