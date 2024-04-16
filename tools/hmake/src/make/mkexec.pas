@@ -38,7 +38,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         bNotContains  : boolean;
         nStart        : integer;
         nEnd          : integer;
-        nLen          : integer;
         strIdentifier : TIdentifierValue;
         pIdentPair    : PIdentifierPair; 
 
@@ -46,7 +45,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     bRet   := true;
 
     repeat
-      nLen   := Length( strCommand );
       nStart := Pos( '$(', strCommand );
       nEnd   := Pos( ')', strCommand );
       bContains    := ( ( nStart <> 0 ) and ( nEnd <> 0 ) );
@@ -61,14 +59,19 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       begin
         if( bContains )  then
         begin
-          strIdentifier := Copy( strCommand, ( nStart + 2 ), ( nEnd - nStart - 2 ) );
+          strIdentifier := Copy( strCommand, 
+                                 ( nStart + 2 ), 
+                                 ( nEnd - nStart - 2 ) );
           pIdentPair    := MkFindIdentifier( handle, strIdentifier );
           bRet := ( pIdentPair <> nil ); 
 
           if( bRet )  then
           begin
-            strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + pIdentPair^.strValue + 
-                          Copy( strCommand, ( nEnd + 1 ), nLen );
+            strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
+                          pIdentPair^.strValue + 
+                          Copy( strCommand, 
+                                ( nEnd + 1 ), 
+                                Length( strCommand ) );
           end
           else
           begin
