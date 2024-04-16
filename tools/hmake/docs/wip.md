@@ -7,11 +7,11 @@
     - Targets processing (OK);
     - Review operation; (OK)
 4. Excuting commands; (WIP)
-    - Variables macro substitution; (WIP)
+    - Variables macro substitution; (OK)
+    - Commands macro substitution (including variables); (OK)
+    - Implement multi-line command parsing and executing; (WIP)
     - Targets macro substitution (including variables); (WIP)
-    - Commands macro substitution (including variables); (WIP)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
-    - Implement multi-line command parsing and executing;
     - OS Specific command calls;
     - Environment variables (OS specific calls);
         - Runtime variable avaibility checking (when executing a command);

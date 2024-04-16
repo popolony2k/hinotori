@@ -211,10 +211,10 @@ var
                         bRet := ( pTemp <> nil );
 
                         (* 
-                        * If there's no default target, it means that is 
-                        * the first target being processed, so according makefile 
-                        * rules (GNU), the first target id the default target.
-                        *)
+                         * If there's no default target, it means that is 
+                         * the first target being processed, so according makefile 
+                         * rules (GNU), the first target id the default target.
+                         *)
                         if( ( handle.pDefaultTarget = nil ) and bRet )  then
                           Move( pTemp^.pValue, 
                                 handle.pDefaultTarget, 

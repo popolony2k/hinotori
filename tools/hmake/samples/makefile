@@ -47,7 +47,8 @@ clean:
 
 test:
 	echo "Testing project"
-	echo $(PROJ_NAME)
+	echo $(PROJ_NAME) \
+	$(CC)
 
 # test:
 # 	echo true

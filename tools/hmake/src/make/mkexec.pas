@@ -33,13 +33,50 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     *)
   function __ReplaceReferences( var strCommand : TIdentifierValue ) : boolean;
   var
-        bRet : boolean;
+        bRet          : boolean;
+        bContains     : boolean;
+        bNotContains  : boolean;
+        nStart        : integer;
+        nEnd          : integer;
+        nLen          : integer;
+        strIdentifier : TIdentifierValue;
+        pIdentPair    : PIdentifierPair; 
 
   begin
-    bRet := true;
+    bRet   := true;
 
-    (** TODO: FINISH REFERENCE PARSING AND REPLACEMENT *)
-    (** Set Last error here when it happens *)
+    repeat
+      nLen   := Length( strCommand );
+      nStart := Pos( '$(', strCommand );
+      nEnd   := Pos( ')', strCommand );
+      bContains    := ( ( nStart <> 0 ) and ( nEnd <> 0 ) );
+      bNotContains := ( ( nStart = 0 ) and ( nEnd = 0 ) );
+
+      if( not ( bContains or bNotContains ) )  then
+      begin
+        bRet := false;
+        handle.strLastError := 'Invalid identifier';
+      end
+      else
+      begin
+        if( bContains )  then
+        begin
+          strIdentifier := Copy( strCommand, ( nStart + 2 ), ( nEnd - nStart - 2 ) );
+          pIdentPair    := MkFindIdentifier( handle, strIdentifier );
+          bRet := ( pIdentPair <> nil ); 
+
+          if( bRet )  then
+          begin
+            strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + pIdentPair^.strValue + 
+                          Copy( strCommand, ( nEnd + 1 ), nLen );
+          end
+          else
+          begin
+            handle.strLastError := 'Identifier not found';
+          end;
+        end;
+      end;
+    until( bNotContains );
 
     __ReplaceReferences := bRet;
   end;
