@@ -62,7 +62,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
           strIdentifier := Copy( strCommand, 
                                  ( nStart + 2 ), 
                                  ( nEnd - nStart - 2 ) );
-          pIdentPair    := MkFindIdentifier( handle, strIdentifier );
+          pIdentPair := MkFindIdentifier( handle, strIdentifier );
           bRet := ( pIdentPair <> nil ); 
 
           if( bRet )  then
