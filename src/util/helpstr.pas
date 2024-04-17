@@ -139,7 +139,7 @@ begin
   begin
     if( strSource[nCount] = chChar ) then 
     begin
-      delete( strSource, nCount, 1 );
+      Delete( strSource, nCount, 1 );
     end;
   end;
 

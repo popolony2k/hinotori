@@ -5,7 +5,7 @@
 
 
 # Name of the project
-PROJ_NAME=printy
+PROJ_NAME=printy # test
 
 # .c files
 C_SOURCE=$(wildcard *.c)
@@ -49,7 +49,8 @@ test:
 #	echo "Testing project remark"
 	echo "Testing project"
 	echo $(PROJ_NAME) \ 
-	$(CC)
+	$(CC) # \
+	$(CC_FLAGS)
 
 # test:
 # 	echo true

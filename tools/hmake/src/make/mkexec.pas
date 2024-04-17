@@ -79,7 +79,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
           end;
         end;
       end;
-    until( bNotContains );
+    until( bNotContains or not bRet );
 
     __ReplaceReferences := bRet;
   end;
@@ -92,7 +92,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
   var
          bRet         : boolean;
          bMultiLine   : boolean;
-         bNoRemark    : boolean;
          bHasCommands : boolean;
          nPos         : integer;
          strCommand   : TIdentifierValue;
@@ -109,35 +108,28 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     begin
       Move( pItem^.pValue^, strCommand, sizeof( strCommand ) );
 
-      (* Handle remarks on execution commands *)
-      nPos := Pos( '#', strCommand );
-      bNoRemark := ( ( nPos = 0 ) or ( nPos > 1 ) );
+      if( bMultiLine )  then
+        strCommand := strMultiLine + strCommand;
 
-      if( bNoRemark )  then
+      bRet := __ReplaceReferences( strCommand );
+  
+      if( bRet )  then
       begin
+        nPos := Pos( '\', strCommand );
+        bMultiLine := ( nPos <> 0 );
+
         if( bMultiLine )  then
-          strCommand := strMultiLine + strCommand;
-
-        bRet := __ReplaceReferences( strCommand );
-    
-        if( bRet )  then
         begin
-          nPos := Pos( '\', strCommand );
-          bMultiLine := ( nPos <> 0 );
+          Delete( strCommand, nPos, 1 );
+          strMultiLine := strCommand; 
+        end;
+        
+        if( not bMultiLine )  then
+        begin
+          if( handle.bDebugMode )  then
+            WriteLn( '(cmd) => ', strCommand );
 
-          if( bMultiLine )  then
-          begin
-            Delete( strCommand, nPos, 1 );
-            strMultiLine := strCommand; 
-          end;
-         
-          if( not bMultiLine )  then
-          begin
-            if( handle.bDebugMode )  then
-              WriteLn( '(cmd) => ', strCommand );
-
-            bRet := MkExecCommand( handle, strCommand );
-          end;
+          bRet := MkExecCommand( handle, strCommand );
         end;
       end;
 

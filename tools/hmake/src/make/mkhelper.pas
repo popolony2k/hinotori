@@ -56,15 +56,15 @@ function MkIdentifierType( var handle : TMakeHandle;
     (* Check targets and command *)
     if( nDiff = 0 )  then
     begin
-        if( Length( Trim( strToken ) ) = 0 )  then
-          identType := TIdentifierType.IDENT_NONE
+      if( Length( Trim( strToken ) ) = 0 )  then
+        identType := TIdentifierType.IDENT_NONE
+      else
+      begin
+        if( bHasTarget and ( vType <> __TVariableType.VARIABLE ) )  then
+          identType := TIdentifierType.IDENT_COMMAND
         else
-        begin
-          if( bHasTarget and ( vType <> __TVariableType.VARIABLE ) )  then
-            identType := TIdentifierType.IDENT_COMMAND
-          else
-            identType := TIdentifierType.IDENT_NOP;
-        end;
+          identType := TIdentifierType.IDENT_NOP;
+      end;
     end
     else
     begin
@@ -107,101 +107,6 @@ begin
 
   MkIdentifierType := identType; 
 end;
-
-
-//===========
-
-// var
-//       identType    : TIdentifierType;
-//       nPosToken    : integer;
-//       nPosRem      : integer;
-//       nDiff        : integer;
-//       bRemark      : boolean;
-//       bRemarkToken : boolean;
-//       bTokenRemark : boolean;
-//       bHasTarget   : boolean;
-
-// begin
-//   (* Check variables *)
-//   nPosToken    := Pos( '=', strToken );
-//   nPosRem      := Pos( '#', strToken );
-//   nDiff        := ( nPosRem - nPosToken );
-//   bRemark      := ( ( nPosRem > 0 ) and ( nPosToken = 0 ) );
-//   bRemarkToken := ( ( nPosRem > 0 ) and ( nDiff < 0 ) );
-//   bTokenRemark := ( ( nDiff > 0 ) and ( nPosRem < nPosToken ) );
-//   bHasTarget   := ( handle.targetList.nListSize > 0 );
-
-//   (* Check targets and command *)
-//   if( nDiff = 0 )  then
-//   begin
-//     nPosToken    := Pos( ':', strToken );
-//     nPosRem      := Pos( '#', strToken );
-//     nDiff        := ( nPosRem - nPosToken );
-//     bRemark      := ( ( nPosRem > 0 ) and ( nPosToken = 0 ) );
-//     bRemarkToken := ( ( nPosRem > 0 ) and ( nDiff < 0 ) );
-//     bTokenRemark := ( ( nDiff > 0 ) and ( nPosRem < nPosToken ) );
-//     bHasTarget   := ( handle.targetList.nListSize > 0 );
-
-//     if( nDiff = 0 )  then
-//     begin
-//       if( Length( Trim( strToken ) ) = 0 )  then
-//         identType := TIdentifierType.IDENT_NONE
-//       else
-//       begin
-//         if( bHasTarget )  then
-//           identType := TIdentifierType.IDENT_COMMAND
-//         else
-//           identType := TIdentifierType.IDENT_NOP;
-//       end;
-//     end
-//     else
-//     begin
-//       if( bRemark ) then
-//       begin
-//         if( bHasTarget )  then
-//           identType := TIdentifierType.IDENT_COMMAND
-//         else
-//           identType := TIdentifierType.IDENT_REMARK;
-//       end
-//       else
-//       begin
-//         if( bRemarkToken ) then
-//           identType := TIdentifierType.IDENT_REMARK
-//         else
-//         begin
-//           identType := TIdentifierType.IDENT_TARGETS;
-
-//           if( bTokenRemark )  then
-//             identType := TIdentifierType.IDENT_REMARK;
-//         end;
-//       end;
-//     end;
-//   end
-//   else
-//   begin
-//     if( bRemark ) then
-//     begin
-//       if( bHasTarget )  then
-//         identType := TIdentifierType.IDENT_COMMAND
-//       else
-//         identType := TIdentifierType.IDENT_REMARK;
-//     end
-//     else
-//     begin
-//       if( bRemarkToken ) then
-//         identType := TIdentifierType.IDENT_REMARK
-//       else
-//       begin
-//         identType := TIdentifierType.IDENT_VARIABLE;
-
-//         if( bTokenRemark )  then
-//           identType := TIdentifierType.IDENT_REMARK;
-//       end;
-//     end;
-//   end;
-
-//   MkIdentifierType := identType;
-// end;
 
 (**
   * Check if an indentifier is valid.

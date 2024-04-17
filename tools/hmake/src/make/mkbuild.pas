@@ -58,9 +58,8 @@ var
     *)
   function __ParseValue( var pair : TIdentifierPair ) : boolean;
   var
-         nPos   : integer;
-         nCount : integer;
-         bRet   : boolean;
+         nPos : integer;
+         bRet : boolean;
 
   begin
     bRet := ( MkCheckValidIdentifier( handle, pair ) );
@@ -70,19 +69,6 @@ var
       repeat
         with pair do
         begin
-          nPos := Pos( '#', strValue );
-
-          if( nPos <> 0 )  then
-          begin
-            nCount := Length( strValue );
-
-            if( nCount > nPos )  then
-              nCount := ( nCount - nPos );
-
-            Delete( strValue, nPos, nCount );
-            strValue := Trim( strValue );
-          end;
-
           nPos := Pos( '\', strValue );
 
           if( nPos > 0 )  then
@@ -109,7 +95,9 @@ var
             end
             else
               handle.strLastError := 'Error reading makefile';
-          end;
+          end
+          else
+            strValue := Trim( strValue );
         end;
       until( not bRet or ( nPos <= 0 ) );
     end;
@@ -124,20 +112,31 @@ var
     *)
   function __Parse : boolean;
   var
-        nCount     : integer;
-        bRet       : boolean;
-        pItem      : PLinkedListItem;
-        pTemp      : PLinkedListItem;
-        tokenList  : TLinkedList;
-        target     : TTarget;
-        pair       : TIdentifierPair;
-        pPair      : PIdentifierPair;
-        identType  : TIdentifierType;
-        pPtr       : TPointer;
+        nCount         : integer;
+        bRet           : boolean;
+        bTargetRemark  : boolean;
+        bRegularRemark : boolean;
+        pItem          : PLinkedListItem;
+        pTemp          : PLinkedListItem;
+        tokenList      : TLinkedList;
+        target         : TTarget;
+        pair           : TIdentifierPair;
+        pPair          : PIdentifierPair;
+        identType      : TIdentifierType;
+        pPtr           : TPointer;
 
   begin
     bRet      := true;
     bMustRead := true;
+
+    (* Remove remarks *)
+    nCount := Pos( '#', strLine );
+    bTargetRemark  := ( ( nCount = 1 ) and ( handle.pDefaultTarget <> nil ) );
+    bRegularRemark := ( ( nCount >= 1 ) and ( handle.pDefaultTarget = nil ) ); 
+
+    if( bTargetRemark or bRegularRemark )  then 
+      Delete( strLine, nCount, ( Length( strLine ) - nCount + 1 ) );
+
     identType := MkIdentifierType( handle, strLine );
 
     case identType of
