@@ -42,16 +42,11 @@ function MkIdentifierType( var handle : TMakeHandle;
   begin
     (* Check variables *)
     if( vType = VARIABLE )  then
-    begin
-      nPosToken    := Pos( '=', strToken );
-      nPosRem      := Pos( '#', strToken );
-    end
+      nPosToken    := Pos( '=', strToken )
     else 
-    begin
       nPosToken    := Pos( ':', strToken );
-      nPosRem      := Pos( '#', strToken );
-    end;
 
+    nPosRem      := Pos( '#', strToken );
     nDiff        := ( nPosRem - nPosToken );
     bRemark      := ( ( nPosRem > 0 ) and ( nPosToken = 0 ) );
     bRemarkToken := ( ( nPosRem > 0 ) and ( nDiff < 0 ) );
