@@ -14,12 +14,12 @@
     - Targets macro substitution (including variables); (WIP)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
     - OS Specific command calls;
-    - Environment variables (OS specific calls);
+    - Environment variables (OS specific calls) - Depends on Item 6;
         - Runtime variable avaibility checking (when executing a command);
-5. Operating system environment variables access by makefile; 
+5. Implement conditional statements (ifeq, ifneq);
+6. Operating system environment variables access by makefile; 
     - All environment variables are inherited by makefile scripts;
     https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment.
-6. Implement conditional statements (ifeq, ifneq);
 7. Final tests
     - Test multiple variable set (the same variable set several times);
     - Test multiple targets and already defined targets;
