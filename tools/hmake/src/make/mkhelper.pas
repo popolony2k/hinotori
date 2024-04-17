@@ -41,7 +41,7 @@ function MkIdentifierType( var handle : TMakeHandle;
 
   begin
     (* Check variables *)
-    if( vType = VARIABLE )  then
+    if( vType = __TVariableType.VARIABLE )  then
       nPosToken    := Pos( '=', strToken )
     else 
       nPosToken    := Pos( ':', strToken );
@@ -60,7 +60,7 @@ function MkIdentifierType( var handle : TMakeHandle;
           identType := TIdentifierType.IDENT_NONE
         else
         begin
-          if( bHasTarget )  then
+          if( bHasTarget and ( vType <> __TVariableType.VARIABLE ) )  then
             identType := TIdentifierType.IDENT_COMMAND
           else
             identType := TIdentifierType.IDENT_NOP;
@@ -101,8 +101,8 @@ var
 begin
   identType := __GetIdentifierType( __TVariableType.VARIABLE );
 
-  if( identType in [TIdentifierType.IDENT_NONE, 
-                     TIdentifierType.IDENT_NOP] )  then
+  if( identType in [TIdentifierType.IDENT_NONE,
+                    TIdentifierType.IDENT_NOP] )  then
     identType := __GetIdentifierType( __TVariableType.TARGET );
 
   MkIdentifierType := identType; 
