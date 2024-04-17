@@ -15,78 +15,203 @@
 
 (**
   * Return the identifier type for a given token.
+  * param handle The @see TMakeHandle of a makefile that 
+  * identifier will be retrieved;
   * @param strToken The token to be checked;
   *)
-function MkGetIdentifier( var strToken : TIdentifierValue ) : TIdentifierType;
-var
-      identType : TIdentifierType;
-      nPosToken : integer;
-      nPosRem   : integer;
-      nDiff     : integer;
+function MkIdentifierType( var handle : TMakeHandle; 
+                           var strToken : TIdentifierValue ) : TIdentifierType;
+  
+  type __TVariableType = ( VARIABLE, TARGET );
 
-begin
-  (* Check variables *)
-  nPosToken := Pos( '=', strToken );
-  nPosRem   := Pos( '#', strToken );
-  nDiff     := ( nPosRem - nPosToken );
+  (**
+    * Get a identifier type based on type passed as paraneter;
+    * @param vType The variable type to check;
+    *)
+  function __GetIdentifierType( vType : __TVariableType ) : TIdentifierType;
+  var
+        identType    : TIdentifierType;
+        nPosToken    : integer;
+        nPosRem      : integer;
+        nDiff        : integer;
+        bRemark      : boolean;
+        bRemarkToken : boolean;
+        bTokenRemark : boolean;
+        bHasTarget   : boolean;
 
-  (* Check targets and command *)
-  if( nDiff = 0 )  then
   begin
-    nPosToken := Pos( ':', strToken );
-    nPosRem   := Pos( '#', strToken );
-    nDiff     := ( nPosRem - nPosToken );
+    (* Check variables *)
+    if( vType = VARIABLE )  then
+    begin
+      nPosToken    := Pos( '=', strToken );
+      nPosRem      := Pos( '#', strToken );
+    end
+    else 
+    begin
+      nPosToken    := Pos( ':', strToken );
+      nPosRem      := Pos( '#', strToken );
+    end;
 
+    nDiff        := ( nPosRem - nPosToken );
+    bRemark      := ( ( nPosRem > 0 ) and ( nPosToken = 0 ) );
+    bRemarkToken := ( ( nPosRem > 0 ) and ( nDiff < 0 ) );
+    bTokenRemark := ( ( nDiff > 0 ) and ( nPosRem < nPosToken ) );
+    bHasTarget   := ( handle.targetList.nListSize > 0 );
+
+    (* Check targets and command *)
     if( nDiff = 0 )  then
     begin
-      if( Length( Trim( strToken ) ) = 0 )  then
-        identType := TIdentifierType.IDENT_NONE
-      else
-        identType := TIdentifierType.IDENT_COMMAND;
+        if( Length( Trim( strToken ) ) = 0 )  then
+          identType := TIdentifierType.IDENT_NONE
+        else
+        begin
+          if( bHasTarget )  then
+            identType := TIdentifierType.IDENT_COMMAND
+          else
+            identType := TIdentifierType.IDENT_NOP;
+        end;
     end
     else
     begin
-      if( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) then
-        identType := TIdentifierType.IDENT_COMMAND
+      if( bRemark ) then
+      begin
+        if( bHasTarget )  then
+          identType := TIdentifierType.IDENT_COMMAND
+        else
+          identType := TIdentifierType.IDENT_REMARK;
+      end
       else
       begin
-        if( ( nPosRem > 0 ) and ( nDiff < 0 ) ) then
+        if( bRemarkToken ) then
           identType := TIdentifierType.IDENT_REMARK
         else
         begin
-          identType := TIdentifierType.IDENT_TARGETS;
+          if( vType = __TVariableType.VARIABLE )  then
+            identType := TIdentifierType.IDENT_VARIABLE
+          else
+            identType := TIdentifierType.IDENT_TARGETS;
 
-          if( ( nDiff > 0 ) and ( nPosRem < nPosToken) )  then
+          if( bTokenRemark )  then
             identType := TIdentifierType.IDENT_REMARK;
         end;
       end;
     end;
-  end
-  else
-  begin
-    if( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) then
-      identType := TIdentifierType.IDENT_COMMAND
-    else
-    begin
-      if( ( nPosRem > 0 ) and ( nDiff < 0 ) ) then
-        identType := TIdentifierType.IDENT_REMARK
-      else
-      begin
-        identType := TIdentifierType.IDENT_VARIABLE;
 
-        if( ( nDiff > 0 ) and ( nPosRem < nPosToken ) )  then
-          identType := TIdentifierType.IDENT_REMARK;
-      end;
-    end;
+    __GetIdentifierType := identType;
   end;
 
-  MkGetIdentifier := identType;
+var
+       identType   : TIdentifierType;
+
+begin
+  identType := __GetIdentifierType( __TVariableType.VARIABLE );
+
+  if( identType in [TIdentifierType.IDENT_NONE, 
+                     TIdentifierType.IDENT_NOP] )  then
+    identType := __GetIdentifierType( __TVariableType.TARGET );
+
+  MkIdentifierType := identType; 
 end;
+
+
+//===========
+
+// var
+//       identType    : TIdentifierType;
+//       nPosToken    : integer;
+//       nPosRem      : integer;
+//       nDiff        : integer;
+//       bRemark      : boolean;
+//       bRemarkToken : boolean;
+//       bTokenRemark : boolean;
+//       bHasTarget   : boolean;
+
+// begin
+//   (* Check variables *)
+//   nPosToken    := Pos( '=', strToken );
+//   nPosRem      := Pos( '#', strToken );
+//   nDiff        := ( nPosRem - nPosToken );
+//   bRemark      := ( ( nPosRem > 0 ) and ( nPosToken = 0 ) );
+//   bRemarkToken := ( ( nPosRem > 0 ) and ( nDiff < 0 ) );
+//   bTokenRemark := ( ( nDiff > 0 ) and ( nPosRem < nPosToken ) );
+//   bHasTarget   := ( handle.targetList.nListSize > 0 );
+
+//   (* Check targets and command *)
+//   if( nDiff = 0 )  then
+//   begin
+//     nPosToken    := Pos( ':', strToken );
+//     nPosRem      := Pos( '#', strToken );
+//     nDiff        := ( nPosRem - nPosToken );
+//     bRemark      := ( ( nPosRem > 0 ) and ( nPosToken = 0 ) );
+//     bRemarkToken := ( ( nPosRem > 0 ) and ( nDiff < 0 ) );
+//     bTokenRemark := ( ( nDiff > 0 ) and ( nPosRem < nPosToken ) );
+//     bHasTarget   := ( handle.targetList.nListSize > 0 );
+
+//     if( nDiff = 0 )  then
+//     begin
+//       if( Length( Trim( strToken ) ) = 0 )  then
+//         identType := TIdentifierType.IDENT_NONE
+//       else
+//       begin
+//         if( bHasTarget )  then
+//           identType := TIdentifierType.IDENT_COMMAND
+//         else
+//           identType := TIdentifierType.IDENT_NOP;
+//       end;
+//     end
+//     else
+//     begin
+//       if( bRemark ) then
+//       begin
+//         if( bHasTarget )  then
+//           identType := TIdentifierType.IDENT_COMMAND
+//         else
+//           identType := TIdentifierType.IDENT_REMARK;
+//       end
+//       else
+//       begin
+//         if( bRemarkToken ) then
+//           identType := TIdentifierType.IDENT_REMARK
+//         else
+//         begin
+//           identType := TIdentifierType.IDENT_TARGETS;
+
+//           if( bTokenRemark )  then
+//             identType := TIdentifierType.IDENT_REMARK;
+//         end;
+//       end;
+//     end;
+//   end
+//   else
+//   begin
+//     if( bRemark ) then
+//     begin
+//       if( bHasTarget )  then
+//         identType := TIdentifierType.IDENT_COMMAND
+//       else
+//         identType := TIdentifierType.IDENT_REMARK;
+//     end
+//     else
+//     begin
+//       if( bRemarkToken ) then
+//         identType := TIdentifierType.IDENT_REMARK
+//       else
+//       begin
+//         identType := TIdentifierType.IDENT_VARIABLE;
+
+//         if( bTokenRemark )  then
+//           identType := TIdentifierType.IDENT_REMARK;
+//       end;
+//     end;
+//   end;
+
+//   MkIdentifierType := identType;
+// end;
 
 (**
   * Check if an indentifier is valid.
   * param handle The @see TMakeHandle of a makefile that 
-  * has been checked;
+  * will be checked;
   * @param pair The identifier that will be checked;
   *)
 function MkCheckValidIdentifier( var handle : TMakeHandle; 

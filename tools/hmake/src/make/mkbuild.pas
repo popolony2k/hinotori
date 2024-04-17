@@ -138,7 +138,7 @@ var
   begin
     bRet      := true;
     bMustRead := true;
-    identType := MkGetIdentifier( strLine );
+    identType := MkIdentifierType( handle, strLine );
 
     case identType of
       TIdentifierType.IDENT_VARIABLE, 
@@ -282,6 +282,12 @@ var
               handle.strLastError := 'Not enough memory';
             end;
           end;
+        end;
+
+        TIdentifierType.IDENT_NOP:
+        begin
+          bRet := false;
+          handle.strLastError := 'Missing separator';
         end;
     end;
 

@@ -16,6 +16,7 @@
   * Identifier type
   *)
 type TIdentifierType = ( IDENT_NONE,
+                         IDENT_NOP,
                          IDENT_VARIABLE, 
                          IDENT_TARGETS, 
                          IDENT_COMMAND,
