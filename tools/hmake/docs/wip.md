@@ -1,7 +1,7 @@
 ## Work in Progress
 
 1. Implement multi-line variable content parsing (\) and storing; (OK)
-2. Implement remark processing (#); (OK)
+2. Implement remark processing (variables and target execution) (#); (OK)
 3. Targets implementation; (OK)
     - Targets parsing; (OK);
     - Targets processing (OK);
@@ -9,7 +9,8 @@
 4. Excuting commands; (WIP)
     - Variables macro substitution; (OK)
     - Commands macro substitution (including variables); (OK)
-    - Implement multi-line command parsing and executing; (WIP)
+    - Implement multi-line command parsing and executing; (OK)
+    - Implement remark processing on command execution; (OK)
     - Targets macro substitution (including variables); (WIP)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
     - OS Specific command calls;

@@ -46,29 +46,37 @@ begin
     end
     else
     begin
-      if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
-          ( ( nPosRem > 0 ) and ( nDiff < 0 ) ) ) then
-        identType := TIdentifierType.IDENT_REMARK
+      if( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) then
+        identType := TIdentifierType.IDENT_COMMAND
       else
       begin
-        identType := TIdentifierType.IDENT_TARGETS;
+        if( ( nPosRem > 0 ) and ( nDiff < 0 ) ) then
+          identType := TIdentifierType.IDENT_REMARK
+        else
+        begin
+          identType := TIdentifierType.IDENT_TARGETS;
 
-        if( ( nDiff > 0 ) and ( nPosRem < nPosToken) )  then
-          identType := TIdentifierType.IDENT_REMARK;
+          if( ( nDiff > 0 ) and ( nPosRem < nPosToken) )  then
+            identType := TIdentifierType.IDENT_REMARK;
+        end;
       end;
     end;
   end
   else
   begin
-    if( ( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) or 
-        ( ( nPosRem > 0 ) and ( nDiff < 0 ) ) ) then
-      identType := TIdentifierType.IDENT_REMARK
+    if( ( nPosRem > 0 ) and ( nPosToken = 0 ) ) then
+      identType := TIdentifierType.IDENT_COMMAND
     else
     begin
-      identType := TIdentifierType.IDENT_VARIABLE;
+      if( ( nPosRem > 0 ) and ( nDiff < 0 ) ) then
+        identType := TIdentifierType.IDENT_REMARK
+      else
+      begin
+        identType := TIdentifierType.IDENT_VARIABLE;
 
-      if( ( nDiff > 0 ) and ( nPosRem < nPosToken ) )  then
-        identType := TIdentifierType.IDENT_REMARK;
+        if( ( nDiff > 0 ) and ( nPosRem < nPosToken ) )  then
+          identType := TIdentifierType.IDENT_REMARK;
+      end;
     end;
   end;
 

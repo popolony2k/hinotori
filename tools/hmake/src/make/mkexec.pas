@@ -91,34 +91,69 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
   function __ExecCommands( var commandList : TLinkedList ) : boolean;
   var
          bRet         : boolean;
+         bMultiLine   : boolean;
+         bNoRemark    : boolean;
          bHasCommands : boolean;
+         nPos         : integer;
          strCommand   : TIdentifierValue;
+         strMultiLine : TIdentifierValue;
          pItem        : PLinkedListItem;
 
   begin
     bRet  := true;
     pItem := GetFirstLinkedListItem( commandList );
     bHasCommands := ( pItem <> nil );
+    bMultiLine   := false;
 
     while( bRet and ( pItem <> nil ) ) do
     begin
       Move( pItem^.pValue^, strCommand, sizeof( strCommand ) );
-      bRet := __ReplaceReferences( strCommand );
 
-      (* TODO: ADD MULTI-LINE PROCESSING HERE *)
-    
-      if( bRet )  then
+      (* Handle remarks on execution commands *)
+      nPos := Pos( '#', strCommand );
+      bNoRemark := ( ( nPos = 0 ) or ( nPos > 1 ) );
+
+      if( bNoRemark )  then
       begin
-        if( handle.bDebugMode )  then
-          WriteLn( '(cmd) => ', strCommand );
-        
-        bRet  := MkExecCommand( handle, strCommand );
-        pItem := GetNextLinkedListItem( commandList );
+        if( bMultiLine )  then
+          strCommand := strMultiLine + strCommand;
+
+        bRet := __ReplaceReferences( strCommand );
+    
+        if( bRet )  then
+        begin
+          nPos := Pos( '\', strCommand );
+          bMultiLine := ( nPos <> 0 );
+
+          if( bMultiLine )  then
+          begin
+            Delete( strCommand, nPos, 1 );
+            strMultiLine := strCommand; 
+          end;
+         
+          if( not bMultiLine )  then
+          begin
+            if( handle.bDebugMode )  then
+              WriteLn( '(cmd) => ', strCommand );
+
+            bRet := MkExecCommand( handle, strCommand );
+          end;
+        end;
       end;
+
+      pItem := GetNextLinkedListItem( commandList );       
     end;
 
-    if( handle.bDebugMode and not bHasCommands )  then
-      WriteLn( 'No commands to execute on this target' );
+    if( bMultiLine and ( pItem = nil ) )  then
+    begin
+      bRet := false;
+      handle.strLastError := 'Error. Multi-line unexpectedly ended';
+    end
+    else
+    begin
+      if( handle.bDebugMode and not bHasCommands )  then
+        WriteLn( 'No commands to execute on this target' );
+    end;
 
     __ExecCommands := bRet;
   end;

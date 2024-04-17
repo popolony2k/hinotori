@@ -152,7 +152,7 @@ begin
         else
         begin
           WriteLn( 'Execute failed with following error:' );
-          WriteLn( handle.strLastError );
+          WriteLn( 'Line (', handle.nLastLine, ') - ',  handle.strLastError );
         end;
       end
       else

@@ -46,8 +46,9 @@ clean:
 # INVALID_VAR=-c
 
 test:
+#	echo "Testing project remark"
 	echo "Testing project"
-	echo $(PROJ_NAME) \
+	echo $(PROJ_NAME) \ 
 	$(CC)
 
 # test:

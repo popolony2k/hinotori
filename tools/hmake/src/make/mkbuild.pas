@@ -59,6 +59,7 @@ var
   function __ParseValue( var pair : TIdentifierPair ) : boolean;
   var
          nPos   : integer;
+         nCount : integer;
          bRet   : boolean;
 
   begin
@@ -69,6 +70,19 @@ var
       repeat
         with pair do
         begin
+          nPos := Pos( '#', strValue );
+
+          if( nPos <> 0 )  then
+          begin
+            nCount := Length( strValue );
+
+            if( nCount > nPos )  then
+              nCount := ( nCount - nPos );
+
+            Delete( strValue, nPos, nCount );
+            strValue := Trim( strValue );
+          end;
+
           nPos := Pos( '\', strValue );
 
           if( nPos > 0 )  then
