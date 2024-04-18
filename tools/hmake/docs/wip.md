@@ -32,3 +32,4 @@
 3. Implement constants (:=);
     - Add some builtin constants
         - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS); 
+4. Add support to use '#' after concatenation '\' at execution step;
