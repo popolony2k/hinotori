@@ -16,8 +16,8 @@ H_SOURCE=$(wildcard *.h)
 # Object files (Not supported)
 #OBJ=$(C_SOURCE:.c=.o)
 
-# Compiler
-CC=gcc
+# Compiler (spaces on variable names before assignament)
+CC =gcc
 
 # Flags for compiler (Mixed TAB and space identation)
 CC_FLAGS=-c         \

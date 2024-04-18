@@ -201,6 +201,7 @@ var
                   Move( pItem^.pValue^, 
                         pPair^.strName, 
                         sizeof( pPair^.strName ) );
+                  pPair^.strName := Trim( pPair^.strName );
                 end
                 else
                 begin
