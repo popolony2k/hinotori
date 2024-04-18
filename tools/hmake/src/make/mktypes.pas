@@ -19,8 +19,7 @@ type TIdentifierType = ( IDENT_NONE,
                          IDENT_NOP,
                          IDENT_VARIABLE, 
                          IDENT_TARGETS, 
-                         IDENT_COMMAND,
-                         IDENT_REMARK );
+                         IDENT_COMMAND );
 
 (**
   * Variable data struct.
