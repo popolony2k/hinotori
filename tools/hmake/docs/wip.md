@@ -14,10 +14,16 @@
     - Targets macro substitution (including variables); (WIP)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
     - OS Specific command calls;
+        - FPC implementation;
+        - MSX-DOS implementation;
     - Environment variables (OS specific calls) - Depends on Item 6;
         - Runtime variable avaibility checking (when executing a command);
+        - FPC implementation;
+        - MSX-DOS implementation;
 5. Implement conditional statements (ifeq, ifneq);
-6. Operating system environment variables access by makefile; 
+6. Operating system environment variables access by makefile;
+    - FPC implementation;
+    - MSX-DOS implementation;
     - All environment variables are inherited by makefile scripts;
     https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment.
 7. Final tests
