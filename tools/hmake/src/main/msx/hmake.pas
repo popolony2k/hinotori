@@ -1,5 +1,5 @@
-(*<main.pas>
- * Hinotori main hmake make file processor (FPC).
+(*<hmake.pas>
+ * Hinotori main hmake make file processor (MSX).
  *
  * CopyLeft (c) 1995-2024 by PopolonY2k.
  * CopyLeft (c) since 2024 by Hinotori Team.
@@ -17,13 +17,11 @@
  * - ../../make/mkbuild.pas;
  * - ../../make/mkfile.pas;
  * - ../../make/mkbuild.pas;
- * - ../../make/fpc/mkoscall.pas;
+ * - ../../make/msx/mkoscall.pas;
  * - ../../make/mkexec.pas;
  *)
 
 program hmake;
-
-uses dos;
 
 {$i ..\..\..\..\..\src\system\types.pas}
 {$i ..\..\..\..\..\src\collectn\lnkdlist.pas}
@@ -34,7 +32,7 @@ uses dos;
 {$i ..\..\make\mkutils.pas}
 {$i ..\..\make\mkfile.pas}
 {$i ..\..\make\mkbuild.pas}
-{$i ..\..\make\fpc\mkoscall.pas}
+{$i ..\..\make\msx\mkoscall.pas}
 {$i ..\..\make\mkexec.pas}
 {$i ..\hmakerun.pas}
 
