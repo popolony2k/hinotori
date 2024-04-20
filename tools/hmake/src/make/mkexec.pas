@@ -35,7 +35,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
   var
         bRet          : boolean;
         bContains     : boolean;
-        bNotContains  : boolean;
         nStart        : integer;
         nEnd          : integer;
         strIdentifier : TIdentifierValue;
@@ -45,54 +44,45 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     bRet   := true;
 
     repeat
-      nStart := Pos( '$(', strCommand );
-      nEnd   := Pos( ')', strCommand );
-      bContains    := ( ( nStart <> 0 ) and ( nEnd <> 0 ) );
-      bNotContains := ( ( nStart = 0 ) and ( nEnd = 0 ) );
+      nStart    := Pos( '$(', strCommand );
+      nEnd      := Pos( ')', strCommand );
+      bContains := ( ( nStart <> 0 ) and ( nEnd <> 0 ) );
 
-      if( not ( bContains or bNotContains ) )  then
+      if( bContains )  then
       begin
-        bRet := false;
-        handle.strLastError := 'Invalid identifier';
-      end
-      else
-      begin
-        if( bContains )  then
+        strIdentifier := Copy( strCommand, 
+                               ( nStart + 2 ), 
+                               ( nEnd - nStart - 2 ) );
+        pIdentPair := MkFindIdentifier( handle, strIdentifier );
+        bRet := ( pIdentPair <> nil );
+
+        if( bRet )  then
         begin
-          strIdentifier := Copy( strCommand, 
-                                 ( nStart + 2 ), 
-                                 ( nEnd - nStart - 2 ) );
-          pIdentPair := MkFindIdentifier( handle, strIdentifier );
-          bRet := ( pIdentPair <> nil );
+          strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
+                              pIdentPair^.strValue + 
+                              Copy( strCommand, 
+                                    ( nEnd + 1 ), 
+                                    Length( strCommand ) );
+        end
+        else
+        begin  (* Check identifier on OS environment variables *)
+          bRet := MkGetEnv( strIdentifier, strIdentifier );
 
           if( bRet )  then
           begin
             strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                                pIdentPair^.strValue + 
+                                strIdentifier + 
                                 Copy( strCommand, 
                                       ( nEnd + 1 ), 
                                       Length( strCommand ) );
           end
           else
-          begin  (* Check identifier on OS environment variables *)
-            bRet := MkGetEnv( strIdentifier, strIdentifier );
-
-            if( bRet )  then
-            begin
-              strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                                  strIdentifier + 
-                                  Copy( strCommand, 
-                                        ( nEnd + 1 ), 
-                                        Length( strCommand ) );
-            end
-            else
-            begin
-              handle.strLastError := 'Identifier not found';
-            end;
+          begin
+            handle.strLastError := 'Identifier not found';
           end;
         end;
       end;
-    until( bNotContains or not bRet );
+    until( not bContains or not bRet );
 
     __ReplaceReferences := bRet;
   end;

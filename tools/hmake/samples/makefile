@@ -51,7 +51,7 @@ test:
 	echo $(PROJ_NAME) \ 
 	$(CC) # \
 	$(CC_FLAGS) \
-	HOME [$(HOME)]
+	HOME ($(HOME))
 
 # test:
 # 	echo true
