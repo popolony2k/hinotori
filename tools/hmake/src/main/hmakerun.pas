@@ -1,5 +1,5 @@
-(*<hmake.pas>
- * Hinotori make file processor.
+(*<hmakerun.pas>
+ * Hinotori make file application runner routines.
  *
  * CopyLeft (c) 1995-2024 by PopolonY2k.
  * CopyLeft (c) since 2024 by Hinotori Team.
@@ -21,21 +21,6 @@
  * - ./make/msx/mkoscall.pas   (depends on archtecture)
  * - ./make/mkexec.pas;
  *)
-
-program hmake;
-
-{$i ..\..\..\src\system\types.pas}
-{$i ..\..\..\src\collectn\lnkdlist.pas}
-{$i ..\..\..\src\memory\pointer.pas}
-{$i ..\..\..\src\util\helpstr.pas}
-{$i .\make\mktypes.pas}
-{$i .\make\mkhelper.pas}
-{$i .\make\mkutils.pas}
-{$i .\make\mkfile.pas}
-{$i .\make\mkbuild.pas}
-{$i .\make\fpc\mkoscall.pas}
-{i .\make\msx\mkoscall.pas}
-{$i .\make\mkexec.pas}
 
 (**
   * Command line parameter processing.
@@ -117,8 +102,10 @@ begin
   GetCmdLineParms := bRet;
 end;
 
-
-{ Main program }
+(**
+  * Main application entry-point.
+  *)
+procedure Run;
 var 
        handle : TMakeHandle;
        parms  : TCmdLineParms;
@@ -166,4 +153,4 @@ begin
 
     MkDestroy( handle );
   end;
-end.
+end;

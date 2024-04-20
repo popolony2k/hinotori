@@ -27,3 +27,17 @@ begin
   bRet := true;
   MkExecCommand := bRet; 
 end;
+
+(**
+  * Return the environment variable content based on its name.
+  * @param strEnvVarName The environament variable to get value;
+  * @param strEnvValue Reference to required environment variable
+  * value;
+  *)
+function MkGetEnv( strEnvVarName : TIdentifierName;
+                   var strEnvValue : TFileName ) : boolean;
+begin
+  strEnvValue := GetEnv( strEnvVarName );
+
+  MkGetEnv := ( strEnvValue <> '' );
+end;

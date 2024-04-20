@@ -17,8 +17,8 @@
         - FPC implementation;
         - MSX-DOS implementation;
     - Environment variables (OS specific calls) - Depends on Item 6;
-        - Runtime variable avaibility checking (when executing a command);
-        - FPC implementation;
+        - Runtime variable avaibility checking (when executing a command); (WIP)
+        - FPC implementation; (OK)
         - MSX-DOS implementation;
 5. Implement conditional statements (ifeq, ifneq);
 6. Operating system environment variables access by makefile;

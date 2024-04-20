@@ -12,7 +12,8 @@
  * - /collectn/lnkdlist.pas;
  *)
 
- (**
+
+(**
   * Execute an command on operating system through system call;
   * @param handle A valid open makefile handle;
   * @param strCommand Command that will be executed;
@@ -25,4 +26,16 @@ var
 begin
   bRet := true;
   MkExecCommand := bRet; 
+end;
+
+(**
+  * Return the environment variable content based on its name.
+  * @param strEnvVarName The environament variable to get value;
+  * @param strEnvValue Reference to required environment variable
+  * value;
+  *)
+function MkGetEnv( strEnvVarName : TIdentifierName;
+                   var strEnvValue : TFileName ) : boolean;
+begin
+  MkGetEnv := false;
 end;

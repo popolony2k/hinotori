@@ -63,19 +63,32 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
                                  ( nStart + 2 ), 
                                  ( nEnd - nStart - 2 ) );
           pIdentPair := MkFindIdentifier( handle, strIdentifier );
-          bRet := ( pIdentPair <> nil ); 
+          bRet := ( pIdentPair <> nil );
 
           if( bRet )  then
           begin
             strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                          pIdentPair^.strValue + 
-                          Copy( strCommand, 
-                                ( nEnd + 1 ), 
-                                Length( strCommand ) );
+                                pIdentPair^.strValue + 
+                                Copy( strCommand, 
+                                      ( nEnd + 1 ), 
+                                      Length( strCommand ) );
           end
           else
-          begin
-            handle.strLastError := 'Identifier not found';
+          begin  (* Check identifier on OS environment variables *)
+            bRet := MkGetEnv( strIdentifier, strIdentifier );
+
+            if( bRet )  then
+            begin
+              strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
+                                  strIdentifier + 
+                                  Copy( strCommand, 
+                                        ( nEnd + 1 ), 
+                                        Length( strCommand ) );
+            end
+            else
+            begin
+              handle.strLastError := 'Identifier not found';
+            end;
           end;
         end;
       end;
@@ -136,15 +149,18 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       pItem := GetNextLinkedListItem( commandList );       
     end;
 
-    if( bMultiLine and ( pItem = nil ) )  then
+    if( bRet )  then
     begin
-      bRet := false;
-      handle.strLastError := 'Error. Multi-line unexpectedly ended';
-    end
-    else
-    begin
-      if( handle.bDebugMode and not bHasCommands )  then
-        WriteLn( 'No commands to execute on this target' );
+      if( bMultiLine and ( pItem = nil ) )  then
+      begin
+        bRet := false;
+        handle.strLastError := 'Error. Multi-line unexpectedly ended';
+      end
+      else
+      begin
+        if( handle.bDebugMode and not bHasCommands )  then
+          WriteLn( 'No commands to execute on this target' );
+      end;
     end;
 
     __ExecCommands := bRet;

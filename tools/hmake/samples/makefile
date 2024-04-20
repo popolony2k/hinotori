@@ -50,7 +50,8 @@ test:
 	echo "Testing project"
 	echo $(PROJ_NAME) \ 
 	$(CC) # \
-	$(CC_FLAGS)
+	$(CC_FLAGS) \
+	HOME [$(HOME)]
 
 # test:
 # 	echo true
