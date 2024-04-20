@@ -41,7 +41,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         pIdentPair    : PIdentifierPair; 
 
   begin
-    bRet   := true;
+    bRet := true;
 
     repeat
       nStart    := Pos( '$(', strCommand );
