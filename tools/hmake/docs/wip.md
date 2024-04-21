@@ -3,8 +3,8 @@
 1. Implement multi-line variable content parsing (\) and storing; (OK)
 2. Implement remark processing (variables and target execution) (#); (OK)
 3. Targets implementation; (OK)
-    - Targets parsing; (OK);
-    - Targets processing (OK);
+    - Targets parsing; (OK)
+    - Targets processing (OK)
     - Review operation; (OK)
 4. Excuting commands; (WIP)
     - Variables macro substitution; (OK)
