@@ -14,14 +14,11 @@
     - Targets macro substitution (including variables); (WIP)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
     - OS Specific command calls;
-        - FPC implementation; (WIP)
-        - MSX-DOS implementation;
-    - Environment variables (OS specific calls) - Depends on Item 6;
-        - Runtime variable avaibility checking (when executing a command); (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;
 5. Implement conditional statements (ifeq, ifneq);
 6. Operating system environment variables access by makefile;
+    - Runtime variable avaibility checking (when executing a command); (ok)
     - FPC implementation; (OK)
     - MSX-DOS implementation;
     - All environment variables are inherited by makefile scripts; (OK)

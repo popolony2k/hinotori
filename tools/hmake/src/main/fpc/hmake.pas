@@ -23,7 +23,7 @@
 
 program hmake;
 
-uses dos;
+uses dos, process;
 
 {$i ..\..\..\..\..\src\system\types.pas}
 {$i ..\..\..\..\..\src\collectn\lnkdlist.pas}
