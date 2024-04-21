@@ -17,8 +17,8 @@
         - FPC implementation; (OK)
         - MSX-DOS implementation;
 5. Implement conditional statements (ifeq, ifneq);
-6. Operating system environment variables access by makefile;
-    - Runtime variable avaibility checking (when executing a command); (ok)
+6. Operating system environment variables access by makefile; (WIP)
+    - Runtime variable avaibility checking (when executing a command); (OK)
     - FPC implementation; (OK)
     - MSX-DOS implementation;
     - All environment variables are inherited by makefile scripts; (OK)
