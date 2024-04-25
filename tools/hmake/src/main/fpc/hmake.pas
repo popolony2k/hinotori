@@ -42,7 +42,7 @@ uses dos, process;
   * Specific FPC definitions.
   *)
 const 
-           ctCSI = '['; { Control Sequence Introducer. UNIX    }
+           ctCSI = '['; { Control Sequence Introducer. UNIX }
 
 
 (**
