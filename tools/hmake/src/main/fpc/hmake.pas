@@ -19,6 +19,7 @@
  * - ../../make/mkbuild.pas;
  * - ../../make/fpc/mkoscall.pas;
  * - ../../make/mkexec.pas;
+ * - ../hmakerun.pas;
  *)
 
 program hmake;
