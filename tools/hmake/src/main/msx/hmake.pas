@@ -36,10 +36,13 @@ program hmake;
 {$i ..\..\make\mkexec.pas}
 {$i ..\hmakerun.pas}
 
+const 
+           ctCSI = '';  { Control Sequence Introducer. MSX-DOS }
+
 
 (**
   * Main application entry point.
   *)
 begin
-  Run;
+  Run( ctCSI );
 end.

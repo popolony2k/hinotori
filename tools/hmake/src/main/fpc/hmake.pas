@@ -38,10 +38,16 @@ uses dos, process;
 {$i ..\..\make\mkexec.pas}
 {$i ..\hmakerun.pas}
 
+(**
+  * Specific FPC definitions.
+  *)
+const 
+           ctCSI = '['; { Control Sequence Introducer. UNIX    }
+
 
 (**
   * Main application entry point.
   *)
 begin
-  Run;
+  Run ( ctCSI );
 end.

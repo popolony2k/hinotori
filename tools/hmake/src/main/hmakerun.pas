@@ -104,8 +104,10 @@ end;
 
 (**
   * Main application entry-point.
+  * @param chCSI The control sequence introducer specific
+  * for the OS that is running hmake;
   *)
-procedure Run;
+procedure Run( chCSI : char );
 var 
        handle : TMakeHandle;
        parms  : TCmdLineParms;
@@ -120,6 +122,7 @@ begin
   begin
     MkInit( handle );
 
+    handle.chCSI := chCSI;
     handle.bDebugMode := parms.bDebugMode;
 
     if( MkOpen( parms.strMakeFile, handle ) ) then

@@ -311,7 +311,7 @@ begin
     aChToken[IDENT_TARGETS]  := ':';
 
     Write( 'Processing ( )' );
-    Write( #27, ctCSI, 'D' );
+    Write( #27, handle.chCSI, 'D' );
   
     while( bRet and not eof( handle.hFile ) ) do
     begin
@@ -322,9 +322,9 @@ begin
         bRet := __Parse;
     end;
 
-    Write( #27, ctCSI, 'D' );
+    Write( #27, handle.chCSI, 'D' );
     Write( '*' );
-    Write( #27, ctCSI, 'C' );
+    Write( #27, handle.chCSI, 'C' );
     WriteLn;
   end;
 
