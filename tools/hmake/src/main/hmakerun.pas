@@ -133,22 +133,22 @@ begin
           PrintDebug( handle );
 
         if( not MkClose( handle ) ) then
-          WriteLn( 'Error to close make file' );
+          WriteLn( 'hmake: Error to close make file' );
   
         if( not MkExecute( handle, parms.strTarget ) )  then        
         begin
-          WriteLn( 'Execute failed with following error:' );
+          WriteLn( 'hmake: Execute failed with following error.' );
           WriteLn( 'Line (', handle.nLastLine, ') - ',  handle.strLastError );
         end;
       end
       else
       begin
-        WriteLn( 'Build failed with following error:' );
+        WriteLn( 'hmake: Build failed with following error.' );
         WriteLn( 'Line (', handle.nLastLine, ') - ', handle.strLastError );
       end;
     end
     else
-      WriteLn( 'Error to open make file [' + parms.strMakeFile + ']' );
+      WriteLn( 'hmake: Error to open make file [' + parms.strMakeFile + ']' );
 
     MkDestroy( handle );
   end;
