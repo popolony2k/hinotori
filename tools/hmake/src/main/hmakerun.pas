@@ -134,12 +134,8 @@ begin
 
         if( not MkClose( handle ) ) then
           WriteLn( 'Error to close make file' );
-
-        WriteLn( 'Build success' );
- 
-        if( MkExecute( handle, parms.strTarget ) )  then        
-          WriteLn( 'Execute success' )
-        else
+  
+        if( not MkExecute( handle, parms.strTarget ) )  then        
         begin
           WriteLn( 'Execute failed with following error:' );
           WriteLn( 'Line (', handle.nLastLine, ') - ',  handle.strLastError );

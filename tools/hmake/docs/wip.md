@@ -13,6 +13,8 @@
     - Implement remark processing on command execution; (OK)
     - Targets macro substitution (including variables); (WIP)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
+        - Check if target file exists; (OK)
+        - Prerequisites processing; (WIP)
     - OS Specific command calls;
         - FPC implementation; (OK)
         - MSX-DOS implementation;
@@ -36,3 +38,4 @@
     - Add some builtin constants
         - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS); 
 4. Add support to use '#' after concatenation '\' at execution step;
+5. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);

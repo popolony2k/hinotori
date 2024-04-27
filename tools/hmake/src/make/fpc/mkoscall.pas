@@ -68,3 +68,22 @@ begin
 
   MkGetEnv := ( strEnvValue <> '' );
 end;
+
+(**
+  * Check if a file passed as parameter exists.
+  * @param strFileName The file name that will be checked;
+  * The function return true if file exists otherwise false;
+  *)
+function MkFileExists( strFileName : TFileName ) : boolean;
+var
+      bRet : boolean;
+      info : TSearchRec;
+
+begin
+  bRet := ( FindFirst( strFileName, faAnyFile, info ) = 0 );
+
+  if( bRet )  then
+    FindClose( info );
+
+  MkFileExists := bRet;
+end;

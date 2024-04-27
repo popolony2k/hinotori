@@ -39,3 +39,13 @@ function MkGetEnv( strEnvVarName : TIdentifierName;
 begin
   MkGetEnv := false;
 end;
+
+(**
+  * Check if a file passed as parameter exists.
+  * @param strFileName The file name that will be checked;
+  * The function return true if file exists otherwise false;
+  *)
+function MkFileExists( strFileName : TFileName ) : boolean;     
+begin
+  MkFileExists := false;
+end;

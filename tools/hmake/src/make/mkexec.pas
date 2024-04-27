@@ -178,10 +178,17 @@ begin
     WriteLn( '-----------------------' );
   end;
 
-  if( bRet )  then
-    bRet := __ExecCommands( pTargetItem^.commandList )
+  if( not MkFileExists( pTargetItem^.targetPair.strName ) )  then
+  begin
+    if( bRet )  then
+      bRet := __ExecCommands( pTargetItem^.commandList )
+    else
+      handle.strLastError := 'Invalid target [' + strTarget + ']';
+  end
   else
-    handle.strLastError := 'Invalid target [' + strTarget + ']';
+    WriteLn( 'hmake: ''', 
+             pTargetItem^.targetPair.strName, 
+             ''' is up to date.' );
 
   if( handle.bDebugMode )  then
   begin

@@ -24,7 +24,7 @@
 
 program hmake;
 
-uses dos, process;
+uses dos, process, sysutils;
 
 {$i ..\..\..\..\..\src\system\types.pas}
 {$i ..\..\..\..\..\src\collectn\lnkdlist.pas}
