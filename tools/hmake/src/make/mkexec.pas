@@ -149,7 +149,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       else
       begin
         if( handle.bDebugMode and not bHasCommands )  then
-          WriteLn( 'No commands to execute on this target' );
+          WriteLn( 'hmake: No commands to execute on this target' );
       end;
     end;
 
