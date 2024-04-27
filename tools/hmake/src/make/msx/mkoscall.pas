@@ -10,6 +10,7 @@
  * This module depends on folowing include files (respect the order):
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - ../mktypes.pas;
  *)
 
 
@@ -41,11 +42,12 @@ begin
 end;
 
 (**
-  * Check if a file passed as parameter exists.
-  * @param strFileName The file name that will be checked;
-  * The function return true if file exists otherwise false;
+  * Check if target files are valid to be processed;
+  * @param pair Reference to the pair that will be checked;
+  * The function return true if the target should be
+  * processed otherwise false;
   *)
-function MkFileExists( strFileName : TFileName ) : boolean;     
+function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
 begin
-  MkFileExists := false;
+  MkCheckTarget := false;
 end;

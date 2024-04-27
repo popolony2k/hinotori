@@ -39,3 +39,4 @@
         - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS); 
 4. Add support to use '#' after concatenation '\' at execution step;
 5. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);
+    - Add support to multiples prerequisites;

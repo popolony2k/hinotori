@@ -10,6 +10,7 @@
  * This module depends on folowing include files (respect the order):
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - ../mktypes.pas;
  *)
 
 {$mode objfpc}{$H+}
@@ -70,20 +71,32 @@ begin
 end;
 
 (**
-  * Check if a file passed as parameter exists.
-  * @param strFileName The file name that will be checked;
-  * The function return true if file exists otherwise false;
+  * Check if target files are valid to be processed;
+  * @param pair Reference to the pair that will be checked;
+  * The function return true if the target should be
+  * processed otherwise false;
   *)
-function MkFileExists( strFileName : TFileName ) : boolean;
+function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
 var
-      bRet : boolean;
-      info : TSearchRec;
+      bRet   : boolean;
+      target : TSearchRec;
+      prereq : TSearchRec;
 
 begin
-  bRet := ( FindFirst( strFileName, faAnyFile, info ) = 0 );
+  bRet := ( FindFirst( pair.strName, faAnyFile, target ) = 0 );
 
   if( bRet )  then
-    FindClose( info );
+  begin
+    if( FindFirst( pair.strValue, faAnyFile, prereq ) = 0 )  then
+    begin
+      bRet := ( prereq.Time > target.Time );
+      FindClose( prereq );
+    end;
 
-  MkFileExists := bRet;
+    FindClose( target );
+  end
+  else
+    bRet := true;
+
+  MkCheckTarget := bRet;
 end;

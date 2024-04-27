@@ -157,8 +157,9 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
   end;
 
 var
-      bRet        : boolean;
-      pTargetItem : PTarget;
+      bRet           : boolean;
+      bProcessTarget : boolean;
+      pTargetItem    : PTarget;
 
 (*
  * MkExecute main routine
@@ -178,7 +179,9 @@ begin
     WriteLn( '-----------------------' );
   end;
 
-  if( not MkFileExists( pTargetItem^.targetPair.strName ) )  then
+  bProcessTarget := MkCheckTarget( pTargetItem^.targetPair ); 
+
+  if( bProcessTarget )  then
   begin
     if( bRet )  then
       bRet := __ExecCommands( pTargetItem^.commandList )
