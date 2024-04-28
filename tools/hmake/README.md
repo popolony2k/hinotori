@@ -10,6 +10,9 @@ Work in progress
 
 Check the following file below:
 
-[WIP document](./docs/wip.md)
+[WIP document][def]
 
 Hinotori Team
+
+
+[def]: ./docs/wip.md
