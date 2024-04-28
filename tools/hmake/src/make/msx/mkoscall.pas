@@ -46,6 +46,12 @@ end;
   * @param pair Reference to the pair that will be checked;
   * The function return true if the target should be
   * processed otherwise false;
+  * Rules for processing:
+  * 1) If a target file does not exist, the commands will run. 
+  *    If target does exist, no commands will run.
+  * 2) Make decides if it should run a target. 
+  *    It will only run if target doesn't exist, or prereq is newer 
+  *    than target;
   *)
 function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
 begin
