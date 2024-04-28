@@ -16,7 +16,7 @@
         - Check target processing; (WIP)
             - FPC implementation; (OK);
             - MSX-DOS;
-    - OS Specific command calls;
+    - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;
 5. Implement conditional statements (ifeq, ifneq);
