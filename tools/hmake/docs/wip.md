@@ -11,10 +11,11 @@
     - Commands macro substitution (including variables); (OK)
     - Implement multi-line command parsing and executing; (OK)
     - Implement remark processing on command execution; (OK)
-    - Targets macro substitution (including variables); (WIP)
+    - Targets macro substitution (including variables); (OK)
     - Execution logic - When execute or not (based on makefile rules); (WIP)
-        - Check if target file exists; (OK)
-        - Prerequisites processing; (WIP)
+        - Check target processing; (WIP)
+            - FPC implementation; (OK);
+            - MSX-DOS;
     - OS Specific command calls;
         - FPC implementation; (OK)
         - MSX-DOS implementation;

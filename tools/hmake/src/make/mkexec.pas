@@ -149,7 +149,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       else
       begin
         if( handle.bDebugMode and not bHasCommands )  then
-          WriteLn( 'hmake: No commands to execute on this target' );
+          WriteLn( 'hmake: Nothing to do' );
       end;
     end;
 
@@ -157,9 +157,9 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
   end;
 
 var
-      bRet           : boolean;
-      bProcessTarget : boolean;
-      pTargetItem    : PTarget;
+      bRet        : boolean;
+      pTargetItem : PTarget;
+      targetPair  : TIdentifierPair;
 
 (*
  * MkExecute main routine
@@ -179,19 +179,23 @@ begin
     WriteLn( '-----------------------' );
   end;
 
-  bProcessTarget := MkCheckTarget( pTargetItem^.targetPair ); 
-
-  if( bProcessTarget )  then
+  targetPair := pTargetItem^.targetPair;
+  bRet := __ReplaceReferences( targetPair.strValue );
+  
+  if( bRet )  then
   begin
-    if( bRet )  then
-      bRet := __ExecCommands( pTargetItem^.commandList )
+    if( MkCheckTarget( targetPair ) )  then
+    begin
+      if( bRet )  then
+        bRet := __ExecCommands( pTargetItem^.commandList )
+      else
+        handle.strLastError := 'Invalid target [' + strTarget + ']';
+    end
     else
-      handle.strLastError := 'Invalid target [' + strTarget + ']';
-  end
-  else
-    WriteLn( 'hmake: ''', 
-             pTargetItem^.targetPair.strName, 
-             ''' is up to date.' );
+      WriteLn( 'hmake: ''', 
+               pTargetItem^.targetPair.strName, 
+               ''' is up to date.' );
+  end;
 
   if( handle.bDebugMode )  then
   begin
