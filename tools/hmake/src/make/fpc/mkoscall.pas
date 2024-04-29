@@ -36,15 +36,15 @@ var
       strOutput    : string;
 
 begin
-  {$IFDEF UNIX }
-    strCmdShell  := GetEnv( __ctUnixShellEnv );
-    strShellParm := __ctUnixShellParm; 
-  {$ELSE}
-    {$IFDEF WINDOWS}
-      strCmdShell  := __ctWindowsShellEnv;
-      strShellParm := __ctWindowsShellParm
-    {$ENDIF}
+{$IFDEF UNIX}
+  strCmdShell  := GetEnv( __ctUnixShellEnv );
+  strShellParm := __ctUnixShellParm; 
+{$ELSE}
+  {$IFDEF WINDOWS}
+  strCmdShell  := __ctWindowsShellEnv;
+  strShellParm := __ctWindowsShellParm
   {$ENDIF}
+{$ENDIF}
 
   bRet := RunCommand( strCmdShell,[strShellParm, strCommand], strOutput );
 

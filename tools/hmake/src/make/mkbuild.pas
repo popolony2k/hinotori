@@ -10,7 +10,8 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/pointer.pas;
+ * - /memory/fpc/pointer.pas;  (depemds on archtecture)
+ * - /memory/msx/pointer.pas;  (depemds on archtecture)
  * - /util/helpstr.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;

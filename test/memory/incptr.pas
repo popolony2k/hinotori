@@ -13,11 +13,16 @@ program TestIncPtr;
 (*
  * This source file depends on following include files (respect the order):
  * - /system/types.pas;
- * - /memory/pointer.pas;
+ * - /memory/fpc/pointer.pas;  (depemds on archtecture)
+ * - /memory/msx/pointer.pas;  (depemds on archtecture)
  *)
 
 {$i ..\..\src\system\types.pas}
-{$i ..\..\src\memory\pointer.pas}
+{$IFDEF FPC}
+{$i ..\..\src\memory\fpc\pointer.pas}
+{$ELSE}
+{$i ..\..\src\memory\msx\pointer.pas}
+{$ENDIF}
 {$i ..\..\src\ptest\ptest.pas}
 
 
