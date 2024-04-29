@@ -16,6 +16,8 @@
         - Check target processing; (WIP)
             - FPC implementation; (OK);
             - MSX-DOS;
+            - Check if target-pattern rules implementation (%.o: %.c %.h) will
+            be implemented (if not, put this item on Wish list section);
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;
