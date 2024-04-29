@@ -15,13 +15,6 @@
 
 {$mode objfpc}{$H+}
 
-const   __ctUnixShellEnv     = 'SHELL';   { Unix shell environment    }
-        __ctWindowsShellEnv  = 'cmd';     { Windows shell environment }
-        __ctUnixShellParm    = '-c';      { Unix shell exec parm      }
-        __ctWindowsShellParm = '/c';      { Windows shell exec parm   }
-
-
-
 (**
   * Execute an command on operating system through system call;
   * @param handle A valid open makefile handle;
@@ -29,6 +22,16 @@ const   __ctUnixShellEnv     = 'SHELL';   { Unix shell environment    }
   *)
 function MkExecCommand( var handle : TMakeHandle; 
                         var strCommand : TIdentifierValue ) : boolean;
+
+const   
+{$IFDEF UNIX}
+        __ctShellEnv  = 'SHELL';   { Unix shell environment    }
+        __ctShellParm = '-c';      { Unix shell exec parm      }
+{$ELSE}
+        __ctShellEnv  = 'cmd';     { Windows shell environment }
+        __ctShellParm = '/c';      { Windows shell exec parm   }
+{$ENDIF}
+
 var
       bRet         : boolean;
       strCmdShell  : string;
@@ -37,12 +40,12 @@ var
 
 begin
 {$IFDEF UNIX}
-  strCmdShell  := GetEnv( __ctUnixShellEnv );
-  strShellParm := __ctUnixShellParm; 
+  strCmdShell  := GetEnv( __ctShellEnv );
+  strShellParm := __ctShellParm; 
 {$ELSE}
   {$IFDEF WINDOWS}
-  strCmdShell  := __ctWindowsShellEnv;
-  strShellParm := __ctWindowsShellParm
+  strCmdShell  := __ctShellEnv;
+  strShellParm := __ctShellParm
   {$ENDIF}
 {$ENDIF}
 
