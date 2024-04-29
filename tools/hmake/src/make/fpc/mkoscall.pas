@@ -89,17 +89,17 @@ function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
 var
       bRet   : boolean;
       target : TSearchRec;
-      prereq : TSearchRec;
+      preReq : TSearchRec;
 
 begin
   bRet := ( FindFirst( pair.strName, faAnyFile, target ) = 0 );
 
   if( bRet )  then
   begin
-    if( FindFirst( pair.strValue, faAnyFile, prereq ) = 0 )  then
+    if( FindFirst( pair.strValue, faAnyFile, preReq ) = 0 )  then
     begin
-      bRet := ( prereq.Time > target.Time );
-      FindClose( prereq );
+      bRet := ( preReq.Time > target.Time );
+      FindClose( preReq );
     end;
 
     FindClose( target );
