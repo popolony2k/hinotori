@@ -18,53 +18,53 @@
  *)
 
 const
-    ctFOUT      = $71; (* FOUT routine. Barely implemented.		*)
-    ctZSTROUT   = $72; (* ZSTROUT routine. Barely implemented.	*)
-    ctRDDRV     = $73; (* RDDRV routine. Not implemented.		*)
-    ctWRDRV     = $74; (* WRDRV routine. Not implemented.		*)
-    ctRALLOC    = $75; (* RALLOC routine. 						*)
-    ctDSPACE    = $76; (* DSPACE routine. 						*)
-    ctLOCK      = $77; (* LOCK routine. 						*)
-    ctGDRVR     = $78; (* GDRVR routine. 						*)
-    ctGDLI      = $79; (* GDLI routine. 						*)
-    ctGPART     = $7A; (* GPART routine. 						*)
-    ctCDRVR     = $7B; (* CDRVR routine. Not implemented.		*)
-    ctMAPDRV    = $7C; (* MAPDRV  routine. 						*)
-    ctZ80MODE   = $7D; (* Z80MODE routine. 						*)
-    ctGETCLUS   = $7E; (* GETCLUS routine. Not implemented.		*)
+    ctFOUT                    = $71; (* FOUT routine. Barely implemented.    *)
+    ctZSTROUT                 = $72; (* ZSTROUT routine. Barely implemented. *)
+    ctRDDRV                   = $73; (* RDDRV routine. Not implemented.      *)
+    ctWRDRV                   = $74; (* WRDRV routine. Not implemented.      *)
+    ctRALLOC                  = $75; (* RALLOC routine.                      *)
+    ctDSPACE                  = $76; (* DSPACE routine.                      *)
+    ctLOCK                    = $77; (* LOCK routine.                        *)
+    ctGDRVR                   = $78; (* GDRVR routine.                       *)
+    ctGDLI                    = $79; (* GDLI routine.                        *)
+    ctGPART                   = $7A; (* GPART routine.                       *)
+    ctCDRVR                   = $7B; (* CDRVR routine. Not implemented.      *)
+    ctMAPDRV                  = $7C; (* MAPDRV  routine.                     *)
+    ctZ80MODE                 = $7D; (* Z80MODE routine.                     *)
+    ctGETCLUS                 = $7E; (* GETCLUS routine. Not implemented.    *)
+    ctICLUS                   = $B0; (* Invalid cluster number or sequence.  *)
+		ctBFSZ                    = $B1; (* Bad file size.                       *)
+		ctFMNT                    = $B2; (* File is mounted.                     *)
+		ctPUSED                   = $B3; (* Partition is already in use.         *)
+	  ctIPART                   = $B4; (* Invalid partition number.            *)
+	  ctIDEVL                   = $B5; (* Invalid device or LUN.               *)
+	  ctIDRVR                   = $B6; (* Invalid device driver.               *)
 
-    ctGetFastStroutMode     	=   $00;
-    ctSetFastStroutMode     	=   $01;
-    ctDisableFastStroutMode 	=   $00;
-    ctEnableFastStroutMode  	=   $01;
-    ctGetRallocStatus			= 	$00;
-    ctSetRallocStatus			= 	$01;
-    ctGetFreeSpace          	=   $00;
-    ctGetTotalSpace         	=   $01;
-    ctGetLockStatus         	=   $00;
-    ctSetLockStatus         	=   $01;
-    ctLockDrive             	=   $FF;
-    ctUnlockDrive           	=   $00;
-    ctROMDrivers				=   $FF;
-	ctUnmapDrive				=   $00;
-	ctMapDriveDefaultState		= 	$01;
-    ctMapDriveSpecificData		= 	$02;
-    ctMountFileInTheDrive		= 	$03;
-    ctAutomaticMountType		=   $00;
-    ctReadOnlyMountType			= 	$01;
-    ctGetCurrentZ80AccessMode	= 	$00;
-    ctSetZ80AccessMode			= 	$01;
-    ctDisableZ80AccessMode		= 	$00;
-    ctEnableZ80AccessMode		= 	$FF;
+    ctGetFastStroutMode       = $00;
+    ctSetFastStroutMode       = $01;
+    ctDisableFastStroutMode   = $00;
+    ctEnableFastStroutMode    = $01;
+    ctGetRallocStatus         = $00;
+    ctSetRallocStatus         = $01;
+    ctGetFreeSpace            = $00;
+    ctGetTotalSpace           = $01;
+    ctGetLockStatus           = $00;
+    ctSetLockStatus           = $01;
+    ctLockDrive               = $FF;
+    ctUnlockDrive             = $00;
+    ctROMDrivers              = $FF;
+	  ctUnmapDrive              = $00;
+	  ctMapDriveDefaultState    = $01;
+    ctMapDriveSpecificData    = $02;
+    ctMountFileInTheDrive	    = $03;
+    ctAutomaticMountType      = $00;
+    ctReadOnlyMountType       = $01;
+    ctGetCurrentZ80AccessMode = $00;
+    ctSetZ80AccessMode        = $01;
+    ctDisableZ80AccessMode    = $00;
+    ctEnableZ80AccessMode     = $FF;
 
-	ctICLUS 		= $B0; (* Invalid cluster number or sequence. 	*)
-	ctBFSZ  		= $B1; (* Bad file size. 						*)
-	ctFMNT  		= $B2; (* File is mounted. 						*)
-	ctPUSED 		= $B3; (* Partition is already in use. 			*)
-	ctIPART 		= $B4; (* Invalid partition number. 			*)
-	ctIDEVL 		= $B5; (* Invalid device or LUN. 				*)
-	ctIDRVR 		= $B6; (* Invalid device driver. 				*)
-	
+
 type
 	TBinNumber 	= array [0..7] of byte;
 	TDriveStatus = TBinNumber;
@@ -125,10 +125,11 @@ begin
 		ctIDEVL: GetNextorErrorCode := ' Invalid device or LUN.';
 		ctIPART: GetNextorErrorCode := ' Invalid partition number.';
 		ctPUSED: GetNextorErrorCode := ' Partition is already in use.';
-	    ctFMNT:  GetNextorErrorCode := ' File is mounted. ';
-	    ctBFSZ:  GetNextorErrorCode := ' Bad file size. ';
-	    ctICLUS: GetNextorErrorCode := ' Invalid cluster number or sequence. ';
-		else GetNextorErrorCode := temp;
+	  ctFMNT:  GetNextorErrorCode := ' File is mounted. ';
+	  ctBFSZ:  GetNextorErrorCode := ' Bad file size. ';
+	  ctICLUS: GetNextorErrorCode := ' Invalid cluster number or sequence. ';
+	else 
+	  GetNextorErrorCode := temp;
 	end;
 end;
 
