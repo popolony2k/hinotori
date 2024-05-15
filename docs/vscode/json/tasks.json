@@ -1,0 +1,47 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "PAS build active file",
+      "command": "fpc",
+      "args": ["-FE${workspaceFolder}/build", "-g", "-gw", "${file}"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "dependsOn": "PAS create build folder"
+    },
+    {
+      "type": "shell",
+      "label": "PAS remove build folder",
+      "command": "rm",
+      "args": ["-rf", "${workspaceFolder}/build"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "PAS create build folder",
+      "command": "mkdir",
+      "args": ["${workspaceFolder}/build"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": [],
+      "dependsOn": "PAS remove build folder"
+    },
+    {
+      "type": "shell",
+      "label": "PAS run active file",
+      "command": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+      "problemMatcher": [],
+      "dependsOn": "PAS build active file"
+    }
+  ]
+}
