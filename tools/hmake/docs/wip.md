@@ -1,4 +1,4 @@
-## Work in Progress
+# Work in Progress
 
 1. Implement multi-line variable content parsing (\) and storing; (OK)
 2. Implement remark processing (variables and target execution) (#); (OK)
@@ -27,7 +27,7 @@
     - FPC implementation; (OK)
     - MSX-DOS implementation;
     - All environment variables are inherited by makefile scripts; (OK)
-    https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment.
+    <https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment>.
 7. Final tests
     - Test multiple variable set (the same variable set several times);
     - Test multiple targets and already defined targets;
@@ -38,7 +38,7 @@
 2. Implement wildcard processing (eg. $(wildcard *.c));
 3. Implement constants (:=);
     - Add some builtin constants
-        - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS); 
+        - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS);
 4. Add support to use '#' after concatenation '\' at execution step;
 5. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);
     - Add support to multiples prerequisites;
