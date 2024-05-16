@@ -21,14 +21,13 @@
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;
-5. Implement conditional statements (ifeq, ifneq);
-6. Operating system environment variables access by makefile; (WIP)
+5. Operating system environment variables access by makefile; (WIP)
     - Runtime variable avaibility checking (when executing a command); (OK)
     - FPC implementation; (OK)
     - MSX-DOS implementation;
     - All environment variables are inherited by makefile scripts; (OK)
     <https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment>.
-7. Final tests
+6. Final tests
     - Test multiple variable set (the same variable set several times);
     - Test multiple targets and already defined targets;
 
@@ -43,3 +42,4 @@
 5. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);
     - Add support to multiples prerequisites;
 6. Force identation by tab instead spaces. If make file is idented by space, force make failure.
+7. Implement conditional statements (ifeq, ifneq);
