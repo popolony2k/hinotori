@@ -17,7 +17,8 @@
             - FPC implementation; (OK);
             - MSX-DOS;
             - Check if target-pattern rules implementation (%.o: %.c %.h) will
-            be implemented (if not, put this item on Wish list section);
+              be implemented (if not, put this item on Wish list section);
+                - Implement wildcard processing (eg. $(wildcard *.c));
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;
@@ -34,12 +35,11 @@
 ## Wish list
 
 1. Implement include on makefiles (check this);
-2. Implement wildcard processing (eg. $(wildcard *.c));
-3. Implement constants (:=);
+2. Implement constants (:=);
     - Add some builtin constants
         - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS);
-4. Add support to use '#' after concatenation '\' at execution step;
-5. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);
+3. Add support to use '#' after concatenation '\' at execution step;
+4. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);
     - Add support to multiples prerequisites;
-6. Force identation by tab instead spaces. If make file is idented by space, force make failure.
-7. Implement conditional statements (ifeq, ifneq);
+5. Force identation by tab instead spaces. If make file is idented by space, force make failure.
+6. Implement conditional statements (ifeq, ifneq);
