@@ -182,16 +182,6 @@ var
 
                   CreateLinkedList( target.commandList, 
                                     sizeof( TIdentifierValue ) )
-
-                  // (* Check if target was already defined previously *)
-                  // bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
-
-                  // if( bRet )  then
-                  //   CreateLinkedList( target.commandList, 
-                  //                     sizeof( TIdentifierValue ) )
-                  // else
-                  //   handle.strLastError := 'target [' + pPair^.strName + 
-                  //                          '] already defined';
                 end;
               end;
 
