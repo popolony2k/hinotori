@@ -18,6 +18,9 @@
             - MSX-DOS;
             - Target-pattern rules implementation (%.o: %.c %.h); (WIP)
                 - Implement wildcard processing (eg. $(wildcard *.c));
+                - Add support to multiples targets on the same line 
+                (separated by spaces). (eg. target_1 target2 : prerequisite);
+                    - Add support to multiples prerequisites;
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;
@@ -38,7 +41,5 @@
     - Add some builtin constants
         - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS);
 3. Add support to use '#' after concatenation '\' at execution step;
-4. Add support to multiples targets in the same line (separated by spaces). (eg. target_1 target2 : prerequisite);
-    - Add support to multiples prerequisites;
-5. Force identation by tab instead spaces. If make file is idented by space, force make failure.
-6. Implement conditional statements (ifeq, ifneq);
+4. Force identation by tab instead spaces. If make file is idented by space, force make failure.
+5. Implement conditional statements (ifeq, ifneq);
