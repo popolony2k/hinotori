@@ -107,6 +107,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     pItem := GetFirstLinkedListItem( commandList );
     bHasCommands := ( pItem <> nil );
     bMultiLine   := false;
+    strMultiLine := '';
 
     while( bRet and ( pItem <> nil ) ) do
     begin

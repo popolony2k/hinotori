@@ -180,15 +180,18 @@ var
                         pPair^.strName, 
                         sizeof( pPair^.strName ) );
 
-                  (* Check if target was already defined previously *)
-                  bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
+                  CreateLinkedList( target.commandList, 
+                                    sizeof( TIdentifierValue ) )
 
-                  if( bRet )  then
-                    CreateLinkedList( target.commandList, 
-                                      sizeof( TIdentifierValue ) )
-                  else
-                    handle.strLastError := 'target [' + pPair^.strName + 
-                                           '] already defined';
+                  // (* Check if target was already defined previously *)
+                  // bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
+
+                  // if( bRet )  then
+                  //   CreateLinkedList( target.commandList, 
+                  //                     sizeof( TIdentifierValue ) )
+                  // else
+                  //   handle.strLastError := 'target [' + pPair^.strName + 
+                  //                          '] already defined';
                 end;
               end;
 
@@ -218,30 +221,48 @@ var
                         pTemp := AddLinkedListItem( handle.variableList, 
                                                     ToPointer( pPair^ ) );
                         bRet := ( pTemp <> nil );
+
+                        if( not bRet )  then
+                          handle.strLastError := 'Not enough memory -> ' +
+                                                 strLine;
                       end;
                       TIdentifierType.IDENT_TARGETS  :
                       begin
-                        pTemp := AddLinkedListItem( handle.targetList, 
-                                                    ToPointer( target ) );
-                        bRet := ( pTemp <> nil );
+                        (* Check if target was already defined previously *)
+                        if( MkHasWildcard( pPair^, WILDCARD_PERCENT, true ) )  then
+                          bRet := ( MkFindTargetByPair( handle, pPair^ ) = nil )
+                        else
+                          bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
 
-                        (* 
-                         * If there's no default target, it means that is 
-                         * the first target being processed, so according makefile 
-                         * rules (GNU), the first target id the default target.
-                         *)
-                        if( ( handle.pDefaultTarget = nil ) and bRet )  then
-                          Move( pTemp^.pValue, 
-                                handle.pDefaultTarget, 
-                                sizeof( pTemp^.pValue ) );
+                        if( not bRet )  then
+                          handle.strLastError := 'target [' + pPair^.strName + 
+                                                 '] already defined'
+                        else
+                        begin
+                          pTemp := AddLinkedListItem( handle.targetList, 
+                                                      ToPointer( target ) );
+                          bRet := ( pTemp <> nil );
 
-                        if( bRet )  then
-                          Move( pTemp^.pValue, pTargets, sizeof( pTargets ) );
+                          (* 
+                          * If there's no default target, it means that is 
+                          * the first target being processed, so according 
+                          * makefile rules (GNU), the first target id the 
+                          * default target.
+                          *)
+                          if( ( handle.pDefaultTarget = nil ) and bRet )  then
+                            Move( pTemp^.pValue, 
+                                  handle.pDefaultTarget, 
+                                  sizeof( pTemp^.pValue ) );
+
+                          if( bRet )  then
+                            Move( pTemp^.pValue, 
+                                  pTargets, 
+                                  sizeof( pTargets ) )
+                          else
+                            handle.strLastError := 'Not enough memory -> ' + strLine;
+                        end;
                       end;
                     end;
-
-                    if( not bRet )  then
-                      handle.strLastError := 'Not enough memory -> ' + strLine;
                   end
                   else
                     bRet := false;

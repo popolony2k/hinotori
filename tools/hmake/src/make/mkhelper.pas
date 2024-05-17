@@ -165,3 +165,60 @@ begin
 
   MkFindTarget := pItemTarget;
 end;
+
+(**
+  * Find a target based on its pair;
+  * @param pair The target pair to find;
+  * The function return the pointer to the requested target or
+  * nil if not found;
+  *)
+function MkFindTargetByPair( var handle : TMakeHandle; var pair : TIdentifierPair ) : PTarget;
+var
+      pItem       : PLinkedListItem;
+      pItemTarget : PTarget;
+      bFound      : boolean;
+        
+begin
+  bFound := false;
+  pItem  := GetFirstLinkedListItem( handle.targetList );
+
+  while( not bFound and ( pItem <> nil ) ) do
+  begin
+    Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
+    bFound := ( pItemTarget^.targetPair.strName  = pair.strName  ) and 
+              ( pItemTarget^.targetPair.strValue = pair.strValue );
+    pItem  := GetNextLinkedListItem( handle.targetList );
+  end;
+
+  if( not bFound )  then
+    pItemTarget := nil;
+
+  MkFindTargetByPair := pItemTarget;
+end;
+
+(**
+  * Check if target has a percent (%) wildcard.
+  * @param pair Reference to a pair that will be checked;
+  * @param wildcardType The type of wild card to check;
+  * @param bCheckTarget Flag to check the Target value if set or
+  * prerequisite if is reset;
+  * The function return true if is wildcard otherwise false;
+  *)
+function MkHasWildcard( var pair : TIdentifierPair; 
+                        wildcardType : TWildcardType; 
+                        bCheckTarget : boolean ) : boolean;
+var
+      bRet : boolean;
+      aWildCard : array[WILDCARD_PERCENT..WILDCARD_ASTERISK] of char;
+
+begin
+  aWildCard[WILDCARD_PERCENT]  := '%';
+  aWildCard[WILDCARD_ASTERISK] := '*';
+
+  if( bCheckTarget )  then
+    bRet := ( Pos( aWildCard[wildcardType], pair.strName ) > 0 )
+  else
+    bRet := ( Pos( aWildCard[wildcardType], pair.strValue ) > 0 );
+
+  MkHasWildcard := bRet;
+end;

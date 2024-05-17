@@ -13,6 +13,12 @@
  *)
 
 (**
+  * Wildcard type
+  *)
+ type TWildcardType = ( WILDCARD_PERCENT,
+                        WILDCARD_ASTERISK );
+
+(**
   * Identifier type
   *)
 type TIdentifierType = ( IDENT_NONE,

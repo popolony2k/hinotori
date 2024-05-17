@@ -31,11 +31,19 @@ CC_FLAGS=-c         \
 #
 all: $(PROJ_NAME)
 
+# all: $(PROJ_NAME) %.c
+
 $(PROJ_NAME): $(OBJ)
 	$(CC) -o $@ $^
 
 %.o: %.c %.h
 	$(CC) -o $@ $< $(CC_FLAGS)
+
+%.o: %.c %.h %.hxx
+	$(CC) -o $@ $< $(CC_FLAGS)
+
+# %.o: %.c %.h
+# 	$(CC) -o $@ $< $(CC_FLAGS)
 
 main.o: main.c $(H_SOURCE)
 	$(CC) -o $@ $< $(CC_FLAGS)
