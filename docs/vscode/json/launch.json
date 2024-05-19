@@ -16,6 +16,15 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "${defaultBuildTask}"
+        },
+        {
+            "type": "gdb",
+            "request": "launch",
+            "name": "(gdb) Debug current Pascal file",
+            "target": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "arguments": "-d -f ${workspaceFolder}/tools/hmake/samples/makefile test",
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText"
         }
    ]
 }
