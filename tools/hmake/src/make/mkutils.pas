@@ -17,7 +17,9 @@
   * Module constant definitions.
   *)
 const 
-       ctTAB = #9;  { TAB chracter definition }
+       ctTAB        = #9;  { TAB chracter definition }
+       ctCSI_MSXDOS = '';  { Control Sequence Introducer. MSX-DOS }
+       ctCSI_UNIX   = '['; { Control Sequence Introducer. UNIX }
  
 
 (**
