@@ -53,7 +53,7 @@ clean:
 	echo "rm -rf *.o $(PROJ_NAME) *~"
 # INVALID_VAR=-c
 
-test: setenv.txt
+test: test.o test.c
 #	echo "Testing project remark"
 	echo "Testing project"
 	echo $(PROJ_NAME) \ 

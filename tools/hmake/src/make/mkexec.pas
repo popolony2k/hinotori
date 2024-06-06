@@ -138,7 +138,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         end;
       end;
 
-      pItem := GetNextLinkedListItem( commandList );       
+      pItem := GetNextLinkedListItem( commandList );
     end;
 
     if( bRet )  then
@@ -160,10 +160,12 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
 var
       bRet        : boolean;
-      nCount      : integer;
+      bCheck      : boolean;
       pTargetItem : PTarget;
       targetPair  : TIdentifierPair;
       preReqList  : TLinkedList;
+      pItem       : PLinkedListItem;
+
 
 (*
  * MkExecute main routine
@@ -182,30 +184,39 @@ begin
     WriteLn( 'Executing target [', strTarget, ']' );
     WriteLn( '-----------------------' );
   end;
-
-  targetPair := pTargetItem^.targetPair;
-  bRet := __ReplaceReferences( targetPair.strValue );
-  
+ 
   if( bRet )  then
   begin
-    CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
-    nCount := SplitString( targetPair.strValue, ' ', preReqList );
-    
-    repeat
-      if( MkCheckTarget( targetPair ) )  then
+    targetPair := pTargetItem^.targetPair;
+    bRet := __ReplaceReferences( targetPair.strValue );
+
+    if( bRet )  then
+    begin
+      CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
+      bCheck := ( SplitString( targetPair.strValue, ' ', preReqList ) >= 0 );
+      pItem  := GetFirstLinkedListItem( preReqList );
+
+      while( pItem <> nil ) do
       begin
-        if( bRet )  then
-          bRet := __ExecCommands( pTargetItem^.commandList )
-        else
-          handle.strLastError := 'Invalid target [' + strTarget + ']';
-      end
+        Move( pItem^.pValue^, 
+              targetPair.strValue, 
+              sizeof( targetPair.strValue ) ); 
+        bCheck := ( bCheck and MkCheckTarget( targetPair ) );
+        pItem  := GetNextLinkedListItem( preReqList );       
+      end;
+
+      DestroyLinkedList( preReqList );
+
+      if( bCheck )  then
+        bRet := __ExecCommands( pTargetItem^.commandList )
       else
         WriteLn( 'hmake: ''', 
                 pTargetItem^.targetPair.strName, 
                 ''' is up to date.' );
-      nCount := Pred( nCount );
-    until( nCount < 0 );
-  end;
+    end;
+  end
+  else
+    handle.strLastError := 'Target not found [' + strTarget + ']';
 
   if( handle.bDebugMode )  then
   begin
