@@ -160,8 +160,10 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
 var
       bRet        : boolean;
+      nCount      : integer;
       pTargetItem : PTarget;
       targetPair  : TIdentifierPair;
+      preReqList  : TLinkedList;
 
 (*
  * MkExecute main routine
@@ -186,17 +188,23 @@ begin
   
   if( bRet )  then
   begin
-    if( MkCheckTarget( targetPair ) )  then
-    begin
-      if( bRet )  then
-        bRet := __ExecCommands( pTargetItem^.commandList )
+    CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
+    nCount := SplitString( targetPair.strValue, ' ', preReqList );
+    
+    repeat
+      if( MkCheckTarget( targetPair ) )  then
+      begin
+        if( bRet )  then
+          bRet := __ExecCommands( pTargetItem^.commandList )
+        else
+          handle.strLastError := 'Invalid target [' + strTarget + ']';
+      end
       else
-        handle.strLastError := 'Invalid target [' + strTarget + ']';
-    end
-    else
-      WriteLn( 'hmake: ''', 
-               pTargetItem^.targetPair.strName, 
-               ''' is up to date.' );
+        WriteLn( 'hmake: ''', 
+                pTargetItem^.targetPair.strName, 
+                ''' is up to date.' );
+      nCount := Pred( nCount );
+    until( nCount < 0 );
   end;
 
   if( handle.bDebugMode )  then
