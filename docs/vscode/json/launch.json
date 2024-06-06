@@ -23,6 +23,7 @@
             "name": "(gdb) Debug current Pascal file",
             "target": "${workspaceFolder}/build/${fileBasenameNoExtension}",
             "arguments": "-d -f ${workspaceFolder}/tools/hmake/samples/makefile test",
+            "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
         }
