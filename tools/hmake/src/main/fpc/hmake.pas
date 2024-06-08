@@ -10,15 +10,15 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/fpc/pointer.pas;  (depemds on archtecture)
- * - /memory/msx/pointer.pas;  (depemds on archtecture)
+ * - /memory/{platform}/pointer.pas;  (depemds on architecture)
+ * - /dos/dosutil.pas;
  * - /util/helpstr.pas;
  * - ../../make/mktypes.pas;
  * - ../../make/mkhelper.pas;
  * - ../../make/mkbuild.pas;
  * - ../../make/mkfile.pas;
  * - ../../make/mkbuild.pas;
- * - ../../make/fpc/mkoscall.pas;
+ * - ../../make/{platform}}/mkoscall.pas;   (depemds on architecture)
  * - ../../make/mkexec.pas;
  * - ../hmakerun.pas;
  *)
@@ -30,6 +30,7 @@ uses dos, process, sysutils;
 {$i ..\..\..\..\..\src\system\types.pas}
 {$i ..\..\..\..\..\src\collectn\lnkdlist.pas}
 {$i ..\..\..\..\..\src\memory\fpc\pointer.pas}
+{$i ..\..\..\..\..\src\dos\dosutil.pas}
 {$i ..\..\..\..\..\src\util\helpstr.pas}
 {$i ..\..\make\mktypes.pas}
 {$i ..\..\make\mkhelper.pas}

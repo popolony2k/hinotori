@@ -10,16 +10,14 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/fpc/pointer.pas;  (depemds on archtecture)
- * - /memory/msx/pointer.pas;  (depemds on archtecture)
+ * - /memory/{platform}/pointer.pas;  (depemds on archtecture)
  * - /util/helpstr.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;
  * - ./make/mkbuild.pas;
  * - ./make/mkfile.pas;
  * - ./make/mkbuild.pas;
- * - ./make/fpc/mkoscall.pas   (depemds on archtecture)
- * - ./make/msx/mkoscall.pas   (depends on archtecture)
+ * - ./make/{platform}/mkoscall.pas   (depemds on archtecture)
  * - ./make/mkexec.pas;
  *)
 

@@ -10,13 +10,11 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/fpc/pointer.pas;  (depemds on archtecture)
- * - /memory/msx/pointer.pas;  (depemds on archtecture)
+ * - /memory/{platform}/pointer.pas;  (depemds on architecture)
+  * - /dos/dosutil.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;
- * - ./make/fpc/mkoscall.pas   (depemds on archtecture)
- * - ./make/msx/mkoscall.pas   (depends on archtecture)
- 
+ * - ./make/{platform}}/mkoscall.pas   (depemds on architecture)
  *)
 
  (**
@@ -171,17 +169,17 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       targetPair  : TIdentifierPair;
       preReqList  : TLinkedList;
       pItem       : PLinkedListItem;
+      strFileName : TFileName;
+      strFileExt  : TFileExt;
 
   begin
     if( strTarget = '' )  then
       pTargetItem := handle.pDefaultTarget
     else
     begin
-      if( bFirstLevel )  then
-      begin
-        if( MkStringHasWildcard( strTarget, WILDCARD_PERCENT ) )  then
-          pTargetItem := nil;
-      end
+      if( bFirstLevel and 
+          MkStringHasWildcard( strTarget, WILDCARD_PERCENT ) )  then
+        pTargetItem := nil
       else
         pTargetItem := MkFindTarget( handle, strTarget );
     end;
@@ -205,7 +203,16 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
                 targetPair.strValue, 
                 sizeof( targetPair.strValue ) );
           bCheck := ( bCheck and MkCheckTarget( targetPair ) );
+          (* TODO: PATTERN MATCHING *)
           pItem  := GetNextLinkedListItem( preReqList );
+        end;
+
+        (* TODO: PATTERN MATCHING *)
+        if( SplitFileName( targetPair.strValue, 
+                            strFileName, 
+                            strFileExt ) )  then
+        begin
+          WriteLn( '==> ', strFileName, ' ext ==> ', strFileExt );
         end;
 
         DestroyLinkedList( preReqList );

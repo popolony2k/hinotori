@@ -8,6 +8,7 @@
 (*
  * This module depends on folowing include files (respect the order):
  * - /system/types.pas;
+ * - /memory/{platform}/pointer.pas;
  * - /collectn/lnkdlist.pas;
  *)
 
@@ -23,43 +24,67 @@ Const
   * @param pathList An empty @see TLinkedLink previously created;
   * @param strPath The path that will be splitted;
   *)
-Procedure SplitPath( Var pathList : TLinkedList; strPath : TFileName );
-Var
+procedure SplitPath( var pathList : TLinkedList; strPath : TFileName );
+var
       nDirPos,
-      nPathLen : Byte;
+      nPathLen : byte;
       dirName  : TDirectoryName;
       pDirName : Pointer;
-      bAdded   : Boolean;
+      bAdded   : boolean;
 
-Begin
+begin
   nPathLen := Length( strPath );
-  pDirName := Ptr( Addr( dirName ) );
+  pDirName := ToPointer( dirName );
 
-  While( nPathLen > 0 )  Do
-  Begin
+  while( nPathLen > 0 )  do
+  begin
     nDirPos := Pos( '\', strPath );
 
-    If( nDirPos = 0 )  Then
+    if( nDirPos = 0 )  then
       nDirPos := nPathLen + 1;
 
     dirName  := Copy( strPath, 1, ( nDirPos - 1 ) );
-    bAdded   := AddLinkedListItem( pathList, pDirName );
+    bAdded   := ( AddLinkedListItem( pathList, pDirName ) <> nil );
     strPath  := Copy( strPath, ( nDirPos + 1 ), ( nPathLen - nDirPos ) );
     nPathLen := Length( strPath );
-  End;
-End;
+  end;
+end;
+
+(**
+  * Extract the file name extension;
+  * @param strFileName The filename that will be splitted;
+  * @param strRetFileName The filname part without the extension;
+  * @param strRetExt The extension part of filename;
+  *)
+function SplitFileName( strFileName : TFileName;
+                        var strRetFileName : TFileName;
+                        var strRetExt : TFileExt ) : boolean;
+var 
+       nPos : integer;
+begin
+  nPos := Pos( '.', strFileName );
+
+  if( nPos = 0 )  then
+    nPos := Length( strFileName )
+  else
+    strRetExt := Copy( strFileName, ( nPos + 1 ), ( Length( strFileName ) - nPos ) );
+
+  strRetFileName := Copy( strFileName, 1, ( nPos - 1 ) );
+
+  SplitFileName := ( nPos > 0 );
+end;
 
 (**
   * Return if an entry specifies a drive or not.
   * @param strEntry The entry to check;
   *)
-Function IsDriveName( strEntry : TDirectoryName ) : Boolean;
-Begin
-  If( Length( strEntry ) > 1 ) Then
+function IsDriveName( strEntry : TDirectoryName ) : boolean;
+begin
+  if( Length( strEntry ) > 1 ) then
     IsDriveName := ( Pos( ':', strEntry ) = 2 )
-  Else
+  else
     IsDriveName := False;
-End;
+end;
 
 (**
   * Check if a char array matches with a wild card;
@@ -67,47 +92,47 @@ End;
   * @param pWildCard The wild card (can contain *, ?);
   * @param nMaxCount The maximum buffer count;
   *)
-Function EntryMatch( pArray,
+function EntryMatch( pArray,
                      pWildCard : PDynCharArray;
-                     nMaxCount : Byte ) : Boolean;
-Var
-       nCount  : Byte;
+                     nMaxCount : byte ) : boolean;
+var
+       nCount  : byte;
        bExit,
-       bMatch  : Boolean;
+       bMatch  : boolean;
 
-Begin
+begin
   bMatch := True;
   nCount := 0;
 
   (*
-   * End of string delimiter for FAT entries is space #32.
+   * end of string delimiter for FAT entries is space #32.
    *)
-  While( ( pArray^[nCount] <> #32 ) And
-         ( pWildCard^[nCount] <> #32 ) And
-         ( nCount < nMaxCount ) And
-         bMatch ) Do
-  Begin
-    Case pWildCard^[nCount] Of
+  while( ( pArray^[nCount] <> #32 ) and
+         ( pWildCard^[nCount] <> #32 ) and
+         ( nCount < nMaxCount ) and
+         bMatch ) do
+  begin
+    case pWildCard^[nCount] Of
       '*' : bExit := True;
-      '?' : (* Do nothing *)
-        Begin
-        End;
-      Else
-      Begin
+      '?' : (* do nothing *)
+        begin
+        end;
+      else
+      begin
         (* Check FAT spec for this feature *)
-        If( pArray^[nCount] = Char( ctInitialCharE5 ) ) Then
-        Begin
-          If( pWildCard^[nCount] <> Char( $E5 ) ) Then
+        if( pArray^[nCount] = Char( ctInitialCharE5 ) ) then
+        begin
+          if( pWildCard^[nCount] <> Char( $E5 ) ) then
             bMatch := False;
-        End
-        Else
-          If( pArray^[nCount] <> pWildCard^[nCount] )  Then
+        end
+        else
+          if( pArray^[nCount] <> pWildCard^[nCount] )  then
             bMatch := False;
-      End;
-    End;
+      end;
+    end;
 
     nCount := Succ( nCount );
-  End;
+  end;
 
   EntryMatch := bMatch;
-End;
+end;

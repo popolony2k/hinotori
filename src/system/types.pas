@@ -15,6 +15,7 @@
 
 const                  ctMaxPath         = 127; { Maximum path size - MSXDOS2 }
                        ctMaxDirName      = 11;  { Directory name entry size }
+                       ctMaxExt          = 3;   { Extension size }
                        ctUnitializedSlot = 255; { Unitialized slot id }
 
 (**
@@ -33,6 +34,8 @@ type TWord          = integer;                  { 16Bit Unsigned - reserved }
      PString        = ^TString;                 { TString pointer }
      TFileName      = string[ctMaxPath];        { File name path type }
      PFileName      = ^TFileName;               { TFileName pointer }
+     TFileExt       = string[ctMaxExt];         { File extension type }
+     PFileExt       = ^TFileExt;                { TFileExt pointer }
      TDirectoryName = string[ctMaxDirName];     { Directory Name type }
      PDirectoryName = ^TDirectoryName;          { TDirectoryName pointer }
      THexadecimal   = string[2];                { Hexadecimal type }
