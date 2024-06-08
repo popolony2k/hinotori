@@ -101,7 +101,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       strFileName : TFileName;
       strFileExt  : TFileExt;
       bFound      : boolean;
-      nPos        : integer;
 
   begin
     if( pPreReqList <> nil )  then
@@ -123,11 +122,8 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
       if( bFound )  then
       begin
-        nPos := Pos( '%', pair.strName );
-        Delete( pair.strName, nPos, 1 );
-        Insert( strFileName, pair.strName, nPos );
-
-        // TODO: REPLACE VALUE (ALL OCCURRENCIES)
+        ReplaceAll( pair.strName, '%', strFileName );
+        ReplaceAll( pair.strValue, '%', strFileName );
       end;
     end;
   end;

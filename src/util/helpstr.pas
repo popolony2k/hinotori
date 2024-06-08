@@ -145,3 +145,25 @@ begin
 
   RemoveChar := strSource;
 end;
+
+(**
+  * Replace all occurences of a pattern inside a string, by another
+  * pattern passed as parameter;
+  * @param strString String that will be replaced;
+  * @param strRemove Pattern to remove;
+  * @param strInsert Pattern to remove;
+  *)
+procedure ReplaceAll( var strString : TString; strRemove, strInsert : TString );
+var
+      nPos  : integer;
+
+begin
+  nPos := Pos( strRemove, strString );
+
+  while( nPos <> 0 ) do
+  begin
+    Delete( strString, nPos, Length( strRemove ) );
+    Insert( strInsert, strString, nPos );
+    nPos := Pos( strRemove, strString );
+  end;
+end;
