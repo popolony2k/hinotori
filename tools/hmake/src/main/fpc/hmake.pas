@@ -18,7 +18,7 @@
  * - ../../make/mkbuild.pas;
  * - ../../make/mkfile.pas;
  * - ../../make/mkbuild.pas;
- * - ../../make/{platform}}/mkoscall.pas;   (depemds on architecture)
+ * - ../../make/{platform}/mkoscall.pas;   (depemds on architecture)
  * - ../../make/mkexec.pas;
  * - ../hmakerun.pas;
  *)

@@ -37,10 +37,12 @@ $(PROJ_NAME): $(OBJ)
 	$(CC) -o $@ $^
 
 %.o: %.c %.h
-	$(CC) -o $@ $< $(CC_FLAGS)
+#	$(CC) -o $@ $< $(CC_FLAGS)
+	echo "building %o"
 
-%.o: %.c %.h %.hxx
-	$(CC) -o $@ $< $(CC_FLAGS)
+#%.o: %.c %.h %.hxx
+#	$(CC) -o $@ $< $(CC_FLAGS)
+#	echo "building %o"
 
 # %.o: %.c %.h
 # 	$(CC) -o $@ $< $(CC_FLAGS)
@@ -61,5 +63,5 @@ test: test.o test.c
 	$(CC_FLAGS) \
 	HOME ($(HOME))
 
-build: test.c
+build: test.o
  	echo "Testing c source"

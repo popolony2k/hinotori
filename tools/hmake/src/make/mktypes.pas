@@ -13,10 +13,13 @@
  *)
 
 (**
-  * Wildcard type
+  * SpecialChar type
   *)
- type TWildcardType = ( WILDCARD_PERCENT,
-                        WILDCARD_ASTERISK );
+ type TSpecialCharType = ( CHAR_PERCENT,
+                           CHAR_ASTERISK,
+                           CHAR_DOT,
+                           CHAR_PERCENT_DOT,
+                           CHAR_ASTERISK_DOT );
 
 (**
   * Identifier type

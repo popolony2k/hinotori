@@ -199,45 +199,48 @@ begin
 end;
 
 (**
-  * Check if a string has a percent (%) wildcard.
+  * Check if a string has a special char.
   * @param string Reference to a string that will be checked;
-  * @param wildcardType The type of wild card to check;
+  * @param charType The type of char to check;
   * The function return true if is wildcard otherwise false;
   *)
-function MkStringHasWildcard( var strValue : TString; 
-                              wildcardType : TWildcardType ) : boolean;
+function MkStringHasChar( var strValue : TString; 
+                          charType : TSpecialCharType ) : boolean;
 var
-      bRet : boolean;
-      aWildCard : array[WILDCARD_PERCENT..WILDCARD_ASTERISK] of char;
+      bRet  : boolean;
+      aChar : array[CHAR_PERCENT..CHAR_ASTERISK_DOT] of TString;
 
 begin
-  aWildCard[WILDCARD_PERCENT]  := '%';
-  aWildCard[WILDCARD_ASTERISK] := '*';
+  aChar[CHAR_PERCENT]  := '%';
+  aChar[CHAR_ASTERISK] := '*';
+  aChar[CHAR_DOT]      := '.';
+  aChar[CHAR_PERCENT_DOT]  := '%.';
+  aChar[CHAR_ASTERISK_DOT] := '*.';
 
-  bRet := ( Pos( aWildCard[wildcardType], strValue ) > 0 );
+  bRet := ( Pos( aChar[charType], strValue ) > 0 );
 
-  MkStringHasWildcard := bRet;
+  MkStringHasChar := bRet;
 end;
 
 (**
-  * Check if target has a percent (%) wildcard.
+  * Check if target has a special char.
   * @param pair Reference to a pair that will be checked;
-  * @param wildcardType The type of wild card to check;
+  * @param charType The type of char to check;
   * @param bCheckTarget Flag to check the Target value if set or
   * prerequisite if is reset;
   * The function return true if is wildcard otherwise false;
   *)
-function MkPairHasWildcard( var pair : TIdentifierPair; 
-                            wildcardType : TWildcardType; 
-                            bCheckTarget : boolean ) : boolean;
+function MkPairHasChar( var pair : TIdentifierPair; 
+                        charType : TSpecialCharType; 
+                        bCheckTarget : boolean ) : boolean;
 var
       bRet : boolean;
 
 begin
   if( bCheckTarget )  then
-    bRet := MkStringHasWildcard( pair.strName, wildcardType )
+    bRet := MkStringHasChar( pair.strName, charType )
   else
-    bRet := MkStringHasWildcard( pair.strValue, wildcardType );
+    bRet := MkStringHasChar( pair.strValue, charType );
 
-  MkPairHasWildcard := bRet;
+  MkPairHasChar := bRet;
 end;
