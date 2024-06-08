@@ -61,5 +61,5 @@ test: test.o test.c
 	$(CC_FLAGS) \
 	HOME ($(HOME))
 
-# test:
-# 	echo true
+build: test.c
+ 	echo "Testing c source"

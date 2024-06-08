@@ -219,7 +219,8 @@ var
                       TIdentifierType.IDENT_TARGETS  :
                       begin
                         (* Check if target was already defined previously *)
-                        if( MkHasWildcard( pPair^, WILDCARD_PERCENT, true ) )  then
+                        if( MkPairHasWildcard( pPair^, 
+                                               WILDCARD_PERCENT, true ) )  then
                           bRet := ( MkFindTargetByPair( handle, pPair^ ) = nil )
                         else
                           bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );

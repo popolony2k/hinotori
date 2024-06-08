@@ -138,14 +138,24 @@ begin
   
         if( not MkExecute( handle, parms.strTarget ) )  then        
         begin
-          WriteLn( 'hmake: Execute failed with following error.' );
-          WriteLn( 'Line (', handle.nLastLine, ') - ',  handle.strLastError );
+          if( handle.nLastLine >= 0 )  then
+          begin
+            WriteLn( 'hmake: Execute failed with following error.' );
+            Write( 'Line (', handle.nLastLine, ') - ' );
+          end;
+
+          WriteLn( handle.strLastError );
         end;
       end
       else
       begin
-        WriteLn( 'hmake: Build failed with following error.' );
-        WriteLn( 'Line (', handle.nLastLine, ') - ', handle.strLastError );
+        if( handle.nLastLine >= 0 )  then
+        begin
+          WriteLn( 'hmake: Build failed with following error.' );
+          Write( 'Line (', handle.nLastLine, ') - ' );
+        end;
+        
+        WriteLn( handle.strLastError );
       end;
     end
     else

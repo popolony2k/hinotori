@@ -197,16 +197,13 @@ begin
 end;
 
 (**
-  * Check if target has a percent (%) wildcard.
-  * @param pair Reference to a pair that will be checked;
+  * Check if a string has a percent (%) wildcard.
+  * @param string Reference to a string that will be checked;
   * @param wildcardType The type of wild card to check;
-  * @param bCheckTarget Flag to check the Target value if set or
-  * prerequisite if is reset;
   * The function return true if is wildcard otherwise false;
   *)
-function MkHasWildcard( var pair : TIdentifierPair; 
-                        wildcardType : TWildcardType; 
-                        bCheckTarget : boolean ) : boolean;
+function MkStringHasWildcard( var strValue : TString; 
+                              wildcardType : TWildcardType ) : boolean;
 var
       bRet : boolean;
       aWildCard : array[WILDCARD_PERCENT..WILDCARD_ASTERISK] of char;
@@ -215,10 +212,30 @@ begin
   aWildCard[WILDCARD_PERCENT]  := '%';
   aWildCard[WILDCARD_ASTERISK] := '*';
 
-  if( bCheckTarget )  then
-    bRet := ( Pos( aWildCard[wildcardType], pair.strName ) > 0 )
-  else
-    bRet := ( Pos( aWildCard[wildcardType], pair.strValue ) > 0 );
+  bRet := ( Pos( aWildCard[wildcardType], strValue ) > 0 );
 
-  MkHasWildcard := bRet;
+  MkStringHasWildcard := bRet;
+end;
+
+(**
+  * Check if target has a percent (%) wildcard.
+  * @param pair Reference to a pair that will be checked;
+  * @param wildcardType The type of wild card to check;
+  * @param bCheckTarget Flag to check the Target value if set or
+  * prerequisite if is reset;
+  * The function return true if is wildcard otherwise false;
+  *)
+function MkPairHasWildcard( var pair : TIdentifierPair; 
+                            wildcardType : TWildcardType; 
+                            bCheckTarget : boolean ) : boolean;
+var
+      bRet : boolean;
+
+begin
+  if( bCheckTarget )  then
+    bRet := MkStringHasWildcard( pair.strName, wildcardType )
+  else
+    bRet := MkStringHasWildcard( pair.strValue, wildcardType );
+
+  MkPairHasWildcard := bRet;
 end;

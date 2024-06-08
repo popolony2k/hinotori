@@ -158,7 +158,13 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     __ExecCommands := bRet;
   end;
 
-var
+  (**
+    * Execute the target processing based on target passed as parameter;
+    * @param strTarget The target name that will be processed.
+    * If empty, the default will be processed;
+    *)
+  function __ExecTarget( strTarget : TString; bFirstLevel : boolean ) : boolean;
+  var
       bRet        : boolean;
       bCheck      : boolean;
       pTargetItem : PTarget;
@@ -166,57 +172,82 @@ var
       preReqList  : TLinkedList;
       pItem       : PLinkedListItem;
 
+  begin
+    if( strTarget = '' )  then
+      pTargetItem := handle.pDefaultTarget
+    else
+    begin
+      if( bFirstLevel )  then
+      begin
+        if( MkStringHasWildcard( strTarget, WILDCARD_PERCENT ) )  then
+          pTargetItem := nil;
+      end
+      else
+        pTargetItem := MkFindTarget( handle, strTarget );
+    end;
+
+    bRet := ( pTargetItem <> nil );
+
+    if( bRet )  then
+    begin
+      targetPair := pTargetItem^.targetPair;
+      bRet := __ReplaceReferences( targetPair.strValue );
+
+      if( bRet )  then
+      begin
+        CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
+        bCheck := ( SplitString( targetPair.strValue, ' ', preReqList ) >= 0 );
+        pItem  := GetFirstLinkedListItem( preReqList );
+
+        while( pItem <> nil ) do
+        begin
+          Move( pItem^.pValue^, 
+                targetPair.strValue, 
+                sizeof( targetPair.strValue ) );
+          bCheck := ( bCheck and MkCheckTarget( targetPair ) );
+          pItem  := GetNextLinkedListItem( preReqList );
+        end;
+
+        DestroyLinkedList( preReqList );
+
+        if( bCheck )  then
+          bRet := __ExecCommands( pTargetItem^.commandList )
+        else
+        begin
+          handle.nLastLine := -1;
+          handle.strLastError := 'hmake: ''' + 
+                                 pTargetItem^.targetPair.strName + 
+                                 ''' is up to date.';
+        end;
+      end;
+    end
+    else
+    begin
+      handle.nLastLine := -1;
+      handle.strLastError := 'hmake: *** No rule to make target ''' + 
+                             strTarget + 
+                             '''.  Stop.';
+    end;
+
+    __ExecTarget := bRet;
+  end;
+
+(* MkExecute main routine *)
+var
+      bRet : boolean;
 
 (*
  * MkExecute main routine
  *)
 begin
-  if( strTarget = '' )  then
-    pTargetItem := handle.pDefaultTarget
-  else
-    pTargetItem := MkFindTarget( handle, strTarget );
-
-  bRet := ( pTargetItem <> nil );
-
   if( handle.bDebugMode )  then
   begin
     WriteLn;
     WriteLn( 'Executing target [', strTarget, ']' );
     WriteLn( '-----------------------' );
   end;
- 
-  if( bRet )  then
-  begin
-    targetPair := pTargetItem^.targetPair;
-    bRet := __ReplaceReferences( targetPair.strValue );
 
-    if( bRet )  then
-    begin
-      CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
-      bCheck := ( SplitString( targetPair.strValue, ' ', preReqList ) >= 0 );
-      pItem  := GetFirstLinkedListItem( preReqList );
-
-      while( pItem <> nil ) do
-      begin
-        Move( pItem^.pValue^, 
-              targetPair.strValue, 
-              sizeof( targetPair.strValue ) ); 
-        bCheck := ( bCheck and MkCheckTarget( targetPair ) );
-        pItem  := GetNextLinkedListItem( preReqList );       
-      end;
-
-      DestroyLinkedList( preReqList );
-
-      if( bCheck )  then
-        bRet := __ExecCommands( pTargetItem^.commandList )
-      else
-        WriteLn( 'hmake: ''', 
-                pTargetItem^.targetPair.strName, 
-                ''' is up to date.' );
-    end;
-  end
-  else
-    handle.strLastError := 'Target not found [' + strTarget + ']';
+  bRet := __ExecTarget( strTarget, true );
 
   if( handle.bDebugMode )  then
   begin
