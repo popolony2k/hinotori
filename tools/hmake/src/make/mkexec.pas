@@ -122,8 +122,19 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
       if( bFound )  then
       begin
+        if( handle.bDebugMode )  then
+        begin
+          WriteLn( 'Target (Macro)    => ', pair.strName, ':', pair.strValue );
+        end;
+
         ReplaceAll( pair.strName, '%', strFileName );
         ReplaceAll( pair.strValue, '%', strFileName );
+
+        if( handle.bDebugMode )  then
+        begin
+          WriteLn( 'Target (Replaced) => ', pair.strName, ':', pair.strValue );
+          WriteLn;
+        end;
       end;
     end;
   end;
