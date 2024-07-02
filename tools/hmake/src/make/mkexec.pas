@@ -244,7 +244,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
     if( bRet )  then
     begin
-      targetPair  := pTargetItem^.targetPair;
+      targetPair := pTargetItem^.targetPair;
       bRet := __ReplaceReferences( targetPair.strValue );
 
       if( bRet )  then
@@ -253,29 +253,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
         bCheck := ( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 );
         pItem  := GetFirstLinkedListItem( pPreReqList^ );
-
-        if( pItem = nil )  then
-        begin
-          strTargetMatch := targetPair.strValue;
-          
-          if( AddLinkedListItem( pPreReqList^, ToPointer( strTargetMatch ) ) = nil )  then
-          begin
-            __ExecTarget := false;
-            handle.strLastError := '__ExecTarget() - Not enough memory to allocate linked list';
-            Exit;
-          end;
-
-          if( not MkStringHasChar( strTargetMatch, CHAR_PERCENT ) and
-              MkStringHasChar( strTargetMatch, CHAR_DOT ) )  then
-          begin
-            if( SplitFileName( strTargetMatch, strFileName, strFileExt ) )  then
-            begin
-              strTargetMatch := '%.' + strFileExt;
-            end;
-          end;
-        end
-        else
-          strTargetMatch := '';
+        strTargetMatch := '';
 
         while( pItem <> nil ) do
         begin

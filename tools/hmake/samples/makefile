@@ -50,6 +50,9 @@ $(PROJ_NAME): $(OBJ)
 main.o: main.c $(H_SOURCE)
 	$(CC) -o $@ $< $(CC_FLAGS)
 
+test.o: main.c
+	echo "test.o"
+
 clean:
 	echo "cleaning"
 	echo "rm -rf *.o $(PROJ_NAME) *~"

@@ -65,25 +65,27 @@ var
         strTemp   : TString;
 
 begin
-  repeat
-    nPos := Pos( strDelimiter, strValue );
+  if( strValue <> '' )  then
+  begin
+    repeat
+      nPos := Pos( strDelimiter, strValue );
 
-    if( nPos > 0 ) then
-    begin
-      strTemp := Copy( strValue, 1, ( nPos - 1 ) );
+      if( nPos > 0 ) then
+      begin
+        strTemp := Copy( strValue, 1, ( nPos - 1 ) );
 
-      if( AddLinkedListItem( aResult, ToPointer( strTemp ) ) <> nil ) then
-        Delete( strValue, 1, nPos )
+        if( AddLinkedListItem( aResult, ToPointer( strTemp ) ) <> nil ) then
+          Delete( strValue, 1, nPos )
+        else
+          nPos := -1;
+      end
       else
-        nPos := -1;
-    end
-    else
-    begin
-      if( aResult.nListSize > 0 )  then
+      begin
         if( AddLinkedListItem( aResult, ToPointer( strValue ) ) = nil ) then
           nPos := -1;
-    end;
-  until( nPos <= 0 );
+      end;
+    until( nPos <= 0 );
+  end;
 
   SplitString := aResult.nListSize;
 end;
