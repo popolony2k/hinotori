@@ -53,18 +53,24 @@ main.o: main.c $(H_SOURCE)
 test.o: main.c
 	echo "test.o"
 
+test.c: teste.x
+	echo "teste.c"
+
+teste.x:
+	echo "teste.x"
+
 clean:
 	echo "cleaning"
 	echo "rm -rf *.o $(PROJ_NAME) *~"
 # INVALID_VAR=-c
 
 test: test.o test.c
-#	echo "Testing project remark"
-	echo "Testing project"
-	echo $(PROJ_NAME) \ 
-	$(CC) # \
-	$(CC_FLAGS) \
-	HOME ($(HOME))
+	echo "Testing project remark"
+#	echo "Testing project"
+#	echo $(PROJ_NAME) \ 
+#	$(CC) # \
+#	$(CC_FLAGS) \
+#	# HOME ($(HOME))
 
 build: test.o
  	echo "Testing c source"

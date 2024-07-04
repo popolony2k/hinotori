@@ -221,93 +221,61 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
                          bFirstLevel : boolean ) : boolean;
   var
       bRet            : boolean;
-      bCheck          : boolean;
+      bExecutedCmd    : boolean;
       pNextTargetItem : PTarget;
       targetPair      : TIdentifierPair;
-      strTargetMatch  : TIdentifierValue;
       pPreReqList     : PLinkedList;
       pItem           : PLinkedListItem;
-      strFileName     : TFileName;
-      strFileExt      : TFileExt;
 
   begin
     if( pTargetItem = nil )  then
-      pTargetItem := handle.pDefaultTarget
-    else
-    begin
-      if( bFirstLevel and MkStringHasChar( pTargetItem^.targetPair.strName,
-                                           CHAR_PERCENT_DOT ) )  then
-        pTargetItem := nil
-    end;
+      pTargetItem := handle.pDefaultTarget;
 
     bRet := ( pTargetItem <> nil );
 
     if( bRet )  then
     begin
-      targetPair := pTargetItem^.targetPair;
+      bExecutedCmd := false;
+      targetPair   := pTargetItem^.targetPair;
       bRet := __ReplaceReferences( targetPair.strValue );
 
       if( bRet )  then
       begin
         New( pPreReqList );
         CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
-        bCheck := ( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 );
-        pItem  := GetFirstLinkedListItem( pPreReqList^ );
-        strTargetMatch := '';
 
-        while( pItem <> nil ) do
+        if( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 )  then
+          pItem  := GetFirstLinkedListItem( pPreReqList^ )
+        else
+          pItem := nil;
+
+        while( bRet and ( pItem <> nil ) ) do
         begin
           Move( pItem^.pValue^, 
                 targetPair.strValue, 
                 sizeof( targetPair.strValue ) );   
 
-          if( MkStringHasChar( targetPair.strValue, CHAR_DOT ) )  then
+          if( MkCheckTarget( targetPair ) )  then
           begin
-            if( MkStringHasChar( targetPair.strValue, CHAR_PERCENT ) )  then
-            begin
-              __ReplaceMacro( targetPair, pParentPreReqList );
-            end
+            pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
+
+            if( pNextTargetItem <> nil )  then
+              bRet := __ExecTarget( pNextTargetItem, pPreReqList, false )
             else
             begin
-              if( SplitFileName( targetPair.strValue, 
-                                 strFileName, strFileExt ) )  then
-              begin
-                strTargetMatch := strTargetMatch + '%.' + strFileExt;
-              end;
+              bRet := __ExecCommands( pTargetItem^.commandList );
+              bExecutedCmd := bRet;
             end;
-          end
-          else
-          begin
-            strTargetMatch := strTargetMatch + targetPair.strValue;
           end;
-
-          bCheck := ( bCheck and MkCheckTarget( targetPair ) );
+          
           pItem  := GetNextLinkedListItem( pPreReqList^ );
-
-          if( pItem <> nil )  then
-            strTargetMatch := strTargetMatch + ' ';
         end;
 
-        pNextTargetItem := MkFindTarget( handle, strTargetMatch );
-
-        if( pNextTargetItem <> nil )  then
-          bRet := __ExecTarget( pNextTargetItem, pPreReqList, false );
+        if( bRet and not bExecutedCmd )  then
+          bRet := __ExecCommands( pTargetItem^.commandList );
 
         DestroyLinkedList( pPreReqList^ );
         Dispose( pPreReqList );
-
-        if( bRet )  then
-        begin
-          if( bCheck )  then
-            bRet := __ExecCommands( pTargetItem^.commandList )
-          else
-          begin
-            handle.nLastLine := -1;
-            handle.strLastError := 'hmake: ''' + 
-                                   pTargetItem^.targetPair.strName + 
-                                   ''' is up to date.';
-          end;
-        end;
       end;
     end
     else

@@ -16,11 +16,13 @@
         - Check target processing; (WIP)
             - FPC implementation; (OK);
             - MSX-DOS;
-            - Target-pattern rules implementation (%.o: %.c %.h); (WIP)
-                - Implement wildcard processing (eg. $(wildcard *.c));
-                - Add support to multiples targets on the same line 
+            - Add support to multiple prerequisites processing; (OK)
+                - Add support to chain requisites execution; (OK)
+                - Check errors return messages for error processing cases;
+            - Add support to multiples targets on the same line 
                 (separated by spaces). (eg. target_1 target2 : prerequisite);
-                    - Add support to multiples prerequisites;
+            - Target-pattern rules implementation (%.o: %.c %.h);
+                - Implement wildcard processing (eg. $(wildcard *.c));
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation;

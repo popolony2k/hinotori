@@ -30,7 +30,6 @@ var
       nPathLen : byte;
       dirName  : TDirectoryName;
       pDirName : Pointer;
-      bAdded   : boolean;
 
 begin
   nPathLen := Length( strPath );
@@ -44,7 +43,7 @@ begin
       nDirPos := nPathLen + 1;
 
     dirName  := Copy( strPath, 1, ( nDirPos - 1 ) );
-    bAdded   := ( AddLinkedListItem( pathList, pDirName ) <> nil );
+    if( AddLinkedListItem( pathList, pDirName ) <> nil )  then;
     strPath  := Copy( strPath, ( nDirPos + 1 ), ( nPathLen - nDirPos ) );
     nPathLen := Length( strPath );
   end;
