@@ -3,7 +3,7 @@
 **CopyLeft (c) 1995-2024 by PopolonY2k**  
 **CopyLeft (c) since 2024 by Hinotori Team**
 
-## Visual Studio Code json files
+## Visual Studio Code json files 
 
 For compiling some samples or even using some Hinotori library packages, is needed to install [Free Pascal Compiler](https://www.freepascal.org/) and install some extensions on VSCode described below:
 
