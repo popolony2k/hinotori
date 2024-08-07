@@ -13,8 +13,8 @@ program TestIncPtr;
 (*
  * This source file depends on following include files (respect the order):
  * - /system/types.pas;
- * - /memory/fpc/pointer.pas;  (depemds on archtecture)
- * - /memory/msx/pointer.pas;  (depemds on archtecture)
+ * - /memory/fpc/pointer.pas;  (depends on archtecture)
+ * - /memory/msx/pointer.pas;  (depends on archtecture)
  *)
 
 {$i ..\..\src\system\types.pas}

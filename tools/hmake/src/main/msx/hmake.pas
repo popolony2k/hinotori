@@ -10,7 +10,7 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/{platform}/pointer.pas;  (depemds on architecture)
+ * - /memory/{platform}/pointer.pas;  (depends on architecture)
  * - /dos/dosutil.pas;
  * - /util/helpstr.pas;
  * - ../../make/mktypes.pas;
@@ -18,7 +18,7 @@
  * - ../../make/mkbuild.pas;
  * - ../../make/mkfile.pas;
  * - ../../make/mkbuild.pas;
- * - ../../make/{platform}/mkoscall.pas;   (depemds on architecture)
+ * - ../../make/{platform}/mkoscall.pas;   (depends on architecture)
  * - ../../make/mkexec.pas;
  *)
 

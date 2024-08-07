@@ -10,7 +10,7 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/{platform}/pointer.pas;  (depemds on architecture)
+ * - /memory/{platform}/pointer.pas;  (depends on architecture)
  * - /dos/dosutil.pas;
  * - ./make/mktypes.pas;
  *)
