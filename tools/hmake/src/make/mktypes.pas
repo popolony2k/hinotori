@@ -63,6 +63,7 @@ end;
  type TMakeHandle = record
    bIsOpen        : boolean;              { Make file is open           }
    bDebugMode     : boolean;              { Debug mode execution        }
+   bSilentMode    : boolean;              { Silent mode execution       }
    hFile          : text;                 { Make file handle            }
    pDefaultTarget : PTarget;              { Pointer to default target   }
    variableList   : TLinkedList;          { Make variable list          }

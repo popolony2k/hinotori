@@ -182,8 +182,8 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         
         if( not bMultiLine )  then
         begin
-          if( handle.bDebugMode )  then
-            WriteLn( '(cmd) => ', strCommand );
+          if( not handle.bSilentMode )  then
+            WriteLn( strCommand );
 
           bRet := MkExecCommand( handle, strCommand );
         end;
@@ -221,7 +221,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
                          bFirstLevel : boolean ) : boolean;
   var
       bRet            : boolean;
-      bExecutedCmd    : boolean;
       pNextTargetItem : PTarget;
       targetPair      : TIdentifierPair;
       pPreReqList     : PLinkedList;
@@ -235,8 +234,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
     if( bRet )  then
     begin
-      bExecutedCmd := false;
-      targetPair   := pTargetItem^.targetPair;
+      targetPair := pTargetItem^.targetPair;
       bRet := __ReplaceReferences( targetPair.strValue );
 
       if( bRet )  then
@@ -244,6 +242,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         New( pPreReqList );
         CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
 
+        { Iterate on the pre-requisites list }
         if( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 )  then
           pItem  := GetFirstLinkedListItem( pPreReqList^ )
         else
@@ -258,20 +257,25 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
           if( MkCheckTarget( targetPair ) )  then
           begin
             pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
+            bRet := ( pNextTargetItem <> nil );
 
-            if( pNextTargetItem <> nil )  then
+            if( bRet )  then
               bRet := __ExecTarget( pNextTargetItem, pPreReqList, false )
             else
             begin
-              bRet := __ExecCommands( pTargetItem^.commandList );
-              bExecutedCmd := bRet;
+              handle.nLastLine := -1;
+              handle.strLastError := 'hmake: *** No rule to make target ''' + 
+                        targetPair.strValue + 
+                        '''. needed by '''  + 
+                        targetPair.strName  + 
+                        '''  Stop.';
             end;
           end;
           
           pItem  := GetNextLinkedListItem( pPreReqList^ );
         end;
 
-        if( bRet and not bExecutedCmd )  then
+        if( bRet )  then
           bRet := __ExecCommands( pTargetItem^.commandList );
 
         DestroyLinkedList( pPreReqList^ );

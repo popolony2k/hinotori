@@ -29,6 +29,7 @@ type TCmdLineParms = record
   strTarget   : TTinyString;
   strError    : TString;
   bDebugMode  : boolean;
+  bSilentMode : boolean;
 end;
 
 (**
@@ -39,8 +40,10 @@ begin
   WriteLn;
   WriteLn( 'Usage - hmake [-h] [-f <makefile>] [<target>]' );
   WriteLn( '  [-h] Optional. Print this help screen.' );
-  WriteLn( '  [-d] Optional. Show makefile build/execution debug information.' );
+  WriteLn( '  [-d] Optional. Show makefile build/execution debug information. (Default=false)' );
   WriteLn( '    Show all variables, targets and step processing execution.' );
+  WriteLn( '  [-s] Optional. Silent target execution command output. (Default = true)' );
+  WriteLn( '    All target execution output are not shown when this option is set.' );
   WriteLn( '  [-f <makefile>] Optional. Set the makefile that will be' );
   WriteLn( '    processed. If not informed a file named makefile on current' );
   WriteLn( '    directory will be processed, if exists.' );
@@ -63,6 +66,7 @@ var
 begin
   parms.strMakeFile := '.\Makefile';
   parms.bDebugMode  := false;
+  parms.bSilentMode := false;
   bRet   := true;
   nCount := 1; 
 
@@ -78,6 +82,11 @@ begin
       '-d' :
       begin 
         parms.bDebugMode := true;
+      end;
+
+      '-s' :
+      begin 
+        parms.bSilentMode := true;
       end;
 
       '-f' :
@@ -122,7 +131,8 @@ begin
     MkInit( handle );
 
     handle.chCSI := chCSI;
-    handle.bDebugMode := parms.bDebugMode;
+    handle.bDebugMode  := parms.bDebugMode;
+    handle.bSilentMode := parms.bSilentMode;
 
     if( MkOpen( parms.strMakeFile, handle ) ) then
     begin

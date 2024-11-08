@@ -1,4 +1,4 @@
-# Hinotori hmake sample makefile test cases
+# Hinotori sample makefile for hmake
 #
 # CopyLeft (c) 1995-2024 by PopolonY2k.
 # CopyLeft (c) since 2024 by Hinotori Team.
@@ -47,48 +47,30 @@ $(PROJ_NAME): $(OBJ)
 # %.o: %.c %.h
 # 	$(CC) -o $@ $< $(CC_FLAGS)
 
-#
-# test_no_main
-#
-no_main.o: no_main.c
-	echo "No main executed succesfully"
-#
-# end test_no_main
-#
-
-#
-# test_main
-#
-# main.o: main.c $(H_SOURCE)
-# 	$(CC) -o $@ $< $(CC_FLAGS)
-main.o: main.c
-	echo "main.o executed succesfully"
-
-main.c:
-	echo "main.c executed succesfully"
+main.o: main.c $(H_SOURCE)
+	$(CC) -o $@ $< $(CC_FLAGS)
 
 test.o: main.c
-	echo "test.o executed succesfully"
-#
-# end test_main
-#
+	echo "test.o"
 
 test.c: teste.x
-	echo "teste.c executed succesfully"
+	echo "teste.c"
 
 teste.x:
-	echo "teste.x executed succesfully"
+	echo "teste.x"
 
 clean:
 	echo "cleaning"
 	echo "rm -rf *.o $(PROJ_NAME) *~"
 # INVALID_VAR=-c
 
-test_no_main: no_main.o test.c
-	echo "Testing test_no_main target success"
-
-test_main: main.o test.c
-	echo "Testing test_main target success"
+test: test.o test.c
+	echo "Testing project remark"
+#	echo "Testing project"
+#	echo $(PROJ_NAME) \ 
+#	$(CC) # \
+#	$(CC_FLAGS) \
+#	# HOME ($(HOME))
 
 build: test.o
-	echo "Testing build target success"
+	echo "Testing c source"
