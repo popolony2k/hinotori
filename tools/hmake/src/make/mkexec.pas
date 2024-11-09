@@ -244,7 +244,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
         { Iterate on the pre-requisites list }
         if( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 )  then
-          pItem  := GetFirstLinkedListItem( pPreReqList^ )
+          pItem := GetFirstLinkedListItem( pPreReqList^ )
         else
           pItem := nil;
 

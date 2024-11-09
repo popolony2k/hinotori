@@ -90,5 +90,8 @@ test_no_main: no_main.o test.c
 test_main: main.o test.c
 	echo "Testing test_main target success"
 
+test_no_pre:
+	echo "Testing test_no_pre target success"
+
 build: test.o
 	echo "Testing build target success"
