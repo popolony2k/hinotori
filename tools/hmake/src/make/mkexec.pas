@@ -227,9 +227,6 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       pItem           : PLinkedListItem;
 
   begin
-    if( pTargetItem = nil )  then
-      pTargetItem := handle.pDefaultTarget;
-
     bRet := ( pTargetItem <> nil );
 
     if( bRet )  then
@@ -237,12 +234,19 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
       targetPair := pTargetItem^.targetPair;
       bRet := __ReplaceReferences( targetPair.strValue );
 
+      if( handle.bDebugMode )  then
+      begin
+        WriteLn;
+        WriteLn( 'Executing target [', targetPair.strName, ']' );
+        WriteLn( '-----------------------' );
+      end;
+
       if( bRet )  then
       begin
         New( pPreReqList );
         CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
 
-        { Iterate on the pre-requisites list }
+        { Iterate on pre-requisites list }
         if( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 )  then
           pItem := GetFirstLinkedListItem( pPreReqList^ )
         else
@@ -290,30 +294,26 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
                              '''.  Stop.';
     end;
 
+    if( handle.bDebugMode )  then
+    begin
+      WriteLn( '-----------------------' );
+    end;
+
     __ExecTarget := bRet;
   end;
 
 (* MkExecute main routine *)
 var
-      bRet : boolean;
+      pTargetItem : PTarget;
 
 (*
  * MkExecute main routine
  *)
 begin
-  if( handle.bDebugMode )  then
-  begin
-    WriteLn;
-    WriteLn( 'Executing target [', strTarget, ']' );
-    WriteLn( '-----------------------' );
-  end;
+  if( Length( strTarget ) > 0 )  then
+    pTargetItem := MkFindTarget( handle, strTarget )
+  else
+    pTargetItem := handle.pDefaultTarget;
 
-  bRet := __ExecTarget( MkFindTarget( handle, strTarget ), nil, true );
-
-  if( handle.bDebugMode )  then
-  begin
-    WriteLn( '-----------------------' );
-  end;
-
-  MkExecute := bRet;
+  MkExecute := __ExecTarget( pTargetItem, nil, true );
 end;

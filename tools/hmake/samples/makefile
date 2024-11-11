@@ -73,6 +73,15 @@ test.o: main.c
 # end test_main
 #
 
+#
+# test_multiple_targets
+#
+first.c second.c: main.c
+	echo "Test multiple targets executed succesfully"
+#
+# end test_multiple_targets
+#
+
 test.c: teste.x
 	echo "teste.c executed succesfully"
 
@@ -92,6 +101,9 @@ test_main: main.o test.c
 
 test_no_pre:
 	echo "Testing test_no_pre target success"
+
+test_multiple_targets: first.c
+	echo "Testing test_multiple_targets success"
 
 build: test.o
 	echo "Testing build target success"
