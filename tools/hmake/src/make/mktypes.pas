@@ -34,7 +34,7 @@ type TIdentifierType = ( IDENT_NONE,
   * Variable data struct.
   *)
 type PIdentifierName  = ^TIdentifierName;
-     TIdentifierName  = string[20];
+     TIdentifierName  = TShortString;
      PIdentifierValue = ^TIdentifierValue;
      TIdentifierValue = TString;
 
@@ -54,6 +54,7 @@ end;
 type PTarget = ^TTarget;
      TTarget = record
   targetPair    : TIdentifierPair;        { Target name/prereq.         }
+  pairsNameList : TLinkedList;            { Linked pairs eg. p1 p2: req }
   commandList   : TLinkedList;            { Command list                }
 end;
 

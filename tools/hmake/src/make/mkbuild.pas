@@ -124,6 +124,7 @@ var
         pair           : TIdentifierPair;
         pPair          : PIdentifierPair;
         identType      : TIdentifierType;
+        identName      : TIdentifierName;
         pPtr           : TPointer;
 
   begin
@@ -181,7 +182,7 @@ var
                         sizeof( pPair^.strName ) );
 
                   CreateLinkedList( target.commandList, 
-                                    sizeof( TIdentifierValue ) )
+                                    sizeof( TIdentifierValue ) );
                 end;
               end;
 
@@ -218,15 +219,40 @@ var
                       end;
                       TIdentifierType.IDENT_TARGETS  :
                       begin
+                        identName := pPair^.strName;
+                               
                         (* Check if target was already defined previously *)
                         if( MkPairHasChar( pPair^, CHAR_PERCENT, true ) )  then
                           bRet := ( MkFindTargetByPair( handle, pPair^ ) = nil )
                         else
                           bRet := ( MkFindTarget( handle, 
-                                                  pPair^.strName ) = nil );
+                                                  identName ) = nil );
+
+                        (* Create list with all targets (Multi-target) *)
+                        if( bRet )  then
+                          with target do
+                          begin
+                            CreateLinkedList( pairsNameList, 
+                                              sizeof( TIdentifierName ) );
+
+                            if( SplitString( identName, ' ', 
+                                            pairsNameList ) > 0 ) then
+                            begin
+                              pTemp := GetFirstLinkedListItem( pairsNameList );
+                              
+                              while( bRet and ( pTemp <> nil ) )  do
+                              begin
+                                Move( pTemp^.pValue^, identName, 
+                                      sizeof( identName ) );
+                                bRet := ( MkFindTarget( handle, 
+                                                        identName ) = nil );
+                                pTemp := GetNextLinkedListItem( pairsNameList );
+                              end;
+                            end;
+                          end;
 
                         if( not bRet )  then
-                          handle.strLastError := 'target [' + pPair^.strName + 
+                          handle.strLastError := 'target [' + identName + 
                                                  '] already defined'
                         else
                         begin

@@ -148,7 +148,9 @@ end;
 function MkFindTarget( var handle : TMakeHandle; var strName : TIdentifierName ) : PTarget;
 var
       pItem       : PLinkedListItem;
+      pIdentItem  : PLinkedListItem;
       pItemTarget : PTarget;
+      identName   : TIdentifierName;
       bFound      : boolean;
         
 begin
@@ -159,6 +161,20 @@ begin
   begin
     Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
     bFound := ( pItemTarget^.targetPair.strName = strName );
+
+    (* Search on multi-target list *)
+    if( not bFound )  then
+    begin
+      pIdentItem := GetFirstLinkedListItem( pItemTarget^.pairsNameList );
+      
+      while( not bFound and ( pIdentItem <> nil ) )  do
+      begin
+        Move( pIdentItem^.pValue^, identName, sizeof( identName ) );
+        bFound := ( identName = strName );
+        pIdentItem := GetNextLinkedListItem( pItemTarget^.pairsNameList );
+      end;
+    end;
+
     pItem  := GetNextLinkedListItem( handle.targetList );
   end;
 

@@ -102,7 +102,7 @@ test_main: main.o test.c
 test_no_pre:
 	echo "Testing test_no_pre target success"
 
-test_multiple_targets: first.c
+test_multiple_targets test_multiple_targets2: first.c
 	echo "Testing test_multiple_targets success"
 
 build: test.o

@@ -65,6 +65,7 @@ begin
   begin
     Move( pItem^.pValue^, target, sizeof( target ) );
     DestroyLinkedList( target.commandList );
+    DestroyLinkedList( target.pairsNameList );
     pItem := GetNextLinkedListItem( handle.targetList );
   end;
 
