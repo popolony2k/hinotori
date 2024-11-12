@@ -225,8 +225,7 @@ var
                         if( MkPairHasChar( pPair^, CHAR_PERCENT, true ) )  then
                           bRet := ( MkFindTargetByPair( handle, pPair^ ) = nil )
                         else
-                          bRet := ( MkFindTarget( handle, 
-                                                  identName ) = nil );
+                          bRet := ( MkFindTarget( handle, identName ) = nil );
 
                         (* Create list with all targets (Multi-target) *)
                         if( bRet )  then
@@ -242,7 +241,7 @@ var
                               
                               while( bRet and ( pTemp <> nil ) )  do
                               begin
-                                Move( pTemp^.pValue^, identName, 
+                                Move( pTemp^.pValue^, identName,
                                       sizeof( identName ) );
                                 bRet := ( MkFindTarget( handle, 
                                                         identName ) = nil );

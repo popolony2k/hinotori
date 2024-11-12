@@ -103,7 +103,7 @@ test_no_pre:
 	echo "Testing test_no_pre target success"
 
 test_multiple_targets test_multiple_targets2: first.c
-	echo "Testing test_multiple_targets success"
+	echo "Testing test_multiple_targets(2) success"
 
 build: test.o
 	echo "Testing build target success"
