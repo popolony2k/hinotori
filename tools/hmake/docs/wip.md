@@ -21,6 +21,7 @@
                 - Check errors return messages for error processing cases; (WIP)
             - Add support to multiples targets on the same line 
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
+            - PHONY target support (WIP);
             - Target-pattern rules implementation (%.o: %.c %.h);
                 - Implement wildcard processing (eg. $(wildcard *.c));
     - OS Specific command calls; (WIP)
