@@ -90,7 +90,7 @@ teste.x:
 
 clean:
 	echo "cleaning"
-	echo "rm -rf *.o $(PROJ_NAME) *~"
+#	echo "rm -rf *.o $(PROJ_NAME) *~"
 # INVALID_VAR=-c
 
 test_no_main: no_main.o test.c

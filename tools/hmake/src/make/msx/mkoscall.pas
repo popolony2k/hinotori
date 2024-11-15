@@ -48,7 +48,7 @@ end;
   * processed otherwise false;
   * Rules for processing:
   * 1) If a target file does not exist, the commands will run. 
-  *    If target does exist, no commands will run.
+  *    If target does exist, no commands will run (target is up o date).
   * 2) Make decides if it should run a target. 
   *    It will only run if target doesn't exist, or prereq is newer 
   *    than target;

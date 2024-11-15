@@ -80,7 +80,7 @@ end;
   * processed otherwise false;
   * Rules for processing:
   * 1) If a target file does not exist, the commands will run. 
-  *    If target does exist, no commands will run.
+  *    If target does exist, no commands will run (target is up o date).
   * 2) Make decides if it should run a target. 
   *    It will only run if target doesn't exist, or prereq is newer 
   *    than target;
@@ -94,7 +94,7 @@ var
 begin
   bRet := ( FindFirst( pair.strName, faAnyFile, target ) = 0 );
 
-  if( bRet )  then
+  if( not bRet )  then
   begin
     if( FindFirst( pair.strValue, faAnyFile, preReq ) = 0 )  then
     begin
@@ -103,9 +103,7 @@ begin
     end;
 
     FindClose( target );
-  end
-  else
-    bRet := true;
-
+  end;
+  
   MkCheckTarget := bRet;
 end;

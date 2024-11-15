@@ -252,6 +252,22 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         else
           pItem := nil;
 
+        if(pItem = nil)  then
+        begin
+          bRet := not MkCheckTarget( targetPair );
+
+          // TODO: Add IsPhonyarget check here
+          
+          { PHONY target execution }
+          if( not bRet )  then
+          begin
+              handle.nLastLine := -1;
+              handle.strLastError := 'hmake: *** ''' + 
+                        targetPair.strName + 
+                        '''. is up to date.'; 
+          end;
+        end;
+
         while( bRet and ( pItem <> nil ) ) do
         begin
           Move( pItem^.pValue^, 
