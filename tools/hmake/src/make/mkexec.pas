@@ -26,6 +26,47 @@
   *)
 function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
+  (*
+   *  Supported default targets
+   *)
+  const   
+            __ctTargetPHONY = '.PHONY';
+
+  (* MkExecute main variables *)
+  var
+      pPhonyList : PLinkedList;
+  
+  (**
+    * Check if there's a .PHONY target defined on Makefile that matches
+    * the target entry passed as parameter;
+    * @param target The target that will be checked;
+    *)
+  function __IsTargetPHONY( var target : TIdentifierPair ) : boolean;
+  var
+        bRet     : boolean;
+        pItem    : PLinkedListItem;
+        strValue : TIdentifierValue;
+
+  begin
+    bRet := ( pPhonyList <> nil );
+
+    if( bRet )  then
+    begin
+      pItem := GetFirstLinkedListItem( pPhonyList^ );
+
+      while( bRet and ( pItem <> nil) ) do
+      begin
+        Move( pItem^.pValue^, strValue, sizeof( strValue ) );
+        bRet  := ( strValue <> target.strName ); 
+        pItem := GetNextLinkedListItem( pPhonyList^ );
+      end;
+
+      bRet := not bRet; 
+    end;
+
+    __IsTargetPHONY := bRet;
+  end;
+
   (**
     * Replace reference on command passed as parameter.
     * @param strCommand Reference to the command that will be replaced;
@@ -252,12 +293,13 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         else
           pItem := nil;
 
-        if(pItem = nil)  then
+        if( pItem = nil )  then
         begin
-          bRet := not MkCheckTarget( targetPair );
+          bRet := __IsTargetPHONY( targetPair );
 
-          // TODO: Add IsPhonyarget check here
-          
+          if( not bRet )  then
+            bRet := not MkCheckTarget( targetPair );
+
           { PHONY target execution }
           if( not bRet )  then
           begin
@@ -272,7 +314,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
         begin
           Move( pItem^.pValue^, 
                 targetPair.strValue, 
-                sizeof( targetPair.strValue ) );   
+                sizeof( targetPair.strValue ) );
 
           if( MkCheckTarget( targetPair ) )  then
           begin
@@ -318,18 +360,42 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     __ExecTarget := bRet;
   end;
 
-(* MkExecute main routine *)
-var
-      pTargetItem : PTarget;
-
 (*
  * MkExecute main routine
  *)
+var
+    pTargetItem   : PTarget;
+    pPhonyTarget  : PTarget;
+    strPhonyIdent : TIdentifierName;
+    bRet          : boolean;
+
 begin
   if( Length( strTarget ) > 0 )  then
     pTargetItem := MkFindTarget( handle, strTarget )
   else
     pTargetItem := handle.pDefaultTarget;
 
-  MkExecute := __ExecTarget( pTargetItem, nil, true );
+  (* Initialize PHONY list *)
+  strPhonyIdent := __ctTargetPHONY;
+  pPhonyTarget  := MkFindTarget( handle, strPhonyIdent );
+  pPhonyList    := nil;
+  
+  if( pPhonyTarget <> nil )  then
+  begin
+    New( pPhonyList );
+    CreateLinkedList( pPhonyList^, sizeof( TIdentifierValue ) );
+    bRet := ( SplitString( pPhonyTarget^.targetPair.strValue, ' ', 
+                           pPhonyList^ ) >= 0 );
+  end;
+
+  (* Execute target *)
+  bRet := __ExecTarget( pTargetItem, nil, true );
+
+  if( pPhonyTarget <> nil )  then
+  begin
+    DestroyLinkedList( pPhonyList^ );
+    Dispose( pPhonyList );
+  end;
+
+  MkExecute := bRet;
 end;

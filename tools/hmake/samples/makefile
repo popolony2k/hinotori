@@ -3,7 +3,6 @@
 # CopyLeft (c) 1995-2024 by PopolonY2k.
 # CopyLeft (c) since 2024 by Hinotori Team.
 
-
 # Name of the project
 PROJ_NAME=printy # test
 
@@ -26,10 +25,13 @@ CC_FLAGS=-c         \
          -ansi      \
          -pedantic
 
+.PHONY: clean teste.x
+
 #
 # Compilation and linking
 #
 all: $(PROJ_NAME)
+	echo "all"
 
 # all: $(PROJ_NAME) %.c
 
