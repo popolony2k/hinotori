@@ -11,7 +11,7 @@
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
  * - /memory/{platform}/pointer.pas;  (depends on architecture)
-  * - /dos/dosutil.pas;
+ * - /dos/dosutil.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;
  * - ./make/{platform}}/mkoscall.pas   (depends on architecture)
@@ -379,7 +379,7 @@ begin
   strPhonyIdent := __ctTargetPHONY;
   pPhonyTarget  := MkFindTarget( handle, strPhonyIdent );
   pPhonyList    := nil;
-  
+
   if( pPhonyTarget <> nil )  then
   begin
     New( pPhonyList );
