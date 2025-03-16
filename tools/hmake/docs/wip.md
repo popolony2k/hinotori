@@ -23,6 +23,7 @@
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
             - PHONY target support (OK);
             - Target-pattern rules implementation (%.o: %.c %.h);
+                - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*);
                 - Implement wildcard processing (eg. $(wildcard *.c));
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
@@ -46,3 +47,4 @@
 3. Add support to use '#' after concatenation '\' at execution step;
 4. Force identation by tab instead spaces. If make file is idented by space, force make failure.
 5. Implement conditional statements (ifeq, ifneq);
+6. Add support to variable referencing by using ${var_name} exactly like current $(var_name) style;
