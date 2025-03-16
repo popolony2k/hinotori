@@ -54,7 +54,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     begin
       pItem := GetFirstLinkedListItem( pPhonyList^ );
 
-      while( bRet and ( pItem <> nil) ) do
+      while( bRet and ( pItem <> nil ) ) do
       begin
         Move( pItem^.pValue^, strValue, sizeof( strValue ) );
         bRet  := ( strValue <> target.strName ); 
