@@ -25,7 +25,8 @@
             "arguments": "-d -f ${workspaceFolder}/tools/hmake/samples/makefile test",
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText"
+            "valuesFormatting": "parseText",
+            "preLaunchTask": "${defaultBuildTask}"
         }
    ]
 }

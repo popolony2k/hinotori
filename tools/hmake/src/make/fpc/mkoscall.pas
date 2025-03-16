@@ -99,11 +99,12 @@ begin
     if( FindFirst( pair.strValue, faAnyFile, preReq ) = 0 )  then
     begin
       bRet := ( preReq.Time > target.Time );
-      FindClose( preReq );
     end;
 
-    FindClose( target );
+    FindClose( preReq );
   end;
+
+  FindClose( target );
   
   MkCheckTarget := bRet;
 end;
