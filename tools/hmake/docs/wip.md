@@ -24,6 +24,8 @@
             - PHONY target support (OK);
             - Target-pattern rules implementation (%.o: %.c %.h);
                 - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*);
+                    - Add directory part processing ($@D, $%D, $<D, $?D, $^D, $+D, $*D);
+                    - Add file part processing ($@F, $%F, $<F, $?F, $^F, $+F, $*F);
                 - Implement wildcard processing (eg. $(wildcard *.c));
     - OS Specific command calls; (WIP)
         - FPC implementation; (OK)
