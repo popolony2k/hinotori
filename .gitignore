@@ -1,5 +1,4 @@
 .vscode
-build
 *.bak
 *.err
 *.com
@@ -9,3 +8,4 @@ setenv.bat
 *.lpi
 *.lps
 *.lpr
+**/build/

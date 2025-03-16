@@ -1,2 +1,2 @@
-src/hmake
-src/backup
+**/src/hmake
+**/src/backup/

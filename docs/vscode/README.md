@@ -33,10 +33,10 @@ For compiling some samples or even using some Hinotori library packages, is need
 
 After installing these plugins will be possible start debugging all programs by using the json sample files provided at this folder.
 
-First create a .vscode folder on the Hinotori project folder and put both files below, inside this folder.
+First create a .vscode folder on the Hinotori project folder and copy all .vscode.sample files below into this folder.
 
-* [json/launch.json](json/launch.json)
-* [json/tasks.json](json/tasks.json)
+* [.vscode.sample/launch.json](.vscode.sample/launch.json)
+* [.vscode.sample/tasks.json](.vscode.sample/tasks.json)
 
 The launch.json configuration is prepared to start the current open file on your VSCode editor and start debugging it.
 
