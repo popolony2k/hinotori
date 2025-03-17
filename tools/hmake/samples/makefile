@@ -53,7 +53,7 @@ $(PROJ_NAME): $(OBJ)
 # test_no_main
 #
 no_main.o: no_main.c
-	echo "No main executed succesfully"
+	echo "No main executed succesfully (1)"
 #
 # end test_no_main
 #
@@ -64,13 +64,13 @@ no_main.o: no_main.c
 # main.o: main.c $(H_SOURCE)
 # 	$(CC) -o $@ $< $(CC_FLAGS)
 main.o: main.c
-	echo "main.o executed succesfully"
+	echo "main.o executed succesfully (2)"
 
 main.c:
-	echo "main.c executed succesfully"
+	echo "main.c executed succesfully (3)"
 
 test.o: main.c
-	echo "test.o executed succesfully"
+	echo "test.o executed succesfully (4)"
 #
 # end test_main
 #
@@ -79,16 +79,16 @@ test.o: main.c
 # test_multiple_targets
 #
 first.c second.c: main.c
-	echo "Test $@ executed succesfully"
+	echo "Test $@ executed succesfully (5)"
 #
 # end test_multiple_targets
 #
 
 test.c: teste.x
-	echo "teste.c executed succesfully"
+	echo "teste.c executed succesfully (5)"
 
 teste.x:
-	echo "teste.x executed succesfully"
+	echo "teste.x executed succesfully (6)"
 
 clean:
 	echo "cleaning"
@@ -96,16 +96,16 @@ clean:
 # INVALID_VAR=-c
 
 test_no_main: no_main.o test.c
-	echo "Testing test_no_main target success"
+	echo "Testing test_no_main target success (7)"
 
 test_main: main.o test.c
-	echo "Testing test_main target success"
+	echo "Testing test_main target success (8)"
 
 test_no_pre:
-	echo "Testing test_no_pre target success"
+	echo "Testing test_no_pre target success (9)"
 
 test_multiple_targets test_multiple_targets2: first.c
-	echo "Testing $@ success"
+	echo "Testing $@ success (10)"
 
 build: test.o
-	echo "Testing build target success"
+	echo "Testing build target success (11)"
