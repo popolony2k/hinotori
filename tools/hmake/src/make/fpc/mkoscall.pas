@@ -97,9 +97,7 @@ begin
   if( not bRet )  then
   begin
     if( FindFirst( pair.strValue, faAnyFile, preReq ) = 0 )  then
-    begin
       bRet := ( preReq.Time > target.Time );
-    end;
 
     FindClose( preReq );
   end;

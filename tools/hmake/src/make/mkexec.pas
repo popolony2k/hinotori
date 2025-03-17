@@ -316,7 +316,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
                 targetPair.strValue, 
                 sizeof( targetPair.strValue ) );
 
-          if( MkCheckTarget( targetPair ) )  then
+          if( not MkCheckTarget( targetPair ) )  then
           begin
             pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
             bRet := ( pNextTargetItem <> nil );
