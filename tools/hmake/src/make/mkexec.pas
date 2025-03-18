@@ -39,9 +39,9 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
   (**
     * Check if there's a .PHONY target defined on Makefile that matches
     * the target entry passed as parameter;
-    * @param target The target that will be checked;
+    * @param target The target name that will be checked;
     *)
-  function __IsTargetPHONY( var target : TIdentifierPair ) : boolean;
+  function __IsTargetPHONY( var targetName : TIdentifierValue ) : boolean;
   var
         bRet     : boolean;
         pItem    : PLinkedListItem;
@@ -57,7 +57,7 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
       while( bRet and ( pItem <> nil ) ) do
       begin
         Move( pItem^.pValue^, strValue, sizeof( strValue ) );
-        bRet  := ( strValue <> target.strName ); 
+        bRet  := ( strValue <> targetName ); 
         pItem := GetNextLinkedListItem( pPhonyList^ );
       end;
 
@@ -268,10 +268,9 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
     if( bRet )  then
     begin
       targetPair := pTargetItem^.targetPair;
-      // TODO: CHECK IF __ReplaceReferences WILL BE PERFORMED 
-      // ON targetPair.strName
-      targetPair.strName := strTargetName;
-      bRet := __ReplaceReferences( targetPair.strValue );
+      // TODO: MOVE __ReplaceReferences to the Build stage ??
+      bRet := __ReplaceReferences( targetPair.strName ) and 
+              __ReplaceReferences( targetPair.strValue );
       
       if( handle.bDebugMode )  then
       begin
@@ -291,48 +290,46 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
         else
           pItem := nil;
 
-        if( pItem = nil )  then
+        while( bRet and ( pItem <> nil ) ) do
         begin
-          bRet := __IsTargetPHONY( targetPair );
+          bRet := __IsTargetPHONY( targetPair.strName );
 
           if( not bRet )  then
             bRet := not MkCheckTarget( targetPair );
 
-          { PHONY target execution }
-          if( not bRet )  then
+          if( bRet )  then
           begin
-              handle.nLastLine := -1;
-              handle.strLastError := 'hmake: *** ''' + 
-                        targetPair.strName + 
-                        '''. is up to date.'; 
-          end;
-        end;
+            Move( pItem^.pValue^, 
+                  targetPair.strValue, 
+                  sizeof( targetPair.strValue ) );
 
-        while( bRet and ( pItem <> nil ) ) do
-        begin
-          Move( pItem^.pValue^, 
-                targetPair.strValue, 
-                sizeof( targetPair.strValue ) );
-
-          if( not MkCheckTarget( targetPair ) )  then
-          begin
-            pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
-            bRet := ( pNextTargetItem <> nil );
-
-            if( bRet )  then
-              bRet := __ExecTarget( pNextTargetItem )
-            else
+            if( not MkCheckTarget( targetPair ) )  then
             begin
-              handle.nLastLine := -1;
-              handle.strLastError := 'hmake: *** No rule to make target ''' + 
-                        targetPair.strValue + 
-                        '''. needed by '''  + 
-                        targetPair.strName  + 
-                        '''  Stop.';
+              pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
+              bRet := ( pNextTargetItem <> nil );
+
+              if( bRet )  then
+                bRet := __ExecTarget( pNextTargetItem )
+              else
+              begin
+                handle.nLastLine := -1;
+                handle.strLastError := 'hmake: *** No rule to make target ''' + 
+                          targetPair.strValue + 
+                          '''. needed by '''  + 
+                          targetPair.strName  + 
+                          '''  Stop.';
+              end;
             end;
+            
+            pItem  := GetNextLinkedListItem( pPreReqList^ );
+          end
+          else
+          begin
+            handle.nLastLine := -1;
+            handle.strLastError := 'hmake: *** ''' + 
+                      targetPair.strName + 
+                      '''. is up to date.';
           end;
-          
-          pItem  := GetNextLinkedListItem( pPreReqList^ );
         end;
 
         if( bRet )  then
