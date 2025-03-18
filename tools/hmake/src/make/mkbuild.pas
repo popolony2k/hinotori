@@ -231,13 +231,13 @@ var
                         if( bRet )  then
                           with target do
                           begin
-                            CreateLinkedList( pairsNameList, 
+                            CreateLinkedList( targetNameList, 
                                               sizeof( TIdentifierName ) );
 
                             if( SplitString( identName, ' ', 
-                                            pairsNameList ) > 0 ) then
+                                             targetNameList ) > 0 ) then
                             begin
-                              pTemp := GetFirstLinkedListItem( pairsNameList );
+                              pTemp := GetFirstLinkedListItem( targetNameList );
                               
                               while( bRet and ( pTemp <> nil ) )  do
                               begin
@@ -245,7 +245,7 @@ var
                                       sizeof( identName ) );
                                 bRet := ( MkFindTarget( handle, 
                                                         identName ) = nil );
-                                pTemp := GetNextLinkedListItem( pairsNameList );
+                                pTemp := GetNextLinkedListItem( targetNameList );
                               end;
                             end;
                           end;

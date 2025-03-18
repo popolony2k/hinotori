@@ -21,10 +21,8 @@
   * Execute a previously compiled makefile.
   * @param handle The makefile handle struct containing
   * all previously processed makefile data.
-  * @param strTarget The target name that will be processed.
-  * If empty, the default will be processed;
   *)
-function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
+function MkExecute( var handle : TMakeHandle ) : boolean;
 
   (*
    *  Supported default targets
@@ -34,7 +32,9 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
 
   (* MkExecute main variables *)
   var
-      pPhonyList : PLinkedList;
+      pPhonyList      : PLinkedList;
+      pTargetNameItem : PLinkedListItem;
+      strTargetName   : TIdentifierName;
   
   (**
     * Check if there's a .PHONY target defined on Makefile that matches
@@ -253,13 +253,8 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
   (**
     * Execute the target processing based on target passed as parameter;
     * @param pTargetItem Pointer to the target that will be processed.
-    * @param pParentPreReqList The parent list with prerequisites to be 
-    * used on macro substitution when target is a macro;
-    * If empty, the default will be processed;
     *)
-  function __ExecTarget( pTargetItem : PTarget; 
-                         pParentPreReqList : PLinkedList;
-                         bFirstLevel : boolean ) : boolean;
+  function __ExecTarget( pTargetItem : PTarget ) : boolean;
   var
       bRet            : boolean;
       pNextTargetItem : PTarget;
@@ -273,12 +268,15 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     if( bRet )  then
     begin
       targetPair := pTargetItem^.targetPair;
+      // TODO: CHECK IF __ReplaceReferences WILL BE PERFORMED 
+      // ON targetPair.strName
+      targetPair.strName := strTargetName;
       bRet := __ReplaceReferences( targetPair.strValue );
-
+      
       if( handle.bDebugMode )  then
       begin
         WriteLn;
-        WriteLn( 'Executing target [', targetPair.strName, ']' );
+        WriteLn( 'Executing target [', strTargetName, ']' );
         WriteLn( '-----------------------' );
       end;
 
@@ -322,7 +320,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
             bRet := ( pNextTargetItem <> nil );
 
             if( bRet )  then
-              bRet := __ExecTarget( pNextTargetItem, pPreReqList, false )
+              bRet := __ExecTarget( pNextTargetItem )
             else
             begin
               handle.nLastLine := -1;
@@ -348,7 +346,7 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
     begin
       handle.nLastLine := -1;
       handle.strLastError := 'hmake: *** No rule to make target ''' + 
-                             strTarget + 
+                             strTargetName + 
                              '''.  Stop.';
     end;
 
@@ -364,16 +362,28 @@ function MkExecute( var handle : TMakeHandle; strTarget : TString ) : boolean;
  * MkExecute main routine
  *)
 var
-    pTargetItem   : PTarget;
-    pPhonyTarget  : PTarget;
-    strPhonyIdent : TIdentifierName;
-    bRet          : boolean;
+    pTargetItem     : PTarget;
+    pPhonyTarget    : PTarget;
+    strPhonyIdent   : TIdentifierName;
+    bRet            : boolean;
 
 begin
-  if( Length( strTarget ) > 0 )  then
-    pTargetItem := MkFindTarget( handle, strTarget )
+  bRet := true;
+
+  if( GetLinkedListSize( handle.pUsrTargetList^ ) > 0 )  then
+  begin
+    pTargetNameItem := GetFirstLinkedListItem( handle.pUsrTargetList^ );
+    Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
+    pTargetItem := MkFindTarget( handle, strTargetName );
+  end
   else
     pTargetItem := handle.pDefaultTarget;
+
+  if( not bRet )  then
+  begin
+    MkExecute := bRet;
+    exit;
+  end;
 
   (* Initialize PHONY list *)
   strPhonyIdent := __ctTargetPHONY;
@@ -389,7 +399,19 @@ begin
   end;
 
   (* Execute target *)
-  bRet := __ExecTarget( pTargetItem, nil, true );
+  bRet := __ExecTarget( pTargetItem );
+
+  // if( bRet and bListNotEmpty )  then
+  // begin
+  //   pTargetNameItem := GetNextLinkedListItem( handle.pUsrTargetList^ );
+  //   bHasMoreTargets := ( pTargetNameItem <> nil );
+
+  //   if( bHasMoreTargets )  then
+  //   begin
+  //     Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
+  //     pTargetItem := MkFindTarget( handle, strTargetName );
+  //   end;
+  // end; 
 
   if( pPhonyTarget <> nil )  then
   begin

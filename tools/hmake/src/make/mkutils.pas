@@ -65,11 +65,18 @@ begin
   begin
     Move( pItem^.pValue^, target, sizeof( target ) );
     DestroyLinkedList( target.commandList );
-    DestroyLinkedList( target.pairsNameList );
+    DestroyLinkedList( target.targetNameList );
     pItem := GetNextLinkedListItem( handle.targetList );
   end;
 
   DestroyLinkedList( handle.targetList );
+
+  (* Destroy command line parameter list *)
+  if( handle.pUsrTargetList <> nil )  then
+  begin
+    DestroyLinkedList( handle.pUsrTargetList^ );
+    Dispose( handle.pUsrTargetList );
+  end;
 end;
 
 (**

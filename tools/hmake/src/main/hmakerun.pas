@@ -25,11 +25,11 @@
   * Command line parameter processing.
   *)
 type TCmdLineParms = record
-  strMakeFile : TFileName;
-  strTarget   : TTinyString;
-  strError    : TString;
-  bDebugMode  : boolean;
-  bSilentMode : boolean;
+  strMakeFile    : TFileName;
+  pUsrTargetList : PLinkedList;
+  strError       : TString;
+  bDebugMode     : boolean;
+  bSilentMode    : boolean;
 end;
 
 (**
@@ -62,13 +62,17 @@ function GetCmdLineParms( var parms : TCmdLineParms ) : boolean;
 var
       bRet    : boolean;
       nCount  : byte;
+      strParm : TIdentifierName;
 
 begin
   parms.strMakeFile := '.\Makefile';
   parms.bDebugMode  := false;
   parms.bSilentMode := false;
   bRet   := true;
-  nCount := 1; 
+  nCount := 1;
+
+  New( parms.pUsrTargetList );
+  CreateLinkedList( parms.pUsrTargetList^, sizeof( TIdentifierName ) );
 
   while( nCount <= ParamCount ) do
   begin
@@ -101,7 +105,12 @@ begin
       end;
 
       else
-        parms.strTarget := ParamStr( nCount );
+      begin
+        strParm := ParamStr( nCount );
+        if( AddLinkedListItem( parms.pUsrTargetList^, 
+                                ToPointer( strParm ) ) = nil ) then
+          parms.strError := 'Not enough memory to create target list';
+      end;
     end;
 
     nCount := Succ( nCount );
@@ -133,6 +142,7 @@ begin
     handle.chCSI := chCSI;
     handle.bDebugMode  := parms.bDebugMode;
     handle.bSilentMode := parms.bSilentMode;
+    handle.pUsrTargetList := parms.pUsrTargetList;
 
     if( MkOpen( parms.strMakeFile, handle ) ) then
     begin
@@ -144,7 +154,7 @@ begin
         if( not MkClose( handle ) ) then
           WriteLn( 'hmake: Error to close make file' );
   
-        if( not MkExecute( handle, parms.strTarget ) )  then        
+        if( not MkExecute( handle ) )  then        
         begin
           if( handle.nLastLine >= 0 )  then
           begin

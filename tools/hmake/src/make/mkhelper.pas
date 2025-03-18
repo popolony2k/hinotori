@@ -165,13 +165,13 @@ begin
     (* Search on multi-target list *)
     if( not bFound )  then
     begin
-      pIdentItem := GetFirstLinkedListItem( pItemTarget^.pairsNameList );
+      pIdentItem := GetFirstLinkedListItem( pItemTarget^.targetNameList );
       
       while( not bFound and ( pIdentItem <> nil ) )  do
       begin
         Move( pIdentItem^.pValue^, identName, sizeof( identName ) );
         bFound := ( identName = strName );
-        pIdentItem := GetNextLinkedListItem( pItemTarget^.pairsNameList );
+        pIdentItem := GetNextLinkedListItem( pItemTarget^.targetNameList );
       end;
     end;
 

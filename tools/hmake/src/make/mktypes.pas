@@ -53,9 +53,9 @@ end;
   *)
 type PTarget = ^TTarget;
      TTarget = record
-  targetPair    : TIdentifierPair;        { Target name/prereq.         }
-  pairsNameList : TLinkedList;            { Linked pairs eg. p1 p2: req }
-  commandList   : TLinkedList;            { Command list                }
+  targetPair     : TIdentifierPair;       { Full target:req. content    }
+  targetNameList : TLinkedList;           { Target names eg. p1 p2: req }
+  commandList    : TLinkedList;           { Command list                }
 end;
 
 (**
@@ -69,6 +69,7 @@ end;
    pDefaultTarget : PTarget;              { Pointer to default target   }
    variableList   : TLinkedList;          { Make variable list          }
    targetList     : TLinkedList;          { Make target list            }
+   pUsrTargetList : PLinkedList;          { Command line parget parms   }
    strLastError   : TString;              { Last processing error       }
    nLastLine      : integer;              { Last processed line         }
    nCursor        : byte;                 { Cursor position control     }
