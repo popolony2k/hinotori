@@ -14,11 +14,11 @@
  * - /dos/dosutil.pas;
  * - /util/helpstr.pas;
  * - ../../make/mktypes.pas;
+ * - ../../make/{platform}/mkoscall.pas;   (depends on architecture)
  * - ../../make/mkhelper.pas;
  * - ../../make/mkbuild.pas;
  * - ../../make/mkfile.pas;
  * - ../../make/mkbuild.pas;
- * - ../../make/{platform}/mkoscall.pas;   (depends on architecture)
  * - ../../make/mkexec.pas;
  * - ../hmakerun.pas;
  *)
@@ -33,11 +33,11 @@ uses dos, process, sysutils;
 {$i ..\..\..\..\..\src\dos\dosutil.pas}
 {$i ..\..\..\..\..\src\util\helpstr.pas}
 {$i ..\..\make\mktypes.pas}
+{$i ..\..\make\fpc\mkoscall.pas}
 {$i ..\..\make\mkhelper.pas}
 {$i ..\..\make\mkutils.pas}
 {$i ..\..\make\mkfile.pas}
 {$i ..\..\make\mkbuild.pas}
-{$i ..\..\make\fpc\mkoscall.pas}
 {$i ..\..\make\mkexec.pas}
 {$i ..\hmakerun.pas}
 

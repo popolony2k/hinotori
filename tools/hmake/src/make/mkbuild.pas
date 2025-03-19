@@ -52,6 +52,84 @@ var
   end;
 
   (**
+    * Create the target list with all targets passed by parameter.
+    * @param handle The handle of a makefile previously opened by 
+    * @see MkOpen;
+     * @param target The @link TTarget data struct where list will be 
+    * created;
+    * @param strTarget The target string with all targets separated by space;
+    * The function return false if some target already exist os list is empty;
+    *)
+  function __CreateTargetList( var handle : TMakeHandle; 
+                               var target : TTarget; 
+                               strTarget : TIdentifierName ) : boolean;
+  var
+    pItem    : PLinkedListItem;
+    bRet     : boolean;
+
+  begin
+    with target do
+    begin
+      bRet := false;
+
+      (* Create list with all targets (Multi-target) *)
+      CreateLinkedList( targetNameList, 
+                        sizeof( TIdentifierName ) );
+
+      if( SplitString( strTarget, ' ', targetNameList ) > 0 ) then
+      begin
+        pItem := GetFirstLinkedListItem( targetNameList );
+        bRet  := ( pItem <> nil ); 
+        
+        while( bRet and ( pItem <> nil ) )  do
+        begin
+          Move( pItem^.pValue^, strTarget, sizeof( strTarget ) );
+          bRet  := ( MkFindTarget( handle, strTarget ) = nil );
+
+          if( not bRet )  then
+            handle.strLastError := 'target [' + strTarget + 
+                                   '] already defined'
+          else
+            pItem := GetNextLinkedListItem( targetNameList );
+        end;
+      end;
+    end;
+
+    __CreateTargetList := bRet;
+  end;
+
+ (**
+    * Create the pre-requisites list with all pre-requisites passed by 
+    * parameter.
+    * @param handle The handle of a makefile previously opened by 
+    * @see MkOpen;
+    * @param target The @link TTarget data struct where list will be 
+    * created;
+    * @param strPrereq The pre-requisite string with all pre-requisites 
+    * separated by space;
+    * The function return false if something goes wrong;
+    *)
+  function __CreatePrerequisiteList( var handle : TMakeHandle;
+                                     var target : TTarget; 
+                                     strPrereq : TIdentifierValue ) : boolean;
+  var 
+         bRet   : boolean;
+
+  begin
+    with target do 
+    begin
+      CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
+      bRet := ( SplitString( strPrereq, ' ', preReqList ) >= 0 );
+
+      if( not bRet )  then
+        handle.strLastError := 'error processing pre-requisite [' + 
+                               strPrereq + ']';
+    end;
+
+    __CreatePrerequisiteList := bRet;
+  end;
+
+  (**
     * Parse identifier value.
     * @param pair The containing @see TIdentifierPair value that 
     * will be parsed and the content will return into the same 
@@ -124,7 +202,6 @@ var
         pair           : TIdentifierPair;
         pPair          : PIdentifierPair;
         identType      : TIdentifierType;
-        identName      : TIdentifierName;
         pPtr           : TPointer;
 
   begin
@@ -219,41 +296,23 @@ var
                       end;
                       TIdentifierType.IDENT_TARGETS  :
                       begin
-                        identName := pPair^.strName;
-                               
                         (* Check if target was already defined previously *)
                         if( MkPairHasChar( pPair^, CHAR_PERCENT, true ) )  then
                           bRet := ( MkFindTargetByPair( handle, pPair^ ) = nil )
                         else
-                          bRet := ( MkFindTarget( handle, identName ) = nil );
+                          bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
 
-                        (* Create list with all targets (Multi-target) *)
                         if( bRet )  then
-                          with target do
-                          begin
-                            CreateLinkedList( targetNameList, 
-                                              sizeof( TIdentifierName ) );
+                          bRet := __CreateTargetList( handle, 
+                                                      target, 
+                                                      pPair^.strName );
 
-                            if( SplitString( identName, ' ', 
-                                             targetNameList ) > 0 ) then
-                            begin
-                              pTemp := GetFirstLinkedListItem( targetNameList );
-                              
-                              while( bRet and ( pTemp <> nil ) )  do
-                              begin
-                                Move( pTemp^.pValue^, identName,
-                                      sizeof( identName ) );
-                                bRet := ( MkFindTarget( handle, 
-                                                        identName ) = nil );
-                                pTemp := GetNextLinkedListItem( targetNameList );
-                              end;
-                            end;
-                          end;
+                        if( bRet )  then
+                          bRet := __CreatePrerequisiteList( handle, 
+                                                            target, 
+                                                            pPair^.strValue );
 
-                        if( not bRet )  then
-                          handle.strLastError := 'target [' + identName + 
-                                                 '] already defined'
-                        else
+                        if( bRet )  then
                         begin
                           pTemp := AddLinkedListItem( handle.targetList, 
                                                       ToPointer( target ) );
@@ -288,7 +347,7 @@ var
                 begin
                   nCount := Succ( nCount );
                   pItem  := GetNextLinkedListItem( tokenList );
-                  UpdateProgress( handle );
+                  MkUpdateProgress( handle );
                 end;
               end;
             end
@@ -329,7 +388,7 @@ var
         end;
     end;
 
-    UpdateProgress( handle );
+    MkUpdateProgress( handle );
 
     __Parse := bRet;
   end;

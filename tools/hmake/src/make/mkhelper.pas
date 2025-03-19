@@ -13,6 +13,7 @@
  * - /memory/{platform}/pointer.pas;  (depends on architecture)
  * - /dos/dosutil.pas;
  * - ./make/mktypes.pas;
+ * - ./make/{platform}}/mkoscall.pas   (depends on architecture)
  *)
 
 (**
@@ -112,6 +113,7 @@ end;
 
 (**
   * Find the identifier based on its name;
+  * param handle The @see TMakeHandle of open makefile;
   * @param strName The identifier name to find;
   * The function return the pointer to the requested identifier or
   * nil if not found;
@@ -141,6 +143,7 @@ end;
 
 (**
   * Find a target based on its name;
+  * param handle The @see TMakeHandle of open makefile;
   * @param strName The target name to find;
   * The function return the pointer to the requested target or
   * nil if not found;
@@ -186,6 +189,7 @@ end;
 
 (**
   * Find a target based on its pair;
+  * param handle The @see TMakeHandle of open makefile;
   * @param pair The target pair to find;
   * The function return the pointer to the requested target or
   * nil if not found;
@@ -260,3 +264,66 @@ begin
 
   MkPairHasChar := bRet;
 end;
+
+(**
+  * Replace reference on command passed as parameter.
+  * param handle The @see TMakeHandle of open makefile;
+  * @param strCommand Reference to the command that will be replaced;
+  *)
+function MkReplaceReferences( var handle : TMakeHandle; 
+                              var strCommand : TIdentifierValue ) : boolean;
+var
+      bRet          : boolean;
+      bContains     : boolean;
+      nStart        : integer;
+      nEnd          : integer;
+      strIdentifier : TIdentifierValue;
+      pIdentPair    : PIdentifierPair; 
+
+begin
+  bRet := true;
+
+  repeat
+    nStart    := Pos( '$(', strCommand );
+    nEnd      := Pos( ')', strCommand );
+    bContains := ( ( nStart <> 0 ) and ( nEnd <> 0 ) );
+
+    if( bContains )  then
+    begin
+      strIdentifier := Copy( strCommand, 
+                              ( nStart + 2 ), 
+                              ( nEnd - nStart - 2 ) );
+      pIdentPair := MkFindIdentifier( handle, strIdentifier );
+      bRet := ( pIdentPair <> nil );
+
+      if( bRet )  then
+      begin
+        strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
+                            pIdentPair^.strValue + 
+                            Copy( strCommand, 
+                                  ( nEnd + 1 ), 
+                                  Length( strCommand ) );
+      end
+      else
+      begin  (* Check identifier on OS environment variables *)
+        bRet := MkGetEnv( strIdentifier, strIdentifier );
+
+        if( bRet )  then
+        begin
+          strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
+                              strIdentifier + 
+                              Copy( strCommand, 
+                                    ( nEnd + 1 ), 
+                                    Length( strCommand ) );
+        end
+        else
+        begin
+          handle.strLastError := 'Identifier not found';
+        end;
+      end;
+    end;
+  until( not bContains or not bRet );
+
+  MkReplaceReferences := bRet;
+end;
+

@@ -149,7 +149,7 @@ begin
       if( MkBuild( handle ) )  then
       begin
         if( parms.bDebugMode )  then
-          PrintDebug( handle );
+          MkPrintDebug( handle );
 
         if( not MkClose( handle ) ) then
           WriteLn( 'hmake: Error to close make file' );

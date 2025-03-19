@@ -66,6 +66,7 @@ begin
     Move( pItem^.pValue^, target, sizeof( target ) );
     DestroyLinkedList( target.commandList );
     DestroyLinkedList( target.targetNameList );
+    DestroyLinkedList( target.preReqList );
     pItem := GetNextLinkedListItem( handle.targetList );
   end;
 
@@ -84,7 +85,7 @@ end;
   * @param handle A @see TMakeHandle of makefile that
   * has been processed;
   *)
-procedure UpdateProgress( var handle : TMakeHandle );
+procedure MkUpdateProgress( var handle : TMakeHandle );
 begin
   with handle do
   begin
@@ -102,7 +103,7 @@ end;
   * Helper function used by debug only operations,
   * @param handle reference to a valid TMakeHandle with data;
   *)
-procedure PrintDebug( var handle : TMakeHandle );
+procedure MkPrintDebug( var handle : TMakeHandle );
 
   (**
     * Print target list.
@@ -136,7 +137,7 @@ procedure PrintDebug( var handle : TMakeHandle );
 
 
 (*
- * PrintDebug main entry point.
+ * MkPrintDebug main entry point.
  *)
 var
     pTargetPtr : TPointer;

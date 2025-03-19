@@ -68,66 +68,6 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
   end;
 
   (**
-    * Replace reference on command passed as parameter.
-    * @param strCommand Reference to the command that will be replaced;
-    *)
-  function __ReplaceReferences( var strCommand : TIdentifierValue ) : boolean;
-  var
-        bRet          : boolean;
-        bContains     : boolean;
-        nStart        : integer;
-        nEnd          : integer;
-        strIdentifier : TIdentifierValue;
-        pIdentPair    : PIdentifierPair; 
-
-  begin
-    bRet := true;
-
-    repeat
-      nStart    := Pos( '$(', strCommand );
-      nEnd      := Pos( ')', strCommand );
-      bContains := ( ( nStart <> 0 ) and ( nEnd <> 0 ) );
-
-      if( bContains )  then
-      begin
-        strIdentifier := Copy( strCommand, 
-                               ( nStart + 2 ), 
-                               ( nEnd - nStart - 2 ) );
-        pIdentPair := MkFindIdentifier( handle, strIdentifier );
-        bRet := ( pIdentPair <> nil );
-
-        if( bRet )  then
-        begin
-          strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                              pIdentPair^.strValue + 
-                              Copy( strCommand, 
-                                    ( nEnd + 1 ), 
-                                    Length( strCommand ) );
-        end
-        else
-        begin  (* Check identifier on OS environment variables *)
-          bRet := MkGetEnv( strIdentifier, strIdentifier );
-
-          if( bRet )  then
-          begin
-            strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                                strIdentifier + 
-                                Copy( strCommand, 
-                                      ( nEnd + 1 ), 
-                                      Length( strCommand ) );
-          end
-          else
-          begin
-            handle.strLastError := 'Identifier not found';
-          end;
-        end;
-      end;
-    until( not bContains or not bRet );
-
-    __ReplaceReferences := bRet;
-  end;
-
-  (**
    * Replace the pair prerequisite macro, when there's a macro on this property
    * by corresponding value present on list passed as parameter;
    * @param pair The pair with macro data to be replaced;
@@ -208,7 +148,7 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
       if( bMultiLine )  then
         strCommand := strMultiLine + strCommand;
 
-      bRet := __ReplaceReferences( strCommand );
+      bRet := MkReplaceReferences( handle, strCommand );
   
       if( bRet )  then
       begin
@@ -259,7 +199,6 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
       bRet            : boolean;
       pNextTargetItem : PTarget;
       targetPair      : TIdentifierPair;
-      pPreReqList     : PLinkedList;
       pItem           : PLinkedListItem;
 
   begin
@@ -269,8 +208,8 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
     begin
       targetPair := pTargetItem^.targetPair;
       // TODO: MOVE __ReplaceReferences to the Build stage ??
-      bRet := __ReplaceReferences( targetPair.strName ) and 
-              __ReplaceReferences( targetPair.strValue );
+      bRet := MkReplaceReferences( handle, targetPair.strName ) and 
+              MkReplaceReferences( handle, targetPair.strValue );
       
       if( handle.bDebugMode )  then
       begin
@@ -281,14 +220,8 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
 
       if( bRet )  then
       begin
-        New( pPreReqList );
-        CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
-
-        { Iterate on pre-requisites list }
-        if( SplitString( targetPair.strValue, ' ', pPreReqList^ ) >= 0 )  then
-          pItem := GetFirstLinkedListItem( pPreReqList^ )
-        else
-          pItem := nil;
+        { Iterate on target pre-requisites list }
+        pItem := GetFirstLinkedListItem( pTargetItem^.preReqList );
 
         while( bRet and ( pItem <> nil ) ) do
         begin
@@ -321,7 +254,7 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
               end;
             end;
             
-            pItem  := GetNextLinkedListItem( pPreReqList^ );
+            pItem  := GetNextLinkedListItem( pTargetItem^.preReqList );
           end
           else
           begin
@@ -334,9 +267,6 @@ function MkExecute( var handle : TMakeHandle ) : boolean;
 
         if( bRet )  then
           bRet := __ExecCommands( pTargetItem^.commandList );
-
-        DestroyLinkedList( pPreReqList^ );
-        Dispose( pPreReqList );
       end;
     end
     else
