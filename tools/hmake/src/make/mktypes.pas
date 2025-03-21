@@ -70,7 +70,6 @@ end;
    pDefaultTarget : PTarget;              { Pointer to default target   }
    variableList   : TLinkedList;          { Make variable list          }
    targetList     : TLinkedList;          { Make target list            }
-   pUsrTargetList : PLinkedList;          { Command line parget parms   }
    strLastError   : TString;              { Last processing error       }
    nLastLine      : integer;              { Last processed line         }
    nCursor        : byte;                 { Cursor position control     }

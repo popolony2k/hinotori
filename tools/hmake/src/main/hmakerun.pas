@@ -142,7 +142,6 @@ begin
     handle.chCSI := chCSI;
     handle.bDebugMode  := parms.bDebugMode;
     handle.bSilentMode := parms.bSilentMode;
-    handle.pUsrTargetList := parms.pUsrTargetList;
 
     if( MkOpen( parms.strMakeFile, handle ) ) then
     begin
@@ -154,7 +153,7 @@ begin
         if( not MkClose( handle ) ) then
           WriteLn( 'hmake: Error to close make file' );
   
-        if( not MkExecute( handle ) )  then        
+        if( not MkExecute( handle, parms.pUsrTargetList ) )  then        
         begin
           if( handle.nLastLine >= 0 )  then
           begin
@@ -180,5 +179,12 @@ begin
       WriteLn( 'hmake: Error to open make file [' + parms.strMakeFile + ']' );
 
     MkDestroy( handle );
+  end;
+
+  (* Destroy command line parameter list *)
+  if( parms.pUsrTargetList <> nil )  then
+  begin
+    DestroyLinkedList( parms.pUsrTargetList^ );
+    Dispose( parms.pUsrTargetList );
   end;
 end;

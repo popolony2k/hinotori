@@ -64,8 +64,9 @@ var
                                var target : TTarget; 
                                strTarget : TIdentifierName ) : boolean;
   var
-    pItem    : PLinkedListItem;
-    bRet     : boolean;
+    pItem      : PLinkedListItem;
+    pStrTarget : PIdentifierName;
+    bRet       : boolean;
 
   begin
     with target do
@@ -83,14 +84,17 @@ var
         
         while( bRet and ( pItem <> nil ) )  do
         begin
-          Move( pItem^.pValue^, strTarget, sizeof( strTarget ) );
-          bRet  := ( MkFindTarget( handle, strTarget ) = nil );
+          Move( pItem^.pValue, pStrTarget, sizeof( pStrTarget ) );
+          bRet  := ( MkFindTarget( handle, pStrTarget^ ) = nil );
 
-          if( not bRet )  then
-            handle.strLastError := 'target [' + strTarget + 
-                                   '] already defined'
-          else
+          if( bRet )  then
+          begin
+            if( MkReplaceReferences( handle, pStrTarget^ ) ) then;
             pItem := GetNextLinkedListItem( targetNameList );
+          end
+          else
+            handle.strLastError := 'target [' + pStrTarget^ + 
+                                   '] already defined'
         end;
       end;
     end;
@@ -113,15 +117,28 @@ var
                                      var target : TTarget; 
                                      strPrereq : TIdentifierValue ) : boolean;
   var 
-         bRet   : boolean;
+         pItem      : PLinkedListItem;
+         bRet       : boolean;
+         pStrPrereq : PIdentifierValue;
 
   begin
     with target do 
     begin
       CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
-      bRet := ( SplitString( strPrereq, ' ', preReqList ) >= 0 );
+      bRet := ( SplitString( strPrereq, ' ', preReqList ) >= 0 );     
 
-      if( not bRet )  then
+      if( bRet )  then
+      begin
+        pItem := GetFirstLinkedListItem( preReqList );
+        
+        while( bRet and ( pItem <> nil ) )  do
+        begin
+          Move( pItem^.pValue, pStrPrereq, sizeof( pStrPrereq ) );
+          if( MkReplaceReferences( handle, pStrPrereq^ ) ) then;
+          pItem := GetNextLinkedListItem( preReqList );
+        end;
+      end
+      else
         handle.strLastError := 'error processing pre-requisite [' + 
                                strPrereq + ']';
     end;

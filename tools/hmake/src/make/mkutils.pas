@@ -71,13 +71,6 @@ begin
   end;
 
   DestroyLinkedList( handle.targetList );
-
-  (* Destroy command line parameter list *)
-  if( handle.pUsrTargetList <> nil )  then
-  begin
-    DestroyLinkedList( handle.pUsrTargetList^ );
-    Dispose( handle.pUsrTargetList );
-  end;
 end;
 
 (**
