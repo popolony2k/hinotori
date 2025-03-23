@@ -163,19 +163,13 @@ begin
   while( not bFound and ( pItem <> nil ) ) do
   begin
     Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
-    bFound := ( pItemTarget^.targetPair.strName = strName );
-
-    (* Search on multi-target list *)
-    if( not bFound )  then
-    begin
-      pIdentItem := GetFirstLinkedListItem( pItemTarget^.targetNameList );
+    pIdentItem := GetFirstLinkedListItem( pItemTarget^.targetNameList );
       
-      while( not bFound and ( pIdentItem <> nil ) )  do
-      begin
-        Move( pIdentItem^.pValue^, identName, sizeof( identName ) );
-        bFound := ( identName = strName );
-        pIdentItem := GetNextLinkedListItem( pItemTarget^.targetNameList );
-      end;
+    while( not bFound and ( pIdentItem <> nil ) )  do
+    begin
+      Move( pIdentItem^.pValue^, identName, sizeof( identName ) );
+      bFound := ( identName = strName );
+      pIdentItem := GetNextLinkedListItem( pItemTarget^.targetNameList );
     end;
 
     pItem  := GetNextLinkedListItem( handle.targetList );
@@ -185,37 +179,6 @@ begin
     pItemTarget := nil;
 
   MkFindTarget := pItemTarget;
-end;
-
-(**
-  * Find a target based on its pair;
-  * param handle The @see TMakeHandle of open makefile;
-  * @param pair The target pair to find;
-  * The function return the pointer to the requested target or
-  * nil if not found;
-  *)
-function MkFindTargetByPair( var handle : TMakeHandle; var pair : TIdentifierPair ) : PTarget;
-var
-      pItem       : PLinkedListItem;
-      pItemTarget : PTarget;
-      bFound      : boolean;
-        
-begin
-  bFound := false;
-  pItem  := GetFirstLinkedListItem( handle.targetList );
-
-  while( not bFound and ( pItem <> nil ) ) do
-  begin
-    Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
-    bFound := ( pItemTarget^.targetPair.strName  = pair.strName  ) and 
-              ( pItemTarget^.targetPair.strValue = pair.strValue );
-    pItem  := GetNextLinkedListItem( handle.targetList );
-  end;
-
-  if( not bFound )  then
-    pItemTarget := nil;
-
-  MkFindTargetByPair := pItemTarget;
 end;
 
 (**

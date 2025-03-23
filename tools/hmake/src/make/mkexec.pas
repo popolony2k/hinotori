@@ -231,7 +231,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       if( pPreReqItem = nil )  then
       begin
         Move( pTargetNameItem^.pValue^, 
-              targetPair.strName, 
+              targetPair.strName,
               sizeof( targetPair.strName ) );
 
         __PrintTarget( targetPair.strName );
@@ -248,7 +248,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
 
       { Iterate over target pre-requisites list }
       while( bRet and ( pPreReqItem <> nil ) ) do
-      begin       
+      begin
         while( bRet and ( pTargetNameItem <> nil ) ) do
         begin
           Move( pTargetNameItem^.pValue^, 
@@ -329,11 +329,8 @@ var
     pTargetItem     : PTarget;
     pPhonyTarget    : PTarget;
     strPhonyIdent   : TIdentifierName;
-    bRet            : boolean;
 
 begin
-  bRet := true;
-
   if( GetLinkedListSize( pUsrTargetList^ ) > 0 )  then
   begin
     pTargetNameItem := GetFirstLinkedListItem( pUsrTargetList^ );
@@ -343,33 +340,14 @@ begin
   else
     pTargetItem := handle.pDefaultTarget;
 
-  if( not bRet )  then
-  begin
-    MkExecute := bRet;
-    exit;
-  end;
-
   (* Initialize PHONY list *)
   strPhonyIdent := __ctTargetPHONY;
   pPhonyTarget  := MkFindTarget( handle, strPhonyIdent );
   pPhonyList    := nil;
 
   if( pPhonyTarget <> nil )  then
-  begin
-    New( pPhonyList );
-    CreateLinkedList( pPhonyList^, sizeof( TIdentifierValue ) );
-    bRet := ( SplitString( pPhonyTarget^.targetPair.strValue, ' ', 
-                           pPhonyList^ ) >= 0 );
-  end;
+    pPhonyList := pPhonyTarget^.pPreReqList;
 
   (* Execute target *)
-  bRet := __ExecTarget( pTargetItem, pUsrTargetList );
-
-  if( pPhonyTarget <> nil )  then
-  begin
-    DestroyLinkedList( pPhonyList^ );
-    Dispose( pPhonyList );
-  end;
-
-  MkExecute := bRet;
+  MkExecute := __ExecTarget( pTargetItem, pUsrTargetList );
 end;

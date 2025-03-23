@@ -106,25 +106,59 @@ procedure MkPrintDebug( var handle : TMakeHandle );
     *)
   procedure __PrintTarget( pItem : TPointer );
   var
-          pCmdItem    : PLinkedListItem;
-          command     : TIdentifierValue;
+          pItemValue  : PLinkedListItem;
+          identName   : TIdentifierName;
+          identValue  : TIdentifierValue;
           pItemTarget : PTarget;
 
   begin
     Move( pItem, pItemTarget, sizeof( pItemTarget ) );
-    WriteLn( 'Name  -> ', pItemTarget^.targetPair.strName );
-    WriteLn( 'Value -> ', pItemTarget^.targetPair.strValue );
 
-    pCmdItem := GetFirstLinkedListItem( pItemTarget^.commandList );
+    (* Targets *)
+    pItemValue := GetFirstLinkedListItem( pItemTarget^.targetNameList );
 
-    if( pCmdItem <> nil )  then
+    if( pItemValue <> nil )  then
+    begin
+      Write( 'TARGET  -> ' );
+
+      while( pItemValue <> nil )  do
+      begin
+        Move( pItemValue^.pValue^, identName, sizeof( identName ) );
+        Write( identName, ' ' );
+        pItemValue := GetNextLinkedListItem( pItemTarget^.targetNameList );
+      end;
+
+      WriteLn;
+    end;
+
+    (* Pre-requisites *)
+    pItemValue := GetFirstLinkedListItem( pItemTarget^.pPreReqList^ );
+
+    if( pItemValue <> nil )  then
+    begin
+      Write( 'PRE-REQUISITE  -> ' );
+
+      while( pItemValue <> nil )  do
+      begin
+        Move( pItemValue^.pValue^, identValue, sizeof( identValue ) );
+        Write( identValue, ' ' );
+        pItemValue := GetNextLinkedListItem( pItemTarget^.pPreReqList^ );
+      end;
+
+      WriteLn;
+    end;
+
+    (* Commands *)
+    pItemValue := GetFirstLinkedListItem( pItemTarget^.commandList );
+
+    if( pItemValue <> nil )  then
       WriteLn( 'COMMANDS ======');
 
-    while( pCmdItem <> nil )  do
+    while( pItemValue <> nil )  do
     begin
-      Move( pCmdItem^.pValue^, command, sizeof( command ) );
-      WriteLn( 'CMD -> ', command );
-      pCmdItem := GetNextLinkedListItem( pItemTarget^.commandList );
+      Move( pItemValue^.pValue^, identValue, sizeof( identValue ) );
+      WriteLn( 'CMD -> ', identValue );
+      pItemValue := GetNextLinkedListItem( pItemTarget^.commandList );
     end;
 
     WriteLn( '-----------------------' );

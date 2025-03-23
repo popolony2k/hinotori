@@ -270,12 +270,6 @@ var
 
                 TIdentifierType.IDENT_TARGETS  :
                 begin
-                  pPtr := ToPointer( target.targetPair );
-                  Move( pPtr, pPair, sizeof( pPair ) );
-                  Move( pItem^.pValue^, 
-                        pPair^.strName, 
-                        sizeof( pPair^.strName ) );
-
                   CreateLinkedList( target.commandList, 
                                     sizeof( TIdentifierValue ) );
                 end;
@@ -315,10 +309,7 @@ var
                       TIdentifierType.IDENT_TARGETS  :
                       begin
                         (* Check if target was already defined previously *)
-                        if( MkPairHasChar( pPair^, CHAR_PERCENT, true ) )  then
-                          bRet := ( MkFindTargetByPair( handle, pPair^ ) = nil )
-                        else
-                          bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
+                        bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
 
                         if( bRet )  then
                           bRet := __CreateTargetList( handle, 
