@@ -37,13 +37,28 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       pPhonyList      : PLinkedList;
       pTargetNameItem : PLinkedListItem;
       strTargetName   : TIdentifierName;
+
+
+  (**
+    * Print target debug information.
+    * @param strTargetName The target name info to print;
+    *)
+  procedure __PrintTarget( strTargetName : TIdentifierValue );
+  begin
+    if( handle.bDebugMode )  then
+    begin
+      WriteLn;
+      WriteLn( 'Executing target [', strTargetName, ']' );
+      WriteLn( '-----------------------' );
+    end;
+  end;
   
   (**
     * Check if there's a .PHONY target defined on Makefile that matches
     * the target entry passed as parameter;
-    * @param target The target name that will be checked;
+    * @param strTargetName The target name that will be checked;
     *)
-  function __IsTargetPHONY( var targetName : TIdentifierValue ) : boolean;
+  function __IsTargetPHONY( var strTargetName : TIdentifierValue ) : boolean;
   var
         bRet     : boolean;
         pItem    : PLinkedListItem;
@@ -59,7 +74,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       while( bRet and ( pItem <> nil ) ) do
       begin
         Move( pItem^.pValue^, strValue, sizeof( strValue ) );
-        bRet  := ( strValue <> targetName ); 
+        bRet  := ( strValue <> strTargetName ); 
         pItem := GetNextLinkedListItem( pPhonyList^ );
       end;
 
@@ -202,69 +217,99 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       bRet            : boolean;
       pNextTargetItem : PTarget;
       targetPair      : TIdentifierPair;
-      pItem           : PLinkedListItem;
+      pTargetNameItem : PLinkedListItem;
+      pPreReqItem     : PLinkedListItem;
 
   begin
     bRet := ( pTargetItem <> nil );
 
     if( bRet )  then
     begin
-      targetPair := pTargetItem^.targetPair;
-      
-      if( handle.bDebugMode )  then
+      pPreReqItem := GetFirstLinkedListItem( pTargetItem^.pPreReqList^ );
+      pTargetNameItem := pTargetList^.pCurrentItem;
+
+      if( pPreReqItem = nil )  then
       begin
-        WriteLn;
-        WriteLn( 'Executing target [', strTargetName, ']' );
-        WriteLn( '-----------------------' );
-      end;
+        Move( pTargetNameItem^.pValue^, 
+              targetPair.strName, 
+              sizeof( targetPair.strName ) );
 
-      { Iterate on target pre-requisites list }
-      pItem := GetFirstLinkedListItem( pTargetItem^.preReqList );
+        __PrintTarget( targetPair.strName );
 
-      while( bRet and ( pItem <> nil ) ) do
-      begin
-        bRet := __IsTargetPHONY( targetPair.strName );
+        __ExecTarget := __ExecCommands( pTargetItem^.commandList );
 
-        if( not bRet )  then
-          bRet := not MkCheckTarget( targetPair );
-
-        if( bRet )  then
+        if( handle.bDebugMode )  then
         begin
-          Move( pItem^.pValue^, 
-                targetPair.strValue, 
-                sizeof( targetPair.strValue ) );
-
-          if( not MkCheckTarget( targetPair ) )  then
-          begin
-            pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
-            bRet := ( pNextTargetItem <> nil );
-
-            if( bRet )  then
-              bRet := __ExecTarget( pNextTargetItem, nil )
-            else
-            begin
-              handle.nLastLine := -1;
-              handle.strLastError := 'hmake: *** No rule to make target ''' + 
-                        targetPair.strValue + 
-                        '''. needed by '''  + 
-                        targetPair.strName  + 
-                        '''  Stop.';
-            end;
-          end;
-          
-          pItem  := GetNextLinkedListItem( pTargetItem^.preReqList );
-        end
-        else
-        begin
-          handle.nLastLine := -1;
-          handle.strLastError := 'hmake: *** ''' + 
-                    targetPair.strName + 
-                    '''. is up to date.';
+          WriteLn( '-----------------------' );
         end;
+
+        exit;
       end;
 
-      if( bRet )  then
-        bRet := __ExecCommands( pTargetItem^.commandList );
+      { Iterate over target pre-requisites list }
+      while( bRet and ( pPreReqItem <> nil ) ) do
+      begin       
+        while( bRet and ( pTargetNameItem <> nil ) ) do
+        begin
+          Move( pTargetNameItem^.pValue^, 
+                targetPair.strName, 
+                sizeof( targetPair.strName ) );
+
+          __PrintTarget( targetPair.strName );
+
+          bRet := __IsTargetPHONY( targetPair.strName );
+
+          if( not bRet )  then
+            bRet := not MkCheckTarget( targetPair );
+
+          if( bRet )  then
+          begin
+            Move( pPreReqItem^.pValue^, 
+                  targetPair.strValue, 
+                  sizeof( targetPair.strValue ) );
+
+            if( not MkCheckTarget( targetPair ) )  then
+            begin
+              pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
+              bRet := ( pNextTargetItem <> nil );
+
+              if( bRet )  then
+              begin
+                bRet := __ExecTarget( pNextTargetItem, pTargetItem^.pPreReqList );
+              end
+              else
+              begin
+                handle.nLastLine := -1;
+                handle.strLastError := 'hmake: *** No rule to make target ''' + 
+                          targetPair.strValue + 
+                          '''. needed by '''  + 
+                          targetPair.strName  + 
+                          '''  Stop.';
+              end;
+            end;           
+          end
+          else
+          begin
+            handle.nLastLine := -1;
+            handle.strLastError := 'hmake: *** ''' + 
+                      targetPair.strName + 
+                      '''. is up to date.';
+          end;
+
+          if( bRet )  then
+            bRet := __ExecCommands( pTargetItem^.commandList );
+
+          if( handle.bDebugMode )  then
+          begin
+            WriteLn( '-----------------------' );
+          end;
+
+          pTargetItem^.pPreReqList^.pCurrentItem := pTargetItem^.pPreReqList^.pFirstItem;
+          pTargetNameItem := GetNextLinkedListItem( pTargetList^ );
+        end;
+
+        pPreReqItem := GetNextLinkedListItem( pTargetItem^.pPreReqList^ );
+      end;
     end
     else
     begin
@@ -272,11 +317,6 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       handle.strLastError := 'hmake: *** No rule to make target ''' + 
                              strTargetName + 
                              '''.  Stop.';
-    end;
-
-    if( handle.bDebugMode )  then
-    begin
-      WriteLn( '-----------------------' );
     end;
 
     __ExecTarget := bRet;
@@ -324,18 +364,6 @@ begin
 
   (* Execute target *)
   bRet := __ExecTarget( pTargetItem, pUsrTargetList );
-
-  // if( bRet and bListNotEmpty )  then
-  // begin
-  //   pTargetNameItem := GetNextLinkedListItem( handle.pUsrTargetList^ );
-  //   bHasMoreTargets := ( pTargetNameItem <> nil );
-
-  //   if( bHasMoreTargets )  then
-  //   begin
-  //     Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
-  //     pTargetItem := MkFindTarget( handle, strTargetName );
-  //   end;
-  // end; 
 
   if( pPhonyTarget <> nil )  then
   begin

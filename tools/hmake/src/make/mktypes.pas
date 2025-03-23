@@ -55,7 +55,7 @@ type PTarget = ^TTarget;
      TTarget = record
   targetPair      : TIdentifierPair;      { Full target:req. content    }
   targetNameList  : TLinkedList;          { Target names eg. p1 p2: req }
-  preReqList      : TLinkedList;          { Target names eg. p1 p2: req }
+  pPreReqList     : PLinkedList;          { Target names eg. p1 p2: req }
   commandList     : TLinkedList;          { Command list                }
 end;
 

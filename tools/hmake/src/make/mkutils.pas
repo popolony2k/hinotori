@@ -66,7 +66,9 @@ begin
     Move( pItem^.pValue^, target, sizeof( target ) );
     DestroyLinkedList( target.commandList );
     DestroyLinkedList( target.targetNameList );
-    DestroyLinkedList( target.preReqList );
+    DestroyLinkedList( target.pPreReqList^ );
+    Dispose( target.pPreReqList );
+
     pItem := GetNextLinkedListItem( handle.targetList );
   end;
 

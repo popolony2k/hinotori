@@ -124,18 +124,19 @@ var
   begin
     with target do 
     begin
-      CreateLinkedList( preReqList, sizeof( TIdentifierValue ) );
-      bRet := ( SplitString( strPrereq, ' ', preReqList ) >= 0 );     
+      New( pPreReqList );
+      CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
+      bRet := ( SplitString( strPrereq, ' ', pPreReqList^ ) >= 0 );     
 
       if( bRet )  then
       begin
-        pItem := GetFirstLinkedListItem( preReqList );
+        pItem := GetFirstLinkedListItem( pPreReqList^ );
         
         while( bRet and ( pItem <> nil ) )  do
         begin
           Move( pItem^.pValue, pStrPrereq, sizeof( pStrPrereq ) );
           if( MkReplaceReferences( handle, pStrPrereq^ ) ) then;
-          pItem := GetNextLinkedListItem( preReqList );
+          pItem := GetNextLinkedListItem( pPreReqList^ );
         end;
       end
       else
