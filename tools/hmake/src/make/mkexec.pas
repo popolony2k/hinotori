@@ -279,9 +279,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
               bRet := ( pNextTargetItem <> nil );
 
               if( bRet )  then
-              begin
-                bRet := __ExecTarget( pNextTargetItem, pTargetItem^.pPreReqList );
-              end
+                bRet := __ExecTarget( pNextTargetItem, pTargetItem^.pPreReqList )
               else
               begin
                 handle.nLastLine := -1;
