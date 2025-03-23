@@ -52,6 +52,17 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       WriteLn( '-----------------------' );
     end;
   end;
+
+  (**
+    * Print line separator.
+    *)
+  procedure __PrintSeparator;
+  begin
+    if( handle.bDebugMode )  then
+    begin
+      WriteLn( '-----------------------' );
+    end;
+  end;
   
   (**
     * Check if there's a .PHONY target defined on Makefile that matches
@@ -235,14 +246,8 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
               sizeof( targetPair.strName ) );
 
         __PrintTarget( targetPair.strName );
-
         __ExecTarget := __ExecCommands( pTargetItem^.commandList );
-
-        if( handle.bDebugMode )  then
-        begin
-          WriteLn( '-----------------------' );
-        end;
-
+        __PrintSeparator;
         exit;
       end;
 
@@ -299,10 +304,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
           if( bRet )  then
             bRet := __ExecCommands( pTargetItem^.commandList );
 
-          if( handle.bDebugMode )  then
-          begin
-            WriteLn( '-----------------------' );
-          end;
+          __PrintSeparator;
 
           pTargetItem^.pPreReqList^.pCurrentItem := pTargetItem^.pPreReqList^.pFirstItem;
           pTargetNameItem := GetNextLinkedListItem( pTargetList^ );
