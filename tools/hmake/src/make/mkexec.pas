@@ -239,34 +239,21 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       pPreReqItem := GetFirstLinkedListItem( pTargetItem^.pPreReqList^ );
       pTargetNameItem := pTargetList^.pCurrentItem;
 
-      if( pPreReqItem = nil )  then
+      while( bRet and ( pTargetNameItem <> nil ) ) do
       begin
         Move( pTargetNameItem^.pValue^, 
-              targetPair.strName,
+              targetPair.strName, 
               sizeof( targetPair.strName ) );
 
         __PrintTarget( targetPair.strName );
-        __ExecTarget := __ExecCommands( pTargetItem^.commandList );
-        __PrintSeparator;
-        exit;
-      end;
 
-      { Iterate over target pre-requisites list }
-      while( bRet and ( pPreReqItem <> nil ) ) do
-      begin
-        while( bRet and ( pTargetNameItem <> nil ) ) do
+        bRet := __IsTargetPHONY( targetPair.strName );
+
+        if( not bRet )  then
+          bRet := not MkCheckTarget( targetPair );
+
+        while( bRet and ( pPreReqItem <> nil ) ) do
         begin
-          Move( pTargetNameItem^.pValue^, 
-                targetPair.strName, 
-                sizeof( targetPair.strName ) );
-
-          __PrintTarget( targetPair.strName );
-
-          bRet := __IsTargetPHONY( targetPair.strName );
-
-          if( not bRet )  then
-            bRet := not MkCheckTarget( targetPair );
-
           if( bRet )  then
           begin
             Move( pPreReqItem^.pValue^, 
@@ -298,17 +285,16 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
                       targetPair.strName + 
                       '''. is up to date.';
           end;
-
-          if( bRet )  then
-            bRet := __ExecCommands( pTargetItem^.commandList );
-
-          __PrintSeparator;
-
-          pTargetItem^.pPreReqList^.pCurrentItem := pTargetItem^.pPreReqList^.pFirstItem;
-          pTargetNameItem := GetNextLinkedListItem( pTargetList^ );
+          
+          pPreReqItem := GetNextLinkedListItem( pTargetItem^.pPreReqList^ );
         end;
 
-        pPreReqItem := GetNextLinkedListItem( pTargetItem^.pPreReqList^ );
+        if( bRet )  then
+          bRet := __ExecCommands( pTargetItem^.commandList );
+
+        __PrintSeparator;
+
+        pTargetNameItem := GetNextLinkedListItem( pTargetList^ );
       end;
     end
     else
