@@ -203,6 +203,60 @@ var
   end;
 
   (**
+    * Parse the taret content.
+    * @param target Reference to target to process;
+    * @param pPair The pointer to pair with target data that will be 
+    * processed.
+    *)
+  function __ParseTarget( var target : TTarget; 
+                          pPair : PIdentifierPair ) : boolean;
+  var 
+        bRet    : boolean;
+        pItem   : PLinkedListItem;
+
+  begin
+    (* Check if target was already defined previously *)
+    bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
+
+    if( bRet )  then
+      bRet := __CreateTargetList( handle, 
+                                  target, 
+                                  pPair^.strName );
+
+    if( bRet )  then
+      bRet := __CreatePrerequisiteList( handle, 
+                                        target, 
+                                        pPair^.strValue );
+
+    if( bRet )  then
+    begin
+      pItem := AddLinkedListItem( handle.targetList, 
+                                  ToPointer( target ) );
+      bRet := ( pItem <> nil );
+
+      (* 
+      * If there's no default target, it means that is 
+      * the first target being processed, so according 
+      * makefile rules (GNU), the first target id the 
+      * default target.
+      *)
+      if( ( handle.pDefaultTarget = nil ) and bRet )  then
+        Move( pItem^.pValue, 
+              handle.pDefaultTarget, 
+              sizeof( pItem^.pValue ) );
+
+      if( bRet )  then
+        Move( pItem^.pValue, 
+              pTargets, 
+              sizeof( pTargets ) )
+      else
+        handle.strLastError := 'Not enough memory -> ' + strLine;
+    end;
+
+    __ParseTarget := bRet;
+  end;
+
+  (**
     * Parse all make file valid tokens;
     * If the parsing is successful bRet is set to true
     * otherwise false;
@@ -214,7 +268,6 @@ var
         bTargetRemark  : boolean;
         bRegularRemark : boolean;
         pItem          : PLinkedListItem;
-        pTemp          : PLinkedListItem;
         tokenList      : TLinkedList;
         target         : TTarget;
         pair           : TIdentifierPair;
@@ -239,162 +292,121 @@ var
     case identType of
       TIdentifierType.IDENT_VARIABLE, 
       TIdentifierType.IDENT_TARGETS :
+      begin
+        CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
+        nCount := SplitString( strLine, aChToken[identType], tokenList );
+        
+        (* Process identifier - Only create and dereference pointers *)
+        if( nCount > 0 )  then
         begin
-          CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
-          nCount := SplitString( strLine, aChToken[identType], tokenList );
-          
-          (* Process identifier - Only create and dereference pointers *)
-          if( nCount > 0 )  then
+          nCount := 0;
+          pItem  := GetFirstLinkedListItem( tokenList );
+          bRet   := ( pItem <> nil ); 
+
+          if( bRet )  then
           begin
-            nCount := 0;
-            pItem  := GetFirstLinkedListItem( tokenList );
-            bRet   := ( pItem <> nil ); 
-
-            if( bRet )  then
-            begin
-              case identType of
-                TIdentifierType.IDENT_VARIABLE :
-                begin
-                  (* Cannot assign variable in targets *)
-                  if( handle.pDefaultTarget <> nil )  then
-                  begin
-                    handle.strLastError := 'Cannot assign variable in targets';
-                    bRet := false;
-                  end
-                  else
-                  begin
-                    pPtr := ToPointer( pair );
-                    Move( pPtr, pPair, sizeof( pPair ) );
-                  end;
-                end;
-
-                TIdentifierType.IDENT_TARGETS  :
-                begin
-                  CreateLinkedList( target.commandList, 
-                                    sizeof( TIdentifierValue ) );
-                end;
-              end;
-
-              pPair^.identType := identType;
-
-              (* Assign identifier values *)
-              while( bRet and ( pItem <> nil ) )  do
+            (* Process identifier type *)
+            case identType of
+              TIdentifierType.IDENT_VARIABLE :
               begin
-                if( ( nCount mod 2 ) = 0 )  then
+                (* Cannot assign variable in targets *)
+                if( handle.pDefaultTarget <> nil )  then
                 begin
-                  Move( pItem^.pValue^, 
-                        pPair^.strName, 
-                        sizeof( pPair^.strName ) );
-                  pPair^.strName := Trim( pPair^.strName );
+                  handle.strLastError := 'Cannot assign variable in targets';
+                  bRet := false;
                 end
                 else
                 begin
-                  Move( pItem^.pValue^, 
-                        pPair^.strValue, 
-                        sizeof( pPair^.strValue ) );
-
-                  if( __ParseValue( pPair^ ) )  then
-                  begin
-                    case identType of
-                      TIdentifierType.IDENT_VARIABLE :
-                      begin 
-                        pTemp := AddLinkedListItem( handle.variableList, 
-                                                    ToPointer( pPair^ ) );
-                        bRet := ( pTemp <> nil );
-
-                        if( not bRet )  then
-                          handle.strLastError := 'Not enough memory -> ' +
-                                                 strLine;
-                      end;
-                      TIdentifierType.IDENT_TARGETS  :
-                      begin
-                        (* Check if target was already defined previously *)
-                        bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
-
-                        if( bRet )  then
-                          bRet := __CreateTargetList( handle, 
-                                                      target, 
-                                                      pPair^.strName );
-
-                        if( bRet )  then
-                          bRet := __CreatePrerequisiteList( handle, 
-                                                            target, 
-                                                            pPair^.strValue );
-
-                        if( bRet )  then
-                        begin
-                          pTemp := AddLinkedListItem( handle.targetList, 
-                                                      ToPointer( target ) );
-                          bRet := ( pTemp <> nil );
-
-                          (* 
-                          * If there's no default target, it means that is 
-                          * the first target being processed, so according 
-                          * makefile rules (GNU), the first target id the 
-                          * default target.
-                          *)
-                          if( ( handle.pDefaultTarget = nil ) and bRet )  then
-                            Move( pTemp^.pValue, 
-                                  handle.pDefaultTarget, 
-                                  sizeof( pTemp^.pValue ) );
-
-                          if( bRet )  then
-                            Move( pTemp^.pValue, 
-                                  pTargets, 
-                                  sizeof( pTargets ) )
-                          else
-                            handle.strLastError := 'Not enough memory -> ' + strLine;
-                        end;
-                      end;
-                    end;
-                  end
-                  else
-                    bRet := false;
+                  pPtr := ToPointer( pair );
+                  Move( pPtr, pPair, sizeof( pPair ) );
                 end;
+              end;
+
+              TIdentifierType.IDENT_TARGETS  :
+              begin
+                CreateLinkedList( target.commandList, 
+                                  sizeof( TIdentifierValue ) );
+              end;
+            end;
+
+            pPair^.identType := identType;
+
+            (* Read/assign identifier values *)
+            while( bRet and ( pItem <> nil ) )  do
+            begin
+              if( ( nCount mod 2 ) = 0 )  then
+              begin
+                Move( pItem^.pValue^, 
+                      pPair^.strName, 
+                      sizeof( pPair^.strName ) );
+                pPair^.strName := Trim( pPair^.strName );
+              end
+              else
+              begin
+                Move( pItem^.pValue^, 
+                      pPair^.strValue, 
+                      sizeof( pPair^.strValue ) );
+                
+                bRet := __ParseValue( pPair^ );
 
                 if( bRet )  then
                 begin
-                  nCount := Succ( nCount );
-                  pItem  := GetNextLinkedListItem( tokenList );
-                  MkUpdateProgress( handle );
+                  case identType of
+                    TIdentifierType.IDENT_VARIABLE :
+                    begin 
+                      bRet := AddLinkedListItem( handle.variableList, 
+                                                 ToPointer( pPair^ ) ) <> nil;
+
+                      if( not bRet )  then
+                        handle.strLastError := 'Not enough memory -> ' +
+                                                strLine;
+                    end;
+
+                    TIdentifierType.IDENT_TARGETS  :
+                      bRet := __ParseTarget( target, pPair );
+                  end;
                 end;
               end;
-            end
-            else
-            begin
-              handle.strLastError := 'Catastrophic parsing error';
-            end;       
+
+              if( bRet )  then
+              begin
+                nCount := Succ( nCount );
+                pItem  := GetNextLinkedListItem( tokenList );
+                MkUpdateProgress( handle );
+              end;
+            end;
           end
           else
-          begin
-            handle.strLastError := 'Invalid identifier ' + strLine;
-            bRet := false; 
-          end;
-
-          DestroyLinkedList( tokenList );
-        end;
-
-        TIdentifierType.IDENT_COMMAND:
-        begin  (* Commands processing *)
-          strLine := RemoveChar( Trim( strLine ), ctTAB );
-
-          if( ( pTargets <> nil ) and ( strLine <> '' ) )  then
-          begin
-            bRet := ( AddLinkedListItem( pTargets^.commandList, 
-                                        ToPointer( strLine ) ) <> nil );
-            
-            if( not bRet )  then
-            begin
-              handle.strLastError := 'Not enough memory';
-            end;
-          end;
-        end;
-
-        TIdentifierType.IDENT_NOP:
+            handle.strLastError := 'Catastrophic parsing error';
+        end
+        else
         begin
-          bRet := false;
-          handle.strLastError := 'Missing separator';
+          handle.strLastError := 'Invalid identifier ' + strLine;
+          bRet := false; 
         end;
+
+        DestroyLinkedList( tokenList );
+      end;
+
+      TIdentifierType.IDENT_COMMAND:
+      begin  (* Commands processing *)
+        strLine := RemoveChar( Trim( strLine ), ctTAB );
+
+        if( ( pTargets <> nil ) and ( strLine <> '' ) )  then
+        begin
+          bRet := ( AddLinkedListItem( pTargets^.commandList, 
+                                      ToPointer( strLine ) ) <> nil );
+          
+          if( not bRet )  then
+            handle.strLastError := 'Not enough memory';
+        end;
+      end;
+
+      TIdentifierType.IDENT_NOP:
+      begin
+        bRet := false;
+        handle.strLastError := 'Missing separator';
+      end;
     end;
 
     MkUpdateProgress( handle );
