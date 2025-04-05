@@ -257,6 +257,29 @@ var
   end;
 
   (**
+    * Parse command.
+    *)
+  function __ParseCommand : boolean;
+  var
+          bRet   : boolean;
+
+  begin
+    strLine := RemoveChar( Trim( strLine ), ctTAB );
+
+    if( ( pTargets <> nil ) and ( strLine <> '' ) )  then
+    begin
+      bRet := ( AddLinkedListItem( pTargets^.commandList, 
+                                    ToPointer( strLine ) ) <> nil );
+      
+      if( not bRet )  then
+        handle.strLastError := 'Not enough memory';
+    end;
+
+    __ParseCommand := bRet;
+  end;
+
+
+  (**
     * Parse all make file valid tokens;
     * If the parsing is successful bRet is set to true
     * otherwise false;
@@ -290,6 +313,16 @@ var
     identType := MkIdentifierType( handle, strLine );
 
     case identType of
+
+      TIdentifierType.IDENT_COMMAND:
+        __ParseCommand;
+
+      TIdentifierType.IDENT_NOP:
+      begin
+        bRet := false;
+        handle.strLastError := 'Missing separator';
+      end;
+
       TIdentifierType.IDENT_VARIABLE, 
       TIdentifierType.IDENT_TARGETS :
       begin
@@ -307,6 +340,7 @@ var
           begin
             (* Process identifier type *)
             case identType of
+
               TIdentifierType.IDENT_VARIABLE :
               begin
                 (* Cannot assign variable in targets *)
@@ -386,26 +420,6 @@ var
         end;
 
         DestroyLinkedList( tokenList );
-      end;
-
-      TIdentifierType.IDENT_COMMAND:
-      begin  (* Commands processing *)
-        strLine := RemoveChar( Trim( strLine ), ctTAB );
-
-        if( ( pTargets <> nil ) and ( strLine <> '' ) )  then
-        begin
-          bRet := ( AddLinkedListItem( pTargets^.commandList, 
-                                      ToPointer( strLine ) ) <> nil );
-          
-          if( not bRet )  then
-            handle.strLastError := 'Not enough memory';
-        end;
-      end;
-
-      TIdentifierType.IDENT_NOP:
-      begin
-        bRet := false;
-        handle.strLastError := 'Missing separator';
       end;
     end;
 
