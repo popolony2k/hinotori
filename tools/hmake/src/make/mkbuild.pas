@@ -203,7 +203,7 @@ var
   end;
 
   (**
-    * Parse the taret content.
+    * Parse the target content.
     * @param target Reference to target to process;
     * @param pPair The pointer to pair with target data that will be 
     * processed.
@@ -278,6 +278,52 @@ var
     __ParseCommand := bRet;
   end;
 
+  (**
+    * Parse the identifier by its type.
+    * @param identType The identifier type to process;
+    * @param target Reference to target to process;
+    * @param pair Reference to a valid TIdentifier variable;
+    * @param pPair Reference to a pointer to receive the pair 
+    * variable deferenced pointer, when identType is IDENT_VARIABLE;
+    *)
+  function __ParseIdentifier( identType : TIdentifierType;
+                              var target : TTarget;
+                              var pair   : TIdentifierPair;
+                              var pPair  : PIdentifierPair ) : boolean;
+  var
+        bRet    : boolean;
+        pPtr    : TPointer;
+
+  begin
+    bRet := true;
+
+    case identType of
+      TIdentifierType.IDENT_VARIABLE :
+      begin
+        (* Cannot assign variable in targets *)
+        if( handle.pDefaultTarget <> nil )  then
+        begin
+          handle.strLastError := 'Cannot assign variable in targets';
+          bRet := false;
+        end
+        else
+        begin
+          pPtr := ToPointer( pair );
+          Move( pPtr, pPair, sizeof( pPair ) );
+        end;
+      end;
+
+      TIdentifierType.IDENT_TARGETS  :
+      begin
+        CreateLinkedList( target.commandList, 
+                          sizeof( TIdentifierValue ) );
+      end;
+    end;
+
+    pPair^.identType := identType;
+
+    __ParseIdentifier := bRet;
+  end;
 
   (**
     * Parse all make file valid tokens;
@@ -296,7 +342,6 @@ var
         pair           : TIdentifierPair;
         pPair          : PIdentifierPair;
         identType      : TIdentifierType;
-        pPtr           : TPointer;
 
   begin
     bRet      := true;
@@ -338,32 +383,7 @@ var
 
           if( bRet )  then
           begin
-            (* Process identifier type *)
-            case identType of
-
-              TIdentifierType.IDENT_VARIABLE :
-              begin
-                (* Cannot assign variable in targets *)
-                if( handle.pDefaultTarget <> nil )  then
-                begin
-                  handle.strLastError := 'Cannot assign variable in targets';
-                  bRet := false;
-                end
-                else
-                begin
-                  pPtr := ToPointer( pair );
-                  Move( pPtr, pPair, sizeof( pPair ) );
-                end;
-              end;
-
-              TIdentifierType.IDENT_TARGETS  :
-              begin
-                CreateLinkedList( target.commandList, 
-                                  sizeof( TIdentifierValue ) );
-              end;
-            end;
-
-            pPair^.identType := identType;
+            bRet := __ParseIdentifier( identType, target, pair, pPair );
 
             (* Read/assign identifier values *)
             while( bRet and ( pItem <> nil ) )  do
