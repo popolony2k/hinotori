@@ -332,10 +332,10 @@ var
     * @param tokenList Reference to a valid @see TLinkedList token list;
     * @param pair Reference to a valid @see TIdentifier variable;
     *)
-  function __ReadIdentifierData( identType : TIdentifierType;
-                                 var target : TTarget;
-                                 var tokenList : TLinkedList;
-                                 pPair  : PIdentifierPair ) : boolean;
+  function __ReadIdentifierContent( identType : TIdentifierType;
+                                    var target : TTarget;
+                                    var tokenList : TLinkedList;
+                                    pPair  : PIdentifierPair ) : boolean;
   var
       nCount   : integer;
       bRet     : boolean;
@@ -393,7 +393,7 @@ var
       end;
     end;
 
-    __ReadIdentifierData := bRet;
+    __ReadIdentifierContent := bRet;
   end;
 
   (**
@@ -449,10 +449,10 @@ var
           bRet := __ParseIdentifier( identType, target, pair, pPair );
 
           if( bRet )  then
-            bRet := __ReadIdentifierData( identType,
-                                          target,
-                                          tokenList,
-                                          pPair );
+            bRet := __ReadIdentifierContent( identType,
+                                             target,
+                                             tokenList,
+                                             pPair );
         end
         else
         begin
