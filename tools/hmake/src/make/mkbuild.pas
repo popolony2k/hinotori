@@ -282,7 +282,7 @@ var
     * Parse the identifier by its type.
     * @param identType The identifier type to process;
     * @param target Reference to target to process;
-    * @param pair Reference to a valid TIdentifier variable;
+    * @param pair Reference to a valid @see TIdentifier variable;
     * @param pPair Reference to a pointer to receive the pair 
     * variable deferenced pointer, when identType is IDENT_VARIABLE;
     *)
@@ -326,6 +326,77 @@ var
   end;
 
   (**
+    * Read identifier data content.
+    * @param identType The identifier type to process;
+    * @param target Reference to target to process;
+    * @param tokenList Reference to a valid @see TLinkedList token list;
+    * @param pair Reference to a valid @see TIdentifier variable;
+    *)
+  function __ReadIdentifierData( identType : TIdentifierType;
+                                 var target : TTarget;
+                                 var tokenList : TLinkedList;
+                                 pPair  : PIdentifierPair ) : boolean;
+  var
+      nCount   : integer;
+      bRet     : boolean;
+      pItem    : PLinkedListItem;
+
+  begin
+    nCount := 0;
+    pItem  := GetFirstLinkedListItem( tokenList );
+    bRet   := ( pItem <> nil );
+
+    if( not bRet )  then
+      handle.strLastError := 'Catastrophic parsing error';
+
+    while( bRet and ( pItem <> nil ) )  do
+    begin
+      if( ( nCount mod 2 ) = 0 )  then
+      begin
+        Move( pItem^.pValue^, 
+              pPair^.strName, 
+              sizeof( pPair^.strName ) );
+        pPair^.strName := Trim( pPair^.strName );
+      end
+      else
+      begin
+        Move( pItem^.pValue^, 
+              pPair^.strValue, 
+              sizeof( pPair^.strValue ) );
+        
+        bRet := __ParseValue( pPair^ );
+
+        if( bRet )  then
+        begin
+          case identType of
+            TIdentifierType.IDENT_VARIABLE :
+            begin 
+              bRet := AddLinkedListItem( handle.variableList, 
+                                          ToPointer( pPair^ ) ) <> nil;
+
+              if( not bRet )  then
+                handle.strLastError := 'Not enough memory -> ' +
+                                        strLine;
+            end;
+
+            TIdentifierType.IDENT_TARGETS  :
+              bRet := __ParseTarget( target, pPair );
+          end;
+        end;
+      end;
+
+      if( bRet )  then
+      begin
+        nCount := Succ( nCount );
+        pItem  := GetNextLinkedListItem( tokenList );
+        MkUpdateProgress( handle );
+      end;
+    end;
+
+    __ReadIdentifierData := bRet;
+  end;
+
+  (**
     * Parse all make file valid tokens;
     * If the parsing is successful bRet is set to true
     * otherwise false;
@@ -336,7 +407,6 @@ var
         bRet           : boolean;
         bTargetRemark  : boolean;
         bRegularRemark : boolean;
-        pItem          : PLinkedListItem;
         tokenList      : TLinkedList;
         target         : TTarget;
         pair           : TIdentifierPair;
@@ -374,64 +444,15 @@ var
         CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
         nCount := SplitString( strLine, aChToken[identType], tokenList );
         
-        (* Process identifier - Only create and dereference pointers *)
         if( nCount > 0 )  then
         begin
-          nCount := 0;
-          pItem  := GetFirstLinkedListItem( tokenList );
-          bRet   := ( pItem <> nil ); 
+          bRet := __ParseIdentifier( identType, target, pair, pPair );
 
           if( bRet )  then
-          begin
-            bRet := __ParseIdentifier( identType, target, pair, pPair );
-
-            (* Read/assign identifier values *)
-            while( bRet and ( pItem <> nil ) )  do
-            begin
-              if( ( nCount mod 2 ) = 0 )  then
-              begin
-                Move( pItem^.pValue^, 
-                      pPair^.strName, 
-                      sizeof( pPair^.strName ) );
-                pPair^.strName := Trim( pPair^.strName );
-              end
-              else
-              begin
-                Move( pItem^.pValue^, 
-                      pPair^.strValue, 
-                      sizeof( pPair^.strValue ) );
-                
-                bRet := __ParseValue( pPair^ );
-
-                if( bRet )  then
-                begin
-                  case identType of
-                    TIdentifierType.IDENT_VARIABLE :
-                    begin 
-                      bRet := AddLinkedListItem( handle.variableList, 
-                                                 ToPointer( pPair^ ) ) <> nil;
-
-                      if( not bRet )  then
-                        handle.strLastError := 'Not enough memory -> ' +
-                                                strLine;
-                    end;
-
-                    TIdentifierType.IDENT_TARGETS  :
-                      bRet := __ParseTarget( target, pPair );
-                  end;
-                end;
-              end;
-
-              if( bRet )  then
-              begin
-                nCount := Succ( nCount );
-                pItem  := GetNextLinkedListItem( tokenList );
-                MkUpdateProgress( handle );
-              end;
-            end;
-          end
-          else
-            handle.strLastError := 'Catastrophic parsing error';
+            bRet := __ReadIdentifierData( identType,
+                                          target,
+                                          tokenList,
+                                          pPair );
         end
         else
         begin
