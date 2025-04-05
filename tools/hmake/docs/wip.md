@@ -45,7 +45,7 @@
 1. Implement include on makefiles (check this);
 2. Implement constants (:=);
     - Add some builtin constants
-        - __ARCH__ (Default value set depending on archtecture - MSX, MACOSX, LINUX, WINDOWS);
+        - __ARCH__ (Default value set depending on architecture - MSX, MACOSX, LINUX, WINDOWS);
 3. Add support to use '#' after concatenation '\' at execution step;
 4. Force identation by tab instead spaces. If make file is idented by space, force make failure.
 5. Implement conditional statements (ifeq, ifneq);
