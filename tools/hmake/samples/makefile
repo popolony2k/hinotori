@@ -85,10 +85,10 @@ first.c second.c: main.c
 #
 
 test.c: teste.x
-	echo "teste.c executed succesfully (5)"
+	echo "teste.c executed succesfully (6)"
 
 teste.x:
-	echo "teste.x executed succesfully (6)"
+	echo "teste.x executed succesfully (7)"
 
 clean:
 	echo "cleaning"
@@ -96,16 +96,16 @@ clean:
 # INVALID_VAR=-c
 
 test_no_main: no_main.o test.c
-	echo "Testing test_no_main target success (7)"
+	echo "Testing test_no_main target success (8)"
 
 test_main: main.o test.c
-	echo "Testing test_main target success (8)"
+	echo "Testing test_main target success (9)"
 
 test_no_pre:
-	echo "Testing test_no_pre target success (9)"
+	echo "Testing test_no_pre target success (10)"
 
 test_multiple_targets test_multiple_targets2: first.c
-	echo "Testing $@ success (10)"
+	echo "Testing $@ success (11)"
 
 build: test.o
-	echo "Testing build target success (11)"
+	echo "Testing build target success (12)"

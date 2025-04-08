@@ -21,7 +21,7 @@
                 - Check errors return messages for error processing cases; (WIP)
             - Add support to multiples targets on the same line 
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
-            - PHONY target support (OK); (TEST AGAIN)
+            - PHONY target support (OK);
             - Target-pattern rules implementation (%.o: %.c %.h);
                 - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*);
                     - Add directory part processing ($@D, $%D, $<D, $?D, $^D, $+D, $*D);

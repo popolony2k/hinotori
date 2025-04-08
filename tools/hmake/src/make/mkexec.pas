@@ -290,7 +290,12 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
         end;
 
         if( bRet )  then
+        begin
+          if( pPreReqItem = nil )  then
+            pTargetItem := MkFindTarget( handle, targetPair.strName );
+  
           bRet := __ExecCommands( pTargetItem^.commandList );
+        end;
 
         __PrintSeparator;
 
@@ -326,7 +331,7 @@ begin
   else
     pTargetItem := handle.pDefaultTarget;
 
-  (* Initialize PHONY list *)
+  (* Initialize PHONY target list *)
   strPhonyIdent := __ctTargetPHONY;
   pPhonyTarget  := MkFindTarget( handle, strPhonyIdent );
   pPhonyList    := nil;
