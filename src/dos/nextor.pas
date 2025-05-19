@@ -33,12 +33,12 @@ const
     ctZ80MODE                 = $7D; (* Z80MODE routine.                     *)
     ctGETCLUS                 = $7E; (* GETCLUS routine. Not implemented.    *)
     ctICLUS                   = $B0; (* Invalid cluster number or sequence.  *)
-		ctBFSZ                    = $B1; (* Bad file size.                       *)
-		ctFMNT                    = $B2; (* File is mounted.                     *)
-		ctPUSED                   = $B3; (* Partition is already in use.         *)
-	  ctIPART                   = $B4; (* Invalid partition number.            *)
-	  ctIDEVL                   = $B5; (* Invalid device or LUN.               *)
-	  ctIDRVR                   = $B6; (* Invalid device driver.               *)
+	ctBFSZ                    = $B1; (* Bad file size.                       *)
+	ctFMNT                    = $B2; (* File is mounted.                     *)
+	ctPUSED                   = $B3; (* Partition is already in use.         *)
+    ctIPART                   = $B4; (* Invalid partition number.            *)
+    ctIDEVL                   = $B5; (* Invalid device or LUN.               *)
+    ctIDRVR                   = $B6; (* Invalid device driver.               *)
 
     ctGetFastStroutMode       = $00;
     ctSetFastStroutMode       = $01;
@@ -53,10 +53,10 @@ const
     ctLockDrive               = $FF;
     ctUnlockDrive             = $00;
     ctROMDrivers              = $FF;
-	  ctUnmapDrive              = $00;
-	  ctMapDriveDefaultState    = $01;
+	ctUnmapDrive              = $00;
+	ctMapDriveDefaultState    = $01;
     ctMapDriveSpecificData    = $02;
-    ctMountFileInTheDrive	    = $03;
+    ctMountFileInTheDrive     = $03;
     ctAutomaticMountType      = $00;
     ctReadOnlyMountType       = $01;
     ctGetCurrentZ80AccessMode = $00;
@@ -121,10 +121,10 @@ var
 begin
 	str(ErrorCode, temp);
 	case ErrorCode of
-		ctIDRVR: GetNextorErrorCode := ' Invalid device driver.';
-		ctIDEVL: GetNextorErrorCode := ' Invalid device or LUN.';
-		ctIPART: GetNextorErrorCode := ' Invalid partition number.';
-		ctPUSED: GetNextorErrorCode := ' Partition is already in use.';
+	  ctIDRVR: GetNextorErrorCode := ' Invalid device driver.';
+	  ctIDEVL: GetNextorErrorCode := ' Invalid device or LUN.';
+	  ctIPART: GetNextorErrorCode := ' Invalid partition number.';
+	  ctPUSED: GetNextorErrorCode := ' Partition is already in use.';
 	  ctFMNT:  GetNextorErrorCode := ' File is mounted. ';
 	  ctBFSZ:  GetNextorErrorCode := ' Bad file size. ';
 	  ctICLUS: GetNextorErrorCode := ' Invalid cluster number or sequence. ';
