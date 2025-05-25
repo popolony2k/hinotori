@@ -46,5 +46,5 @@ uses dos, process, sysutils;
   * Main application entry point.
   *)
 begin
-  Run ( ctCSI_UNIX );
+  Run( ctCSI_UNIX );
 end.
