@@ -101,21 +101,20 @@ end;
 procedure MkPrintDebug( var handle : TMakeHandle );
 
   (**
-    * Print target list.
-    * @param pItem Pointer to the target object on list;
+    * Print target list content.
+    * @param pItemTarget Pointer to the target object to print;
     *)
-  procedure __PrintTarget( pItem : TPointer );
+  procedure __PrintTarget( pItemTarget : PTarget );
   var
-          pItemValue  : PLinkedListItem;
-          identName   : TIdentifierName;
-          identValue  : TIdentifierValue;
-          pItemTarget : PTarget;
+        pItemValue   : PLinkedListItem;
+        pCurrentItem : PLinkedListItem;
+        identName    : TIdentifierName;
+        identValue   : TIdentifierValue;
 
   begin
-    Move( pItem, pItemTarget, sizeof( pItemTarget ) );
-
     (* Targets *)
-    pItemValue := GetFirstLinkedListItem( pItemTarget^.targetNameList );
+    pCurrentItem := pItemTarget^.targetNameList.pCurrentItem;
+    pItemValue   := GetFirstLinkedListItem( pItemTarget^.targetNameList );
 
     if( pItemValue <> nil )  then
     begin
@@ -131,8 +130,11 @@ procedure MkPrintDebug( var handle : TMakeHandle );
       WriteLn;
     end;
 
+    pItemTarget^.targetNameList.pCurrentItem := pCurrentItem;
+
     (* Pre-requisites *)
-    pItemValue := GetFirstLinkedListItem( pItemTarget^.pPreReqList^ );
+    pCurrentItem := pItemTarget^.pPreReqList^.pCurrentItem;
+    pItemValue   := GetFirstLinkedListItem( pItemTarget^.pPreReqList^ );
 
     if( pItemValue <> nil )  then
     begin
@@ -148,8 +150,11 @@ procedure MkPrintDebug( var handle : TMakeHandle );
       WriteLn;
     end;
 
+    pItemTarget^.pPreReqList^.pCurrentItem := pCurrentItem;
+
     (* Commands *)
-    pItemValue := GetFirstLinkedListItem( pItemTarget^.commandList );
+    pCurrentItem := pItemTarget^.commandList.pCurrentItem;
+    pItemValue   := GetFirstLinkedListItem( pItemTarget^.commandList );
 
     if( pItemValue <> nil )  then
       WriteLn( 'COMMANDS ======');
@@ -161,17 +166,19 @@ procedure MkPrintDebug( var handle : TMakeHandle );
       pItemValue := GetNextLinkedListItem( pItemTarget^.commandList );
     end;
 
+    pItemTarget^.commandList.pCurrentItem := pCurrentItem;
+
     WriteLn( '-----------------------' );
   end;
 
-
 (*
- * MkPrintDebug main entry point.
+ * MkPrintDebug main routine.
  *)
 var
-    pTargetPtr : TPointer;
-    pItem      : PLinkedListItem;
-    pair       : TIdentifierPair;
+    pTargetPtr  : TPointer;
+    pItemTarget : PTarget;
+    pItem       : PLinkedListItem;
+    pair        : TIdentifierPair;
 
 begin
   pItem := GetFirstLinkedListItem( handle.variableList );
@@ -205,7 +212,8 @@ begin
   (* Print all targets *)
   while( pItem <> nil )  do
     begin
-      __PrintTarget( pItem^.pValue );
+      Move( pItem^.pValue, pItemTarget, sizeof( pItem^.pValue ) );
+      __PrintTarget( pItemTarget );
       pItem := GetNextLinkedListItem( handle.targetList );
     end;
 
@@ -214,7 +222,6 @@ begin
     Writeln;
     WriteLn( 'DEFAULT TARGET ======');
 
-    Move( handle.pDefaultTarget, pTargetPtr, sizeof( pTargetPtr ) ); 
-    __PrintTarget( pTargetPtr );
+    __PrintTarget( handle.pDefaultTarget );
   end
 end;

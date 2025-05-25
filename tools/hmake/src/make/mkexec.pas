@@ -35,7 +35,6 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
   (* MkExecute main variables *)
   var
       pPhonyList      : PLinkedList;
-      pTargetNameItem : PLinkedListItem;
       strTargetName   : TIdentifierName;
 
 
@@ -43,7 +42,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     * Print target debug information.
     * @param strTargetName The target name info to print;
     *)
-  procedure __PrintTarget( strTargetName : TIdentifierValue );
+  procedure __PrintTargetName( strTargetName : TIdentifierValue );
   begin
     if( handle.bDebugMode )  then
     begin
@@ -245,12 +244,18 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
               targetPair.strName, 
               sizeof( targetPair.strName ) );
 
-        __PrintTarget( targetPair.strName );
+        __PrintTargetName( targetPair.strName );
 
         bRet := __IsTargetPHONY( targetPair.strName );
 
         if( not bRet )  then
           bRet := not MkCheckTarget( targetPair );
+
+        if( pPreReqItem = nil )  then
+        begin
+          pTargetItem := MkFindTarget( handle, targetPair.strName );
+          pPreReqItem := GetFirstLinkedListItem( pTargetItem^.pPreReqList^ );
+        end;
 
         while( bRet and ( pPreReqItem <> nil ) ) do
         begin
@@ -276,7 +281,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
                           targetPair.strName  + 
                           '''  Stop.';
               end;
-            end;           
+            end;         
           end
           else
           begin
@@ -291,8 +296,8 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
 
         if( bRet )  then
         begin
-          if( pPreReqItem = nil )  then
-            pTargetItem := MkFindTarget( handle, targetPair.strName );
+          if( pPreReqItem = nil )  then         
+             pTargetItem := MkFindTarget( handle, targetPair.strName );
   
           bRet := __ExecCommands( pTargetItem^.commandList );
         end;
@@ -319,6 +324,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
 var
     pTargetItem     : PTarget;
     pPhonyTarget    : PTarget;
+    pTargetNameItem : PLinkedListItem;
     strPhonyIdent   : TIdentifierName;
 
 begin

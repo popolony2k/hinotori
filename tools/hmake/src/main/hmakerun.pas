@@ -108,7 +108,7 @@ begin
       begin
         strParm := ParamStr( nCount );
         if( AddLinkedListItem( parms.pUsrTargetList^, 
-                                ToPointer( strParm ) ) = nil ) then
+                               ToPointer( strParm ) ) = nil ) then
           parms.strError := 'Not enough memory to create target list';
       end;
     end;
