@@ -220,9 +220,13 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
   (**
     * Execute the target processing based on target passed as parameter;
     * @param pTargetItem Pointer to the target that will be processed.
-    * @param pTargetList list of targets that will be processed;  
+    * @param pTargetList List of targets that will be processed;
+    * @param bFirstLevel Flag informing if this function call is the top
+    * most level call (first level call to this function);
     *)
-  function __ExecTarget( pTargetItem : PTarget; pTargetList : PLinkedList ) : boolean;
+  function __ExecTarget( pTargetItem : PTarget; 
+                         pTargetList : PLinkedList; 
+                         bFirstLevel : boolean ) : boolean;
   var
       bRet            : boolean;
       pNextTargetItem : PTarget;
@@ -251,7 +255,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
         if( not bRet )  then
           bRet := not MkCheckTarget( targetPair );
 
-        if( pPreReqItem = nil )  then
+        if( not bFirstLevel and ( pPreReqItem = nil ) )  then
         begin
           pTargetItem := MkFindTarget( handle, targetPair.strName );
           pPreReqItem := GetFirstLinkedListItem( pTargetItem^.pPreReqList^ );
@@ -271,7 +275,9 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
               bRet := ( pNextTargetItem <> nil );
 
               if( bRet )  then
-                bRet := __ExecTarget( pNextTargetItem, pTargetItem^.pPreReqList )
+                bRet := __ExecTarget( pNextTargetItem, 
+                                      pTargetItem^.pPreReqList,
+                                      false )
               else
               begin
                 handle.nLastLine := -1;
@@ -346,5 +352,5 @@ begin
     pPhonyList := pPhonyTarget^.pPreReqList;
 
   (* Execute target *)
-  MkExecute := __ExecTarget( pTargetItem, pUsrTargetList );
+  MkExecute := __ExecTarget( pTargetItem, pUsrTargetList, true );
 end;
