@@ -22,8 +22,8 @@
             - Add support to multiples targets on the same line 
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
             - PHONY target support (OK);
-            - Target-pattern rules implementation (%.o: %.c %.h);
-                - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*);
+            - Target-pattern rules implementation (%.o: %.c %.h); (WIP)
+                - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*); (WIP)
                     - Add directory part processing ($@D, $%D, $<D, $?D, $^D, $+D, $*D);
                     - Add file part processing ($@F, $%F, $<F, $?F, $^F, $+F, $*F);
                 - Implement wildcard processing (eg. $(wildcard *.c));

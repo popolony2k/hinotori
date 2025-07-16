@@ -149,9 +149,9 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
 
   (**
     * Execute a commandlist passed as parameter.
-    * @param commandList The command list to execute;
+    * @param pTgt Pointer to the target struture of command to execute;
     *)
-  function __ExecCommands( var commandList : TLinkedList ) : boolean;
+  function __ExecCommands( pTgt : PTarget ) : boolean;
   var
          bRet         : boolean;
          bMultiLine   : boolean;
@@ -163,7 +163,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
 
   begin
     bRet  := true;
-    pItem := GetFirstLinkedListItem( commandList );
+    pItem := GetFirstLinkedListItem( pTgt^.commandList );
     bHasCommands := ( pItem <> nil );
     bMultiLine   := false;
     strMultiLine := '';
@@ -197,7 +197,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
         end;
       end;
 
-      pItem := GetNextLinkedListItem( commandList );
+      pItem := GetNextLinkedListItem( pTgt^.commandList );
     end;
 
     if( bRet )  then
@@ -305,7 +305,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
           if( pPreReqItem = nil )  then         
              pTargetItem := MkFindTarget( handle, targetPair.strName );
   
-          bRet := __ExecCommands( pTargetItem^.commandList );
+          bRet := __ExecCommands( pTargetItem );
         end;
 
         __PrintSeparator;
