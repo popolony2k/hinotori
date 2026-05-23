@@ -53,7 +53,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
-            "args": ["-f", "makefile", "first.c", "second.c"],
+            "args": ["-f", "makefile.test_auto_vars"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/tools/hmake/samples/",
             "environment": [],

@@ -1,0 +1,73 @@
+# Hinotori hmake - automatic variables test
+#
+# CopyLeft (c) 1995-2024 by PopolonY2k.
+# CopyLeft (c) since 2024 by Hinotori Team.
+#
+# Exercises all implemented automatic variables:
+#   $@  target name
+#   $<  first prerequisite
+#   $^  all prerequisites, space-separated
+#   $+  all prerequisites including duplicates (same as $^ here)
+#
+# Run all:      hmake -f makefile.test_auto_vars
+# Run one:      hmake -f makefile.test_auto_vars <target>
+
+all: test_at test_lt test_caret test_plus test_multi test_combined
+	echo "--- all auto-var tests passed ---"
+
+.PHONY: all test_at test_lt test_caret test_plus test_multi test_combined
+
+#
+# $@ : name of the target being built
+# Expected: target=[test_at]
+#
+test_at:
+	echo "test_at: target=[$@]"
+
+#
+# $< : first prerequisite only
+# Expected: first=[prereq_1]
+#
+test_lt: prereq_1 prereq_2 prereq_3
+	echo "test_lt: first=[$<]"
+
+#
+# $^ : all prerequisites, space-separated
+# Expected: all=[prereq_1 prereq_2 prereq_3]
+#
+test_caret: prereq_1 prereq_2 prereq_3
+	echo "test_caret: all=[$^]"
+
+#
+# $+ : all prerequisites including duplicates (equals $^ in this implementation)
+# Expected: all=[prereq_1 prereq_2 prereq_3]
+#
+test_plus: prereq_1 prereq_2 prereq_3
+	echo "test_plus: all=[$+]"
+
+#
+# $@ in a multi-target rule: each target sees its own name
+# Expected first run:  current=[test_multi]
+# Expected second run: current=[test_multi2]
+#
+test_multi test_multi2: prereq_1
+	echo "test_multi: current=[$@]"
+
+#
+# Combined: $@, $<, $^ together in one command
+# Expected: target=[test_combined] first=[prereq_1] all=[prereq_1 prereq_2 prereq_3]
+#
+test_combined: prereq_1 prereq_2 prereq_3
+	echo "test_combined: target=[$@] first=[$<] all=[$^]"
+
+#
+# Leaf prerequisites
+#
+prereq_1:
+	echo "prereq_1"
+
+prereq_2:
+	echo "prereq_2"
+
+prereq_3:
+	echo "prereq_3"
