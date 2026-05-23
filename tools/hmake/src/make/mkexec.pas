@@ -397,15 +397,6 @@ var
     strPhonyIdent   : TIdentifierName;
 
 begin
-  if( GetLinkedListSize( pUsrTargetList^ ) > 0 )  then
-  begin
-    pTargetNameItem := GetFirstLinkedListItem( pUsrTargetList^ );
-    Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
-    pTargetItem := MkFindTarget( handle, strTargetName );
-  end
-  else
-    pTargetItem := handle.pDefaultTarget;
-
   (* Initialize PHONY target list *)
   strPhonyIdent := __ctTargetPHONY;
   pPhonyTarget  := MkFindTarget( handle, strPhonyIdent );
@@ -415,5 +406,18 @@ begin
     pPhonyList := pPhonyTarget^.pPreReqList;
 
   (* Execute target *)
-  MkExecute := __ExecTarget( pTargetItem, pUsrTargetList, true );
+  if( GetLinkedListSize( pUsrTargetList^ ) > 0 )  then
+  begin
+    pTargetNameItem := GetFirstLinkedListItem( pUsrTargetList^ );
+    Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
+    pTargetItem := MkFindTarget( handle, strTargetName );
+    MkExecute   := __ExecTarget( pTargetItem, pUsrTargetList, true );
+  end
+  else
+  begin
+    pTargetItem     := handle.pDefaultTarget;
+    pTargetNameItem := GetFirstLinkedListItem( pTargetItem^.targetNameList );
+    Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
+    MkExecute := __ExecTarget( pTargetItem, @pTargetItem^.targetNameList, true );
+  end;
 end;

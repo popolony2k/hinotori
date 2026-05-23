@@ -296,6 +296,8 @@ var
 
   begin
     bRet := true;
+    pPtr := ToPointer( pair );
+    Move( pPtr, pPair, sizeof( pPair ) );
 
     case identType of
       TIdentifierType.IDENT_VARIABLE :
@@ -305,17 +307,12 @@ var
         begin
           handle.strLastError := 'Cannot assign variable in targets';
           bRet := false;
-        end
-        else
-        begin
-          pPtr := ToPointer( pair );
-          Move( pPtr, pPair, sizeof( pPair ) );
         end;
       end;
 
       TIdentifierType.IDENT_TARGETS  :
       begin
-        CreateLinkedList( target.commandList, 
+        CreateLinkedList( target.commandList,
                           sizeof( TIdentifierValue ) );
       end;
     end;
@@ -435,7 +432,10 @@ var
       TIdentifierType.IDENT_NOP:
       begin
         bRet := false;
-        handle.strLastError := 'Missing separator';
+        if( handle.pDefaultTarget <> nil )  then
+          handle.strLastError := 'Command must be TAB-indented'
+        else
+          handle.strLastError := 'Missing separator';
       end;
 
       TIdentifierType.IDENT_VARIABLE, 

@@ -35,7 +35,6 @@ function MkIdentifierType( var handle : TMakeHandle;
   var
         identType  : TIdentifierType;
         nPosToken  : integer;
-        bHasTarget : boolean;
 
   begin
     (* Check variables *)
@@ -50,14 +49,7 @@ function MkIdentifierType( var handle : TMakeHandle;
       if( Length( Trim( strToken ) ) = 0 )  then
         identType := TIdentifierType.IDENT_NONE
       else
-      begin
-        bHasTarget := ( handle.targetList.nListSize > 0 );
-
-        if( bHasTarget and ( vType <> __TVariableType.VARIABLE ) )  then
-          identType := TIdentifierType.IDENT_COMMAND
-        else
-          identType := TIdentifierType.IDENT_NOP;
-      end;
+        identType := TIdentifierType.IDENT_NOP;
     end
     else
     begin
@@ -74,13 +66,22 @@ var
        identType   : TIdentifierType;
 
 begin
-  identType := __GetIdentifierType( __TVariableType.VARIABLE );
+  (* TAB-indented lines with existing targets are always commands,
+     regardless of '=' or ':' in their content (e.g. echo "x=y"). *)
+  if( ( Length( strToken ) > 0 ) and
+      ( strToken[1] = #9 ) and
+      ( handle.targetList.nListSize > 0 ) )  then
+    identType := TIdentifierType.IDENT_COMMAND
+  else
+  begin
+    identType := __GetIdentifierType( __TVariableType.VARIABLE );
 
-  if( identType in [TIdentifierType.IDENT_NONE,
-                    TIdentifierType.IDENT_NOP] )  then
-    identType := __GetIdentifierType( __TVariableType.TARGET );
+    if( identType in [TIdentifierType.IDENT_NONE,
+                      TIdentifierType.IDENT_NOP] )  then
+      identType := __GetIdentifierType( __TVariableType.TARGET );
+  end;
 
-  MkIdentifierType := identType; 
+  MkIdentifierType := identType;
 end;
 
 (**
