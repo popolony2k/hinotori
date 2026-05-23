@@ -463,18 +463,11 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
                 handle.nLastLine    := -1;
                 handle.strLastError := 'hmake: *** No rule to make target ''' +
                           targetPair.strValue +
-                          '''. needed by '''  +
+                          ''', needed by '''  +
                           targetPair.strName  +
-                          '''  Stop.';
+                          '''.  Stop.';
               end;
             end;
-          end
-          else
-          begin
-            handle.nLastLine    := -1;
-            handle.strLastError := 'hmake: *** ''' +
-                      targetPair.strName +
-                      '''. is up to date.';
           end;
 
           pPreReqItem := GetNextLinkedListItem( pActivePreReq^ );

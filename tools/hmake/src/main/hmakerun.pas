@@ -153,16 +153,8 @@ begin
         if( not MkClose( handle ) ) then
           WriteLn( 'hmake: Error to close make file' );
   
-        if( not MkExecute( handle, parms.pUsrTargetList ) )  then        
-        begin
-          if( handle.nLastLine >= 0 )  then
-          begin
-            WriteLn( 'hmake: Execute failed with following error.' );
-            Write( 'Line (', handle.nLastLine, ') - ' );
-          end;
-
+        if( not MkExecute( handle, parms.pUsrTargetList ) )  then
           WriteLn( handle.strLastError );
-        end;
       end
       else
       begin

@@ -51,10 +51,11 @@ begin
 
   bRet := RunCommand( strCmdShell,[strShellParm, strCommand], strOutput );
 
-  if( bRet )  then
-    WriteLn( strOutput )
-  else
-    handle.strLastError := 'Failed to execute [' + strCommand + ']';
+  if( strOutput <> '' )  then
+    WriteLn( strOutput );
+
+  if( not bRet )  then
+    handle.strLastError := 'hmake: *** Error executing: ' + strCommand;
 
   MkExecCommand := bRet; 
 end;

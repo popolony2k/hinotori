@@ -18,7 +18,7 @@
             - MSX-DOS; (TODO)
             - Add support to multiple prerequisites processing; (OK)
                 - Add support to chain requisites execution; (OK)
-                - Check errors return messages for error processing cases; (WIP)
+                - Check errors return messages for error processing cases; (OK)
             - Add support to multiples targets on the same line 
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
             - PHONY target support (OK);
