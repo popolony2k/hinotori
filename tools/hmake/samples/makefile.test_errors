@@ -1,0 +1,47 @@
+# Hinotori hmake - error message test cases
+#
+# CopyLeft (c) 1995-2024 by PopolonY2k.
+# CopyLeft (c) since 2024 by Hinotori Team.
+#
+# Each target is expected to FAIL with a specific error message.
+# Run individually:
+#   hmake -f makefile.test_errors <target>
+#
+# Test cases:
+#   test_no_rule        - prereq has no rule (1 level)
+#   test_chain_no_rule  - prereq chain where deepest has no rule
+#   test_cmd_fail       - command returns non-zero exit code
+#   test_missing_target - top-level target does not exist
+
+.PHONY: test_no_rule test_chain_no_rule test_cmd_fail
+
+#
+# test_no_rule: direct prerequisite has no rule
+# Expected error:
+#   hmake: *** No rule to make target 'ghost.c', needed by 'test_no_rule'.  Stop.
+#
+test_no_rule: ghost.c
+	echo "test_no_rule: should never reach here"
+
+#
+# test_chain_no_rule: chain a -> b -> missing
+# Expected error:
+#   hmake: *** No rule to make target 'missing_leaf', needed by 'chain_b'.  Stop.
+#
+test_chain_no_rule: chain_a
+	echo "test_chain_no_rule: should never reach here"
+
+chain_a: chain_b
+	echo "chain_a: should never reach here"
+
+chain_b: missing_leaf
+	echo "chain_b: should never reach here"
+
+#
+# test_cmd_fail: command exits with non-zero
+# Expected: stderr/output of the failing command is shown, then error message.
+#
+test_cmd_fail:
+	echo "before failure"
+	false
+	echo "after failure: should never reach here"

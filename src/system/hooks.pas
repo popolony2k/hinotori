@@ -14,13 +14,13 @@
 (**
   * Internal modules types, constants and variables.
   *)
-Type THookType = ( H_KEYI, H_TIMI, H_NMI );  { All supported hooks }
-Type THookCode = Array[0..4] Of Byte;        { The hook code       }
+type THookType = ( H_KEYI, H_TIMI, H_NMI );  { All supported hooks }
+type THookCode = array[0..4] of byte;        { The hook code       }
 
-Var
-              __H_KEYI    : Integer Absolute $FD9A;  { H.KEYI hook }
-              __H_TIMI    : Integer Absolute $FD9F;  { H.TIMI hook }
-              __H_NMI     : Integer Absolute $FDD6;  { H.NMI  hook }
+var
+              __H_KEYI    : integer absolute $FD9A;  { H.KEYI hook }
+              __H_TIMI    : integer absolute $FD9F;  { H.TIMI hook }
+              __H_NMI     : integer absolute $FDD6;  { H.NMI  hook }
 
 (**
   * Set a new H.TIMI function address.
@@ -29,33 +29,33 @@ Var
   * @param oldHookCode Reference to a buffer that will receive the old
   * hook code;
   *)
-Procedure SetHook( hookType : THookType;
+procedure SetHook( hookType : THookType;
                    newHookCode : THookCode;
-                   Var oldHookCode : THookCode );
-Var
-         pHookAddr : ^Byte;
+                   var oldHookCode : THookCode );
+var
+         pHookAddr : ^byte;
 
-Begin
-  Inline( $F3 );     { DI }
+begin
+  inline( $F3 );     { DI }
 
-  Case( hookType ) Of
+  case( hookType ) of
     H_TIMI : pHookAddr := Ptr( Addr( __H_TIMI ) );
 
     H_KEYI : pHookAddr := Ptr( Addr( __H_KEYI ) );
 
     H_NMI  : pHookAddr := Ptr( Addr( __H_NMI ) );
-  Else
-    pHookAddr := Nil;
-  End;
+  else
+    pHookAddr := nil;
+  end;
 
-  If( pHookAddr <> Nil )  Then
-  Begin
+  if( pHookAddr <> nil )  then
+  begin
     Move( pHookAddr^, oldHookCode, SizeOf( THookCode ) );
     Move( newHookCode, pHookAddr^, SizeOf( THookCode ) );
-  End;
+  end;
 
-  Inline( $FB );     { EI }
-End;
+  inline( $FB );     { EI }
+end;
 
 (**
   * Reset the current hook, adding an empty function to this hook.
@@ -64,14 +64,14 @@ End;
   * @param oldHookCode Reference to a buffer that will receive the old
   * hook code;
   *)
-Procedure ResetHook( hookType : THookType; Var oldHookCode : THookCode );
-Var
+procedure ResetHook( hookType : THookType; var oldHookCode : THookCode );
+var
          hookNOP : THookCode;
 
-Begin
+begin
   (*
    * This hook just executes a RET instruction code.
    *)
   FillChar( hookNOP, SizeOf( hookNOP ), $C9 );
   SetHook( hookType, hookNOP, oldHookCode );
-End;
+end;

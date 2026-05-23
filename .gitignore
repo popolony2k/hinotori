@@ -1,4 +1,5 @@
 .vscode
+.claude/settings.local.json
 *.bak
 *.err
 *.com
@@ -8,3 +9,4 @@ setenv.bat
 *.lpi
 *.lps
 *.lpr
+**/build/

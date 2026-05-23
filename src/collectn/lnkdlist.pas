@@ -13,162 +13,135 @@
 (**
   * Linked list item definition.
   *)
-Type PLinkedListItem = ^TLinkedListItem;
-     TLinkedListItem = Record
+type PLinkedListItem = ^TLinkedListItem;
+     TLinkedListItem = record
   pValue      :  Pointer;                 { Pointer to the item value }
   pNextItem   :  PLinkedListItem;         { Pointer to the next item  }
-End;
+end;
 
 (**
   * List handle definition.
   *)
-Type PLinkedList = ^TLinkedList;
-     TLinkedList = Record
+type PLinkedList = ^TLinkedList;
+     TLinkedList = record
   pFirstItem       : PLinkedListItem;     { First List item           }
+  pLastItem        : PLinkedListItem;     { Last List item            }
   pCurrentItem     : PLinkedListItem;     { Current list item         }
-  nListSize        : Integer;             { The linked list size      }
-  nItemSize        : Integer;             { The linked list item size }
-End;
+  nListSize        : integer;             { The linked list size      }
+  nItemSize        : integer;             { The linked list item size }
+end;
 
 
 (**
   * Iterator function. Get the first item of a linked list.
   * @param list The list which item will be retrieved;
   *)
-Function GetFirstLinkedListItem( Var list : TLinkedList ) : PLinkedListItem;
-Begin
+function GetFirstLinkedListItem( var list : TLinkedList ) : PLinkedListItem;
+begin
   list.pCurrentItem := list.pFirstItem;
   GetFirstLinkedListItem := list.pFirstItem;
-End;
+end;
 
 (**
   * Iterator function. Get the next item of a linked list.
   * @param list The list which item will be retrieved;
   *)
-Function GetNextLinkedListItem( Var list : TLinkedList ) : PLinkedListItem;
-Begin
-  If( list.pCurrentItem <> Nil )  Then
+function GetNextLinkedListItem( var list : TLinkedList ) : PLinkedListItem;
+begin
+  if( list.pCurrentItem <> nil )  then
     list.pCurrentItem := list.pCurrentItem^.pNextItem;
 
   GetNextLinkedListItem := list.pCurrentItem;
-End;
+end;
 
 (**
   * Iterator function. Get the last (valid) item of a linked list.
   * @param list The list which item will be retrieved;
   *)
-Function GetLastLinkedListItem( Var list : TLinkedList ) : PLinkedListItem;
-Begin
-  list.pCurrentItem := list.pFirstItem;
-
-  If( list.pCurrentItem <> Nil )  Then
-  Begin
-    While( list.pCurrentItem^.pNextItem <> Nil ) Do
-      list.pCurrentItem := list.pCurrentItem^.pNextItem;
-  End;
-
-  GetLastLinkedListItem := list.pCurrentItem;
-End;
+function GetLastLinkedListItem( var list : TLinkedList ) : PLinkedListItem;
+begin
+  GetLastLinkedListItem := list.pLastItem;
+end;
 
 (**
   * Add an item at the end of a linked list.
   * @param list The list which the item will be added;
   * @param pValue The pointer to the list value which will be stored;
+  * The function return the pointer of added item;
   *)
-Function AddLinkedListItem( Var list : TLinkedList;
-                            pValue : Pointer ) : Boolean;
-Var
-       pParentItem,
-       pNewItem       : PLinkedListItem;
-       bIsParent      : Boolean;
+function AddLinkedListItem( var list : TLinkedList;
+                            pValue : Pointer ) : PLinkedListItem;
+var
+       pNewItem : PLinkedListItem;
 
-Begin
-  pParentItem := GetLastLinkedListItem( list );
+begin
+  New( pNewItem );
 
-  (* Check if list is empty *)
-  If( pParentItem = Nil )  Then
-  Begin
-    New( pParentItem );
-    list.pFirstItem := pParentItem;
-    pNewItem  := pParentItem;
-    bIsParent := True;
-  End
-  Else
-  Begin
-    bIsParent := False;
-    pNewItem  := Nil;
-  End;
+  if( pNewItem <> nil )  then
+  begin
+    if( list.nItemSize > 0 )  then
+    begin
+      GetMem( pNewItem^.pValue, list.nItemSize );
+      Move( pValue^, pNewItem^.pValue^, list.nItemSize );
+    end
+    else
+      pNewItem^.pValue := nil;
 
-  If( pParentItem <> Nil )  Then
-  Begin
-    If( Not bIsParent )  Then
-      New( pNewItem );
+    pNewItem^.pNextItem := nil;
 
-    If( pNewItem <> Nil )  Then
-    Begin
-      If( list.nItemSize > 0 )  Then
-      Begin
-        GetMem( pNewItem^.pValue, list.nItemSize );
-        Move( pValue^, pNewItem^.pValue^, list.nItemSize );
-      End
-      Else
-        pNewItem^.pValue := Nil;
+    if( list.pLastItem = nil )  then
+      list.pFirstItem := pNewItem
+    else
+      list.pLastItem^.pNextItem := pNewItem;
 
-      pNewItem^.pNextItem := Nil;
-    End;
-
-    If( Not bIsParent )  Then
-      pParentItem^.pNextItem := pNewItem;
-  End;
-
-  (* Increment the list size *)
-  If( pNewItem <> Nil )  Then
+    list.pLastItem := pNewItem;
     list.nListSize := Succ( list.nListSize );
+  end;
 
-  AddLinkedListItem := ( pNewItem <> Nil );
-End;
+  AddLinkedListItem := pNewItem;
+end;
 
 (**
   * Get the list size.
   * @param list The list that the size will be retrieved;
   *)
-Function GetLinkedListSize( Var list : TLinkedList ) : Integer;
-Begin
+function GetLinkedListSize( var list : TLinkedList ) : integer;
+begin
   GetLinkedListSize := list.nListSize;
-End;
+end;
 
 (**
   * Check if the linked list is empty.
   * @param list The linked list to check;
   *)
-Function IsLinkedListEmpty( Var list : TLinkedList ) : Boolean;
-Begin
-  IsLinkedListEmpty := ( ( list.nListSize = 0 ) Or ( list.pFirstItem = Nil ) );
-End;
+function IsLinkedListEmpty( var list : TLinkedList ) : boolean;
+begin
+  IsLinkedListEmpty := ( list.nListSize = 0 );
+end;
 
 (**
   * Get a linked list item by the specified index;
   * @param list The list which item will be retrieved;
   * @param nIndex The item index that will retrieved;
   *)
-Function GetLinkedListItemByIndex( Var list : TLinkedList;
-                                   nIndex : Integer ) : PLinkedListItem;
-Var
-      nCount   : Integer;
+function GetLinkedListItemByIndex( var list : TLinkedList;
+                                   nIndex : integer ) : PLinkedListItem;
+var
+      nCount   : integer;
       pItem    : PLinkedListItem;
 
-Begin
-  pItem  := GetFirstLinkedListItem( list );
+begin
+  pItem  := list.pFirstItem;
   nCount := 0;
 
-  While( ( pItem <> Nil ) And ( nCount < nIndex ) )  Do
-  Begin
+  while( ( pItem <> nil ) and ( nCount < nIndex ) )  do
+  begin
     pItem  := pItem^.pNextItem;
     nCount := Succ( nCount );
-  End;
+  end;
 
   GetLinkedListItemByIndex := pItem;
-End;
+end;
 
 (**
   * Create and initialize a linked list;
@@ -176,44 +149,75 @@ End;
   * @param nItemSize The size of each item that will be added to the list;
   * @param nComparatorFn The procedure address to the comparator routine;
   *)
-Procedure CreateLinkedList( Var list : TLinkedList; nItemSize : Integer );
-Begin
-  list.pFirstItem   := Nil;
-  list.pCurrentItem := Nil;
-  list.nItemSize := nItemSize;
-  list.nListSize := 0;
-End;
+procedure CreateLinkedList( var list : TLinkedList; nItemSize : integer );
+begin
+  list.pFirstItem   := nil;
+  list.pLastItem    := nil;
+  list.pCurrentItem := nil;
+  list.nItemSize    := nItemSize;
+  list.nListSize    := 0;
+end;
 
 (**
   * Destroy and release a linked list;
   * @param list The list structure that will be initialized;
   *)
-Procedure DestroyLinkedList( Var list : TLinkedList );
-Var
+procedure DestroyLinkedList( var list : TLinkedList );
+var
        pCurrentItem,
        pNextItem      : PLinkedListItem;
 
-Begin
-  pCurrentItem := GetFirstLinkedListItem( list );
+begin
+  pCurrentItem := list.pFirstItem;
 
   (* Release all list's data *)
-  While( pCurrentItem <> Nil )  Do
-  Begin
+  while( pCurrentItem <> nil )  do
+  begin
     pNextItem := pCurrentItem^.pNextItem;
 
-    If( ( pCurrentItem^.pValue <> Nil ) And ( list.nItemSize > 0 ) ) Then
+    if( ( pCurrentItem^.pValue <> nil ) and ( list.nItemSize > 0 ) ) then
       FreeMem( pCurrentItem^.pValue, list.nItemSize );
 
     Dispose( pCurrentItem );
     pCurrentItem := pNextItem;
-  End;
+  end;
 
   (* Reset list data *)
-  With list Do
-  Begin
-    pFirstItem   := Nil;
-    pCurrentItem := Nil;
+  with list do
+  begin
+    pFirstItem   := nil;
+    pLastItem    := nil;
+    pCurrentItem := nil;
     nItemSize    := 0;
     nListSize    := 0;
-  End;
-End;
+  end;
+end;
+
+(**
+  * Append a source list into a destination list.
+  * @param dstList The destination list;
+  * @param srcList The source list;
+  *)
+function AppendLinkedList( var dstList, srcList : TLinkedList ) : boolean;
+var
+       pItem  : PLinkedListItem;
+       bRet   : boolean;
+
+begin
+  bRet := ( srcList.nListSize > 0 );
+
+  if( bRet )  then
+  begin
+    pItem := srcList.pFirstItem;
+
+    while( bRet and ( pItem <> nil ) ) do
+    begin
+      bRet := ( AddLinkedListItem( dstList, pItem^.pValue ) <> nil );
+
+      if( bRet )  then
+        pItem := pItem^.pNextItem;
+    end;
+  end;
+
+  AppendLinkedList := bRet;
+end;

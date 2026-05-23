@@ -1,0 +1,133 @@
+# Hinotori hmake - automatic variables and pattern-rule test
+#
+# CopyLeft (c) 1995-2024 by PopolonY2k.
+# CopyLeft (c) since 2024 by Hinotori Team.
+#
+# Exercises all implemented automatic variables:
+#   $@  target name          $@D/$@F  dir/file part of target
+#   $<  first prerequisite   $<D/$<F  dir/file part of first prereq
+#   $^  all prerequisites    $^D/$^F  dir/file parts of all prereqs
+#   $+  all prereqs (dupes)  $+D/$+F  same as $^D/$^F here
+#   $*  stem of pattern      $*D/$*F  dir/file part of stem
+#
+# Run all:      hmake -f makefile.test_auto_vars
+# Run one:      hmake -f makefile.test_auto_vars <target>
+
+all: test_at test_lt test_caret test_plus test_multi test_combined \
+     test_pattern.o test_pattern_stem.x \
+     test_dir_at test_dir_lt test_dir_stem
+	echo "--- all auto-var tests passed ---"
+
+.PHONY: all test_at test_lt test_caret test_plus test_multi test_combined \
+        test_dir_at test_dir_lt test_dir_stem
+
+#
+# $@ : name of the target being built
+# Expected: target=[test_at]
+#
+test_at:
+	echo "test_at: target=[$@]"
+
+#
+# $< : first prerequisite only
+# Expected: first=[prereq_1]
+#
+test_lt: prereq_1 prereq_2 prereq_3
+	echo "test_lt: first=[$<]"
+
+#
+# $^ : all prerequisites, space-separated
+# Expected: all=[prereq_1 prereq_2 prereq_3]
+#
+test_caret: prereq_1 prereq_2 prereq_3
+	echo "test_caret: all=[$^]"
+
+#
+# $+ : all prerequisites including duplicates (equals $^ in this implementation)
+# Expected: all=[prereq_1 prereq_2 prereq_3]
+#
+test_plus: prereq_1 prereq_2 prereq_3
+	echo "test_plus: all=[$+]"
+
+#
+# $@ in a multi-target rule: each target sees its own name
+# Expected first run:  current=[test_multi]
+# Expected second run: current=[test_multi2]
+#
+test_multi test_multi2: prereq_1
+	echo "test_multi: current=[$@]"
+
+#
+# Combined: $@, $<, $^ together in one command
+# Expected: target=[test_combined] first=[prereq_1] all=[prereq_1 prereq_2 prereq_3]
+#
+test_combined: prereq_1 prereq_2 prereq_3
+	echo "test_combined: target=[$@] first=[$<] all=[$^]"
+
+#
+# Leaf prerequisites
+#
+prereq_1:
+	echo "prereq_1"
+
+prereq_2:
+	echo "prereq_2"
+
+prereq_3:
+	echo "prereq_3"
+
+#
+# Pattern rule: %.o: %.c
+# test_pattern.o matches %.o with stem="test_pattern"
+# Expected: target=[test_pattern.o] stem=[test_pattern] prereq=[test_pattern.c]
+#
+%.o: %.c
+	echo "pattern_o: target=[$@] stem=[$*] prereq=[$<]"
+
+test_pattern.c:
+	echo "test_pattern.c"
+
+#
+# Pattern rule with two prereqs: %.x: %.a %.b
+# test_pattern_stem.x matches %.x with stem="test_pattern_stem"
+# Expected: target=[test_pattern_stem.x] stem=[test_pattern_stem] all=[test_pattern_stem.a test_pattern_stem.b]
+#
+%.x: %.a %.b
+	echo "pattern_x: target=[$@] stem=[$*] all=[$^]"
+
+test_pattern_stem.a:
+	echo "test_pattern_stem.a"
+
+test_pattern_stem.b:
+	echo "test_pattern_stem.b"
+
+#
+# $@D / $@F — directory and file part of target name (no path -> dir=., file=target)
+# Expected: dir=[.] file=[test_dir_at]
+#
+test_dir_at:
+	echo "dir_at: dir=[$@D] file=[$@F]"
+
+#
+# $<D / $<F — directory and file part of first prerequisite
+# sub/prereq has a path separator
+# Expected: dir=[sub] file=[prereq]
+#
+test_dir_lt: sub/prereq
+	echo "dir_lt: dir=[$<D] file=[$<F]"
+
+sub/prereq:
+	echo "sub/prereq"
+
+#
+# $*D / $*F — directory and file part of pattern stem
+# sub/foo.x2 matches %.x2 with stem="sub/foo" -> stemD=[sub] stemF=[foo]
+#
+test_dir_stem: sub/foo.x2
+	echo "dir_stem done"
+
+%.x2: %.c
+	echo "pattern_x2: stemD=[$*D] stemF=[$*F] target=[$@]"
+
+sub/foo.c:
+	echo "sub/foo.c"
