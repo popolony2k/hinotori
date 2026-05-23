@@ -49,8 +49,9 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
     mkexec.pas     Target executor (MkExecute)
   src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget)
   src/make/msx/    MSX-DOS stubs (not yet implemented)
-  samples/makefile Sample/test makefile
-  docs/WIP.md      Work-in-progress checklist
+  samples/makefile              Sample/test makefile
+  samples/makefile.test_auto_vars  Auto-var and pattern-rule test suite
+  docs/WIP.md                  Work-in-progress checklist
 
 samples/           MSX sample programs (mapper, socket, sunrise, unapi, …)
 test/              Unit tests (bigint × 16, memory/pointer) — branch only
@@ -89,13 +90,13 @@ fpc -FE<workspace>/build -g -gw tools/hmake/src/main/fpc/hmake.pas
 The binary lands in `build/hmake`. The `.vscode/tasks.json` task **"PAS build active file"** does this automatically.
 
 To run/debug, use one of the named launch configurations in `.vscode/launch.json`:
-- `(lldb) test_multiple_targets` — builds multiple targets
-- `(lldb) test_main` / `(lldb) test_no_main` — single target tests
-- `(lldb) test_auto_vars ($@)` — automatic variable expansion test
-- `(lldb) debug all` — runs with `-d` flag across all main targets
+- `(lldb) test_multiple_targets` — builds multiple targets (`-f makefile`)
+- `(lldb) test_main` / `(lldb) test_no_main` — single target tests (`-f makefile`)
+- `(lldb) test_auto_vars ($@)` — full auto-var + pattern-rule suite (`-f makefile.test_auto_vars`)
+- `(lldb) debug all` — runs with `-d` flag across all main targets (`-f makefile`)
 - `(gdb) test_multiple_targets` — Linux/GDB equivalent
 
-All configurations set `cwd` to `tools/hmake/samples/` and pass `-f makefile`.
+All configurations set `cwd` to `tools/hmake/samples/`.
 
 ---
 
@@ -132,7 +133,15 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 **Variable expansion** (`MkReplaceReferences` in `mkhelper.pas`): handles `$(VAR)` only, with OS environment fallback.
 
-**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`). `$*`, `$%`, `$?` are replaced with empty string (not yet implemented). Directory/file suffix variants (`$@D`, `$@F`, etc.) not yet implemented.
+**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`), `$*` (pattern stem). `$%`, `$?` replaced with empty string (not yet implemented). Directory/file suffix variants (`$@D`, `$@F`, etc.) not yet implemented.
+
+**Pattern-rule matching** (`mkhelper.pas`):
+- `MkMatchPattern` — tests a concrete name against a `%`-pattern; on match, returns the stem
+- `MkFindPatternTarget` — scans `targetList` for a pattern target whose name matches a concrete name
+
+**Pattern-rule execution** (`mkexec.pas`):
+- `__InstantiatePreReqList` — builds a fresh prereq list with `%` replaced by the stem (used so `$<`/`$^` expand to concrete names, not raw patterns)
+- `__ExecTarget` — tries exact match first (`MkFindTarget`), falls back to `MkFindPatternTarget`; passes instantiated prereq list to `__ExecCommands` for auto-var substitution
 
 ---
 
@@ -147,14 +156,20 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - `$(VAR)` and OS environment variable expansion in commands
 - Multi-line command joining before execution
 - FPC `MkExecCommand` / `MkGetEnv` / `MkCheckTarget` implementations
-- Automatic variables `$@`, `$<`, `$^`, `$+` — implemented in `__ReplaceAutoVars` (`mkexec.pas`)
-- `lnkdlist.pas` — fixed O(n²) insertion (added `pLastItem` tail pointer), fixed cursor-mutation side effects in `GetLastLinkedListItem`, `GetLinkedListItemByIndex`, `DestroyLinkedList`, `AppendLinkedList`
+- Automatic variables `$@`, `$<`, `$^`, `$+`, `$*` — implemented in `__ReplaceAutoVars` (`mkexec.pas`)
+- TAB-indentation enforcement: TAB-prefixed lines with existing targets are always `IDENT_COMMAND`
+- **Target-pattern rules** (`%.o: %.c %.h`) — fully implemented and tested
+  - `MkMatchPattern` + `MkFindPatternTarget` in `mkhelper.pas`
+  - `__InstantiatePreReqList` in `mkexec.pas` — instantiates prereqs for pattern rules
+  - `__ExecTarget` — exact-match first, pattern fallback second; nil-guards for missing rules
+  - `$*` carries the stem; `$<`/`$^` expand to instantiated (concrete) prereq names
+- `lnkdlist.pas` — fixed O(n²) insertion (`pLastItem` tail pointer), fixed cursor-mutation side effects
 
 ### What is in progress
-- **Target-pattern rules** (`%.o: %.c %.h`) — partial; `__ReplaceMacro` in `mkexec.pas` handles `%` substitution in target/prereq names
-- **Automatic variables** — `$*`, `$%`, `$?` replaced with empty string (not yet implemented); directory/file suffix variants (`$@D`, `$@F`, etc.) not started
+- **Automatic variables** — `$%`, `$?` replaced with empty string; not yet implemented
+- **Directory/file suffix variants** (`$@D`, `$@F`, `$<D`, `$<F`, etc.) — not started
 - **Wildcard expansion** `$(wildcard *.c)` — not started
-- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget` — stubs only
+- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget` — stubs only (intentional: FPC engine must be 100% first)
 
 ### Wish list (future)
 - `include` directive
@@ -183,6 +198,6 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - Procedures and functions use Pascal-style result assignment (`FunctionName := value`)
 - Nested procedures/functions are used extensively for logical grouping (prefixed `__`)
 - All pointer manipulation uses `Move` for type-unsafe copies
-- Linked list iteration always saves/restores `pCurrentItem` when traversal must not affect callers
+- Linked list iteration that must not affect callers walks via raw `pFirstItem`/`pNextItem` pointers (no cursor mutation); `GetFirstLinkedListItem`/`GetNextLinkedListItem` are used only when cursor advancement is acceptable
 - Error state is written to `handle.strLastError`; `handle.nLastLine` holds the offending line (-1 for non-parse errors)
 - Progress spinner updated via `MkUpdateProgress` during parsing

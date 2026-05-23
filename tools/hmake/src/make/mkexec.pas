@@ -156,7 +156,9 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     *)
   procedure __ReplaceAutoVars( var strCommand   : TIdentifierValue;
                                strTargetName    : TIdentifierName;
-                               pTgt             : PTarget );
+                               strStem          : TIdentifierName;
+                               pTgt             : PTarget;
+                               pInstPreReq      : PLinkedList );
   var
       strPreReqs     : TIdentifierValue;
       strFirstPreReq : TIdentifierValue;
@@ -168,11 +170,14 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     (* $@ — name of the target being built *)
     ReplaceAll( strCommand, '$@', strTargetName );
 
-    (* Build prerequisite strings walking via raw pointer — no cursor mutation *)
+    (* Use instantiated list for pattern rules, else the target's own list *)
     strFirstPreReq := '';
     strPreReqs     := '';
     bFirst         := true;
-    pItem          := pTgt^.pPreReqList^.pFirstItem;
+    if( pInstPreReq <> nil )  then
+      pItem := pInstPreReq^.pFirstItem
+    else
+      pItem := pTgt^.pPreReqList^.pFirstItem;
 
     while( pItem <> nil )  do
     begin
@@ -199,10 +204,52 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     (* $+ — like $^ but preserving duplicates; same result in our implementation *)
     ReplaceAll( strCommand, '$+', strPreReqs );
 
-    (* $*, $%, $? — not yet implemented; replace with empty to avoid shell expansion *)
-    ReplaceAll( strCommand, '$*', '' );
+    (* $* — stem of the pattern match *)
+    ReplaceAll( strCommand, '$*', strStem );
+
+    (* $%, $? — not yet implemented; replace with empty to avoid shell expansion *)
     ReplaceAll( strCommand, '$%', '' );
     ReplaceAll( strCommand, '$?', '' );
+  end;
+
+  (**
+    * Build an instantiated prereq list by replacing '%' with strStem in each
+    * entry of the pattern target's prereq list.  Caller owns the returned list
+    * and must call DestroyLinkedList + Dispose when done.
+    * Returns nil when pPreReqList is nil or allocation fails.
+    * @param pPreReqList The pattern target's prerequisite list;
+    * @param strStem The stem to substitute for '%';
+    *)
+  function __InstantiatePreReqList( pPreReqList : PLinkedList;
+                                    strStem     : TIdentifierName ) : PLinkedList;
+  var
+      pResult  : PLinkedList;
+      pItem    : PLinkedListItem;
+      strValue : TIdentifierValue;
+      strInst  : TIdentifierValue;
+      pPtr     : pointer;
+
+  begin
+    pResult := nil;
+
+    if( pPreReqList <> nil )  then
+    begin
+      New( pResult );
+      CreateLinkedList( pResult^, sizeof( TIdentifierValue ) );
+      pItem := pPreReqList^.pFirstItem;
+
+      while( pItem <> nil )  do
+      begin
+        Move( pItem^.pValue^, strValue, sizeof( strValue ) );
+        strInst := strValue;
+        ReplaceAll( strInst, '%', strStem );
+        pPtr := ToPointer( strInst );
+        AddLinkedListItem( pResult^, pPtr );
+        pItem := pItem^.pNextItem;
+      end;
+    end;
+
+    __InstantiatePreReqList := pResult;
   end;
 
   (**
@@ -211,7 +258,9 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     * @param strCurrentTarget The name of the target currently being built;
     *)
   function __ExecCommands( pTgt : PTarget;
-                           strCurrentTarget : TIdentifierName ) : boolean;
+                           strCurrentTarget : TIdentifierName;
+                           strStem          : TIdentifierName;
+                           pInstPreReq      : PLinkedList ) : boolean;
   var
          bRet         : boolean;
          bMultiLine   : boolean;
@@ -238,7 +287,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
       bRet := MkReplaceReferences( handle, strCommand );
 
       if( bRet )  then
-        __ReplaceAutoVars( strCommand, strCurrentTarget, pTgt );
+        __ReplaceAutoVars( strCommand, strCurrentTarget, strStem, pTgt, pInstPreReq );
 
       if( bRet )  then
       begin
@@ -286,29 +335,56 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     * @param pTargetList List of targets that will be processed;
     * @param bFirstLevel Flag informing if this function call is the top
     * most level call (first level call to this function);
+    * @param strStem Stem from a pattern-rule match (empty for exact targets);
     *)
-  function __ExecTarget( pTargetItem : PTarget; 
-                         pTargetList : PLinkedList; 
-                         bFirstLevel : boolean ) : boolean;
+  function __ExecTarget( pTargetItem : PTarget;
+                         pTargetList : PLinkedList;
+                         bFirstLevel : boolean;
+                         strStem     : TIdentifierName ) : boolean;
   var
       bRet            : boolean;
       pNextTargetItem : PTarget;
       targetPair      : TIdentifierPair;
       pTargetNameItem : PLinkedListItem;
       pPreReqItem     : PLinkedListItem;
+      pInstPreReqList : PLinkedList;
+      strPreReqInst   : TIdentifierValue;
+      strNextStem     : TIdentifierName;
+      pActivePreReq   : PLinkedList;
 
   begin
+    (* Pattern-rule fallback: if no exact target, try pattern match *)
+    if( pTargetItem = nil )  then
+    begin
+      strNextStem := '';
+      pTargetItem := MkFindPatternTarget( handle, strTargetName, strNextStem );
+
+      if( pTargetItem <> nil )  then
+        strStem := strNextStem;
+    end;
+
     bRet := ( pTargetItem <> nil );
 
     if( bRet )  then
     begin
-      pPreReqItem := GetFirstLinkedListItem( pTargetItem^.pPreReqList^ );
+      (* For pattern rules, build an instantiated prereq list *)
+      if( strStem <> '' )  then
+        pInstPreReqList := __InstantiatePreReqList( pTargetItem^.pPreReqList, strStem )
+      else
+        pInstPreReqList := nil;
+
+      if( pInstPreReqList <> nil )  then
+        pActivePreReq := pInstPreReqList
+      else
+        pActivePreReq := pTargetItem^.pPreReqList;
+
+      pPreReqItem     := GetFirstLinkedListItem( pActivePreReq^ );
       pTargetNameItem := pTargetList^.pCurrentItem;
 
       while( bRet and ( pTargetNameItem <> nil ) ) do
       begin
-        Move( pTargetNameItem^.pValue^, 
-              targetPair.strName, 
+        Move( pTargetNameItem^.pValue^,
+              targetPair.strName,
               sizeof( targetPair.strName ) );
 
         __PrintTargetName( targetPair.strName );
@@ -321,66 +397,131 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
         if( not bFirstLevel and ( pPreReqItem = nil ) )  then
         begin
           pTargetItem := MkFindTarget( handle, targetPair.strName );
-          pPreReqItem := GetFirstLinkedListItem( pTargetItem^.pPreReqList^ );
+
+          if( pTargetItem = nil )  then
+          begin
+            strNextStem := '';
+            pTargetItem := MkFindPatternTarget( handle, targetPair.strName, strNextStem );
+            if( pTargetItem <> nil )  then
+              strStem := strNextStem;
+          end;
+
+          if( pTargetItem = nil )  then
+          begin
+            bRet := false;
+            handle.nLastLine    := -1;
+            handle.strLastError := 'hmake: *** No rule to make target ''' +
+                                   targetPair.strName + '''.  Stop.';
+          end
+          else
+          begin
+            if( strStem <> '' )  then
+            begin
+              if( pInstPreReqList <> nil )  then
+              begin
+                DestroyLinkedList( pInstPreReqList^ );
+                Dispose( pInstPreReqList );
+              end;
+              pInstPreReqList := __InstantiatePreReqList( pTargetItem^.pPreReqList, strStem );
+              if( pInstPreReqList <> nil )  then
+                pActivePreReq := pInstPreReqList
+              else
+                pActivePreReq := pTargetItem^.pPreReqList;
+            end
+            else
+              pActivePreReq := pTargetItem^.pPreReqList;
+
+            pPreReqItem := GetFirstLinkedListItem( pActivePreReq^ );
+          end;
         end;
 
         while( bRet and ( pPreReqItem <> nil ) ) do
         begin
           if( bRet )  then
           begin
-            Move( pPreReqItem^.pValue^, 
-                  targetPair.strValue, 
+            Move( pPreReqItem^.pValue^,
+                  targetPair.strValue,
                   sizeof( targetPair.strValue ) );
 
             if( not MkCheckTarget( targetPair ) )  then
             begin
+              strNextStem     := '';
               pNextTargetItem := MkFindTarget( handle, targetPair.strValue );
+
+              if( pNextTargetItem = nil )  then
+                pNextTargetItem := MkFindPatternTarget( handle, targetPair.strValue, strNextStem );
+
               bRet := ( pNextTargetItem <> nil );
 
               if( bRet )  then
-                bRet := __ExecTarget( pNextTargetItem, 
-                                      pTargetItem^.pPreReqList,
-                                      false )
+                bRet := __ExecTarget( pNextTargetItem,
+                                      pActivePreReq,
+                                      false,
+                                      strNextStem )
               else
               begin
-                handle.nLastLine := -1;
-                handle.strLastError := 'hmake: *** No rule to make target ''' + 
-                          targetPair.strValue + 
-                          '''. needed by '''  + 
-                          targetPair.strName  + 
+                handle.nLastLine    := -1;
+                handle.strLastError := 'hmake: *** No rule to make target ''' +
+                          targetPair.strValue +
+                          '''. needed by '''  +
+                          targetPair.strName  +
                           '''  Stop.';
               end;
-            end;         
+            end;
           end
           else
           begin
-            handle.nLastLine := -1;
-            handle.strLastError := 'hmake: *** ''' + 
-                      targetPair.strName + 
+            handle.nLastLine    := -1;
+            handle.strLastError := 'hmake: *** ''' +
+                      targetPair.strName +
                       '''. is up to date.';
           end;
-          
-          pPreReqItem := GetNextLinkedListItem( pTargetItem^.pPreReqList^ );
+
+          pPreReqItem := GetNextLinkedListItem( pActivePreReq^ );
         end;
 
         if( bRet )  then
         begin
-          if( pPreReqItem = nil )  then         
-             pTargetItem := MkFindTarget( handle, targetPair.strName );
-  
-          bRet := __ExecCommands( pTargetItem, targetPair.strName );
+          if( pPreReqItem = nil )  then
+          begin
+            pTargetItem := MkFindTarget( handle, targetPair.strName );
+
+            if( pTargetItem = nil )  then
+            begin
+              strNextStem := '';
+              pTargetItem := MkFindPatternTarget( handle, targetPair.strName, strNextStem );
+              if( pTargetItem <> nil )  then
+                strStem := strNextStem;
+            end;
+          end;
+
+          if( pTargetItem <> nil )  then
+            bRet := __ExecCommands( pTargetItem, targetPair.strName, strStem, pInstPreReqList )
+          else
+          begin
+            bRet := false;
+            handle.nLastLine    := -1;
+            handle.strLastError := 'hmake: *** No rule to make target ''' +
+                                   targetPair.strName + '''.  Stop.';
+          end;
         end;
 
         __PrintSeparator;
 
         pTargetNameItem := GetNextLinkedListItem( pTargetList^ );
       end;
+
+      if( pInstPreReqList <> nil )  then
+      begin
+        DestroyLinkedList( pInstPreReqList^ );
+        Dispose( pInstPreReqList );
+      end;
     end
     else
     begin
-      handle.nLastLine := -1;
-      handle.strLastError := 'hmake: *** No rule to make target ''' + 
-                             strTargetName + 
+      handle.nLastLine    := -1;
+      handle.strLastError := 'hmake: *** No rule to make target ''' +
+                             strTargetName +
                              '''.  Stop.';
     end;
 
@@ -411,13 +552,13 @@ begin
     pTargetNameItem := GetFirstLinkedListItem( pUsrTargetList^ );
     Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
     pTargetItem := MkFindTarget( handle, strTargetName );
-    MkExecute   := __ExecTarget( pTargetItem, pUsrTargetList, true );
+    MkExecute   := __ExecTarget( pTargetItem, pUsrTargetList, true, '' );
   end
   else
   begin
     pTargetItem     := handle.pDefaultTarget;
     pTargetNameItem := GetFirstLinkedListItem( pTargetItem^.targetNameList );
     Move( pTargetNameItem^.pValue^, strTargetName, sizeof( strTargetName ) );
-    MkExecute := __ExecTarget( pTargetItem, @pTargetItem^.targetNameList, true );
+    MkExecute := __ExecTarget( pTargetItem, @pTargetItem^.targetNameList, true, '' );
   end;
 end;

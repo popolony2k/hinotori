@@ -230,6 +230,106 @@ begin
 end;
 
 (**
+  * Test whether strName matches a pattern containing exactly one '%'.
+  * On match, strStem receives the text that '%' matched and the function
+  * returns true.  On no-match, strStem is unchanged and false is returned.
+  * @param strPattern The pattern string (must contain '%');
+  * @param strName The concrete name to test;
+  * @param strStem On success, receives the matched stem;
+  *)
+function MkMatchPattern( var strPattern : TIdentifierName;
+                         var strName    : TIdentifierName;
+                         var strStem    : TIdentifierName ) : boolean;
+var
+      nPct    : integer;
+      nPre    : integer;
+      nSuf    : integer;
+      strPre  : TIdentifierName;
+      strSuf  : TIdentifierName;
+      bRet    : boolean;
+
+begin
+  nPct := Pos( '%', strPattern );
+  bRet := false;
+
+  if( nPct > 0 )  then
+  begin
+    nPre   := nPct - 1;
+    nSuf   := Length( strPattern ) - nPct;
+    strPre := Copy( strPattern, 1, nPre );
+    strSuf := Copy( strPattern, nPct + 1, nSuf );
+
+    if( Length( strName ) >= ( nPre + nSuf ) )  then
+    begin
+      bRet := ( Copy( strName, 1, nPre ) = strPre );
+
+      if( bRet and ( nSuf > 0 ) )  then
+        bRet := ( Copy( strName, Length( strName ) - nSuf + 1, nSuf ) = strSuf );
+
+      if( bRet )  then
+        strStem := Copy( strName, nPre + 1, Length( strName ) - nPre - nSuf );
+    end;
+  end;
+
+  MkMatchPattern := bRet;
+end;
+
+(**
+  * Find a pattern target (e.g. %.o: %.c) that matches strName.
+  * On match, strStem receives the stem and the function returns the target.
+  * Returns nil when no pattern target matches.
+  * @param handle The @see TMakeHandle of open makefile;
+  * @param strName The concrete target name to match;
+  * @param strStem On success, receives the matched stem;
+  *)
+function MkFindPatternTarget( var handle  : TMakeHandle;
+                              var strName : TIdentifierName;
+                              var strStem : TIdentifierName ) : PTarget;
+var
+      pItem       : PLinkedListItem;
+      pIdentItem  : PLinkedListItem;
+      pItemTarget : PTarget;
+      identName   : TIdentifierName;
+      stemTmp     : TIdentifierName;
+      bFound      : boolean;
+
+begin
+  bFound      := false;
+  pItemTarget := nil;
+  pItem       := GetFirstLinkedListItem( handle.targetList );
+
+  while( not bFound and ( pItem <> nil ) )  do
+  begin
+    Move( pItem^.pValue, pItemTarget, sizeof( pItemTarget ) );
+    pIdentItem := GetFirstLinkedListItem( pItemTarget^.targetNameList );
+
+    while( not bFound and ( pIdentItem <> nil ) )  do
+    begin
+      Move( pIdentItem^.pValue^, identName, sizeof( identName ) );
+
+      if( MkStringHasChar( identName, CHAR_PERCENT ) )  then
+      begin
+        stemTmp := '';
+        bFound  := MkMatchPattern( identName, strName, stemTmp );
+
+        if( bFound )  then
+          strStem := stemTmp;
+      end;
+
+      pIdentItem := GetNextLinkedListItem( pItemTarget^.targetNameList );
+    end;
+
+    if( not bFound )  then
+      pItem := GetNextLinkedListItem( handle.targetList );
+  end;
+
+  if( not bFound )  then
+    pItemTarget := nil;
+
+  MkFindPatternTarget := pItemTarget;
+end;
+
+(**
   * Replace reference on command passed as parameter.
   * param handle The @see TMakeHandle of open makefile;
   * @param strCommand Reference to the command that will be replaced;

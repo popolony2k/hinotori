@@ -22,8 +22,9 @@
             - Add support to multiples targets on the same line 
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
             - PHONY target support (OK);
-            - Target-pattern rules implementation (%.o: %.c %.h); (WIP)
-                - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*); (OK)
+            - Target-pattern rules implementation (%.o: %.c %.h); (OK)
+                - Add automatic variables processing ($@, $<, $^, $+, $*); (OK)
+                    - $%, $? not yet implemented (stubbed to empty string); (TODO)
                     - Add directory part processing ($@D, $%D, $<D, $?D, $^D, $+D, $*D); (TODO)
                     - Add file part processing ($@F, $%F, $<F, $?F, $^F, $+F, $*F); (TODO)
                 - Implement wildcard processing (eg. $(wildcard *.c)); (TODO)
@@ -47,6 +48,6 @@
     - Add some builtin constants
         - `__ARCH__` (Default value set depending on architecture - MSX, MACOSX, LINUX, WINDOWS);
 3. Add support to use '#' after concatenation `\` at execution step;
-4. Force indentation by tab instead spaces. If make file is indented by space, force make failure.
+4. Force indentation by tab instead spaces. If make file is indented by space, force make failure. (OK)
 5. Implement conditional statements (ifeq, ifneq);
 6. Add support to variable referencing by using ${var_name} exactly like current $(var_name) style;

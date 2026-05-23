@@ -1,4 +1,4 @@
-# Hinotori hmake - automatic variables test
+# Hinotori hmake - automatic variables and pattern-rule test
 #
 # CopyLeft (c) 1995-2024 by PopolonY2k.
 # CopyLeft (c) since 2024 by Hinotori Team.
@@ -8,11 +8,13 @@
 #   $<  first prerequisite
 #   $^  all prerequisites, space-separated
 #   $+  all prerequisites including duplicates (same as $^ here)
+#   $*  stem of pattern-rule match
 #
 # Run all:      hmake -f makefile.test_auto_vars
 # Run one:      hmake -f makefile.test_auto_vars <target>
 
-all: test_at test_lt test_caret test_plus test_multi test_combined
+all: test_at test_lt test_caret test_plus test_multi test_combined \
+     test_pattern.o test_pattern_stem.x
 	echo "--- all auto-var tests passed ---"
 
 .PHONY: all test_at test_lt test_caret test_plus test_multi test_combined
@@ -71,3 +73,28 @@ prereq_2:
 
 prereq_3:
 	echo "prereq_3"
+
+#
+# Pattern rule: %.o: %.c
+# test_pattern.o matches %.o with stem="test_pattern"
+# Expected: target=[test_pattern.o] stem=[test_pattern] prereq=[test_pattern.c]
+#
+%.o: %.c
+	echo "pattern_o: target=[$@] stem=[$*] prereq=[$<]"
+
+test_pattern.c:
+	echo "test_pattern.c"
+
+#
+# Pattern rule with two prereqs: %.x: %.a %.b
+# test_pattern_stem.x matches %.x with stem="test_pattern_stem"
+# Expected: target=[test_pattern_stem.x] stem=[test_pattern_stem] all=[test_pattern_stem.a test_pattern_stem.b]
+#
+%.x: %.a %.b
+	echo "pattern_x: target=[$@] stem=[$*] all=[$^]"
+
+test_pattern_stem.a:
+	echo "test_pattern_stem.a"
+
+test_pattern_stem.b:
+	echo "test_pattern_stem.b"
