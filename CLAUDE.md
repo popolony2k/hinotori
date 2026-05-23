@@ -121,7 +121,9 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 5. Substitutes `$(VAR)` references via `MkReplaceReferences` (also falls back to OS env)
 6. Runs commands via `MkExecCommand` (platform-specific)
 
-**Variable expansion** (`MkReplaceReferences` in `mkhelper.pas`): handles `$(VAR)` only. Single-char automatic variables (`$@`, `$<`, `$^`, etc.) are not yet resolved here.
+**Variable expansion** (`MkReplaceReferences` in `mkhelper.pas`): handles `$(VAR)` only, with OS environment fallback.
+
+**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`). `$*`, `$%`, `$?` are replaced with empty string (not yet implemented). Directory/file suffix variants (`$@D`, `$@F`, etc.) not yet implemented.
 
 ---
 
@@ -136,12 +138,12 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - `$(VAR)` and OS environment variable expansion in commands
 - Multi-line command joining before execution
 - FPC `MkExecCommand` / `MkGetEnv` / `MkCheckTarget` implementations
+- Automatic variables `$@`, `$<`, `$^`, `$+` — implemented in `__ReplaceAutoVars` (`mkexec.pas`)
+- `lnkdlist.pas` — fixed O(n²) insertion (added `pLastItem` tail pointer), fixed cursor-mutation side effects in `GetLastLinkedListItem`, `GetLinkedListItemByIndex`, `DestroyLinkedList`, `AppendLinkedList`
 
 ### What is in progress
 - **Target-pattern rules** (`%.o: %.c %.h`) — partial; `__ReplaceMacro` in `mkexec.pas` handles `%` substitution in target/prereq names
-- **Automatic variables** (`$@`, `$%`, `$<`, `$?`, `$^`, `$+`, `$*`) — infrastructure ready (`__ExecCommands` receives full `PTarget`), substitution logic not yet written
-  - Directory suffix (`$@D`, `$<D`, …) — not started
-  - File suffix (`$@F`, `$<F`, …) — not started
+- **Automatic variables** — `$*`, `$%`, `$?` replaced with empty string (not yet implemented); directory/file suffix variants (`$@D`, `$@F`, etc.) not started
 - **Wildcard expansion** `$(wildcard *.c)` — not started
 - **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget` — stubs only
 
