@@ -50,7 +50,7 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
   src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget)
   src/make/msx/    MSX-DOS stubs (not yet implemented)
   samples/makefile Sample/test makefile
-  docs/wip.md      Work-in-progress checklist
+  docs/WIP.md      Work-in-progress checklist
 
 samples/           MSX sample programs (mapper, socket, sunrise, unapi, …)
 test/              Unit tests (bigint × 16, memory/pointer) — branch only

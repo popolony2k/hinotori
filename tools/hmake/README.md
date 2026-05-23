@@ -15,4 +15,4 @@ Check the following file below:
 Hinotori Team
 
 
-[def]: ./docs/wip.md
+[def]: ./docs/WIP.md
