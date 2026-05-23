@@ -4,20 +4,22 @@
 # CopyLeft (c) since 2024 by Hinotori Team.
 #
 # Exercises all implemented automatic variables:
-#   $@  target name
-#   $<  first prerequisite
-#   $^  all prerequisites, space-separated
-#   $+  all prerequisites including duplicates (same as $^ here)
-#   $*  stem of pattern-rule match
+#   $@  target name          $@D/$@F  dir/file part of target
+#   $<  first prerequisite   $<D/$<F  dir/file part of first prereq
+#   $^  all prerequisites    $^D/$^F  dir/file parts of all prereqs
+#   $+  all prereqs (dupes)  $+D/$+F  same as $^D/$^F here
+#   $*  stem of pattern      $*D/$*F  dir/file part of stem
 #
 # Run all:      hmake -f makefile.test_auto_vars
 # Run one:      hmake -f makefile.test_auto_vars <target>
 
 all: test_at test_lt test_caret test_plus test_multi test_combined \
-     test_pattern.o test_pattern_stem.x
+     test_pattern.o test_pattern_stem.x \
+     test_dir_at test_dir_lt test_dir_stem
 	echo "--- all auto-var tests passed ---"
 
-.PHONY: all test_at test_lt test_caret test_plus test_multi test_combined
+.PHONY: all test_at test_lt test_caret test_plus test_multi test_combined \
+        test_dir_at test_dir_lt test_dir_stem
 
 #
 # $@ : name of the target being built
@@ -98,3 +100,34 @@ test_pattern_stem.a:
 
 test_pattern_stem.b:
 	echo "test_pattern_stem.b"
+
+#
+# $@D / $@F — directory and file part of target name (no path -> dir=., file=target)
+# Expected: dir=[.] file=[test_dir_at]
+#
+test_dir_at:
+	echo "dir_at: dir=[$@D] file=[$@F]"
+
+#
+# $<D / $<F — directory and file part of first prerequisite
+# sub/prereq has a path separator
+# Expected: dir=[sub] file=[prereq]
+#
+test_dir_lt: sub/prereq
+	echo "dir_lt: dir=[$<D] file=[$<F]"
+
+sub/prereq:
+	echo "sub/prereq"
+
+#
+# $*D / $*F — directory and file part of pattern stem
+# sub/foo.x2 matches %.x2 with stem="sub/foo" -> stemD=[sub] stemF=[foo]
+#
+test_dir_stem: sub/foo.x2
+	echo "dir_stem done"
+
+%.x2: %.c
+	echo "pattern_x2: stemD=[$*D] stemF=[$*F] target=[$@]"
+
+sub/foo.c:
+	echo "sub/foo.c"

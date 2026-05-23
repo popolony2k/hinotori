@@ -148,11 +148,60 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
   end;
 
   (**
-    * Replace automatic variables ($@, $<, $^, $+, $*, $%, $?) in a command
-    * string using the current target name and its prerequisite list.
+    * Return the directory part of a path (everything before the last slash).
+    * Returns '.' when the path contains no directory separator.
+    * @param strPath The path to split;
+    *)
+  function __DirPart( strPath : TIdentifierName ) : TIdentifierName;
+  var
+      nLast : integer;
+      nIdx  : integer;
+
+  begin
+    nLast := 0;
+
+    for nIdx := 1 to Length( strPath ) do
+      if( ( strPath[nIdx] = '/' ) or ( strPath[nIdx] = '\' ) )  then
+        nLast := nIdx;
+
+    if( nLast = 0 )  then
+      __DirPart := '.'
+    else
+      __DirPart := Copy( strPath, 1, nLast - 1 );
+  end;
+
+  (**
+    * Return the file part of a path (everything after the last slash).
+    * Returns the whole string when the path contains no directory separator.
+    * @param strPath The path to split;
+    *)
+  function __FilePart( strPath : TIdentifierName ) : TIdentifierName;
+  var
+      nLast : integer;
+      nIdx  : integer;
+
+  begin
+    nLast := 0;
+
+    for nIdx := 1 to Length( strPath ) do
+      if( ( strPath[nIdx] = '/' ) or ( strPath[nIdx] = '\' ) )  then
+        nLast := nIdx;
+
+    if( nLast = 0 )  then
+      __FilePart := strPath
+    else
+      __FilePart := Copy( strPath, nLast + 1, Length( strPath ) - nLast );
+  end;
+
+  (**
+    * Replace automatic variables ($@, $<, $^, $+, $*, $%, $?) and their
+    * directory ($xD) and file ($xF) suffix variants in a command string.
+    * D/F variants are replaced first so the base variable token is still intact.
     * @param strCommand The command string to perform replacement on;
     * @param strTargetName The name of the target currently being built;
+    * @param strStem The stem from a pattern-rule match (empty for exact targets);
     * @param pTgt Pointer to the target structure;
+    * @param pInstPreReq Instantiated prereq list for pattern rules (nil = use pTgt's list);
     *)
   procedure __ReplaceAutoVars( var strCommand   : TIdentifierValue;
                                strTargetName    : TIdentifierName;
@@ -160,20 +209,22 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
                                pTgt             : PTarget;
                                pInstPreReq      : PLinkedList );
   var
-      strPreReqs     : TIdentifierValue;
-      strFirstPreReq : TIdentifierValue;
-      strValue       : TIdentifierValue;
-      pItem          : PLinkedListItem;
-      bFirst         : boolean;
+      strPreReqs      : TIdentifierValue;
+      strFirstPreReq  : TIdentifierValue;
+      strPreReqsDirs  : TIdentifierValue;
+      strPreReqsFiles : TIdentifierValue;
+      strValue        : TIdentifierValue;
+      pItem           : PLinkedListItem;
+      bFirst          : boolean;
 
   begin
-    (* $@ — name of the target being built *)
-    ReplaceAll( strCommand, '$@', strTargetName );
-
     (* Use instantiated list for pattern rules, else the target's own list *)
-    strFirstPreReq := '';
-    strPreReqs     := '';
-    bFirst         := true;
+    strFirstPreReq  := '';
+    strPreReqs      := '';
+    strPreReqsDirs  := '';
+    strPreReqsFiles := '';
+    bFirst          := true;
+
     if( pInstPreReq <> nil )  then
       pItem := pInstPreReq^.pFirstItem
     else
@@ -185,26 +236,43 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
 
       if( bFirst )  then
       begin
-        strFirstPreReq := strValue;
-        strPreReqs     := strValue;
-        bFirst         := false;
+        strFirstPreReq  := strValue;
+        strPreReqs      := strValue;
+        strPreReqsDirs  := __DirPart( strValue );
+        strPreReqsFiles := __FilePart( strValue );
+        bFirst          := false;
       end
       else
-        strPreReqs := strPreReqs + ' ' + strValue;
+      begin
+        strPreReqs      := strPreReqs      + ' ' + strValue;
+        strPreReqsDirs  := strPreReqsDirs  + ' ' + __DirPart( strValue );
+        strPreReqsFiles := strPreReqsFiles + ' ' + __FilePart( strValue );
+      end;
 
       pItem := pItem^.pNextItem;
     end;
 
-    (* $< — name of the first prerequisite *)
+    (* D/F suffix variants — must be replaced before the base variables *)
+    ReplaceAll( strCommand, '$@D', __DirPart( strTargetName ) );
+    ReplaceAll( strCommand, '$@F', __FilePart( strTargetName ) );
+    ReplaceAll( strCommand, '$<D', __DirPart( strFirstPreReq ) );
+    ReplaceAll( strCommand, '$<F', __FilePart( strFirstPreReq ) );
+    ReplaceAll( strCommand, '$^D', strPreReqsDirs );
+    ReplaceAll( strCommand, '$^F', strPreReqsFiles );
+    ReplaceAll( strCommand, '$+D', strPreReqsDirs );
+    ReplaceAll( strCommand, '$+F', strPreReqsFiles );
+    ReplaceAll( strCommand, '$*D', __DirPart( strStem ) );
+    ReplaceAll( strCommand, '$*F', __FilePart( strStem ) );
+    ReplaceAll( strCommand, '$%D', '' );
+    ReplaceAll( strCommand, '$%F', '' );
+    ReplaceAll( strCommand, '$?D', '' );
+    ReplaceAll( strCommand, '$?F', '' );
+
+    (* Base automatic variables *)
+    ReplaceAll( strCommand, '$@', strTargetName );
     ReplaceAll( strCommand, '$<', strFirstPreReq );
-
-    (* $^ — names of all prerequisites, space-separated *)
     ReplaceAll( strCommand, '$^', strPreReqs );
-
-    (* $+ — like $^ but preserving duplicates; same result in our implementation *)
     ReplaceAll( strCommand, '$+', strPreReqs );
-
-    (* $* — stem of the pattern match *)
     ReplaceAll( strCommand, '$*', strStem );
 
     (* $%, $? — not yet implemented; replace with empty to avoid shell expansion *)

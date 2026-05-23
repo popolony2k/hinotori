@@ -334,15 +334,19 @@ end;
   * param handle The @see TMakeHandle of open makefile;
   * @param strCommand Reference to the command that will be replaced;
   *)
-function MkReplaceReferences( var handle : TMakeHandle; 
+function MkReplaceReferences( var handle : TMakeHandle;
                               var strCommand : TIdentifierValue ) : boolean;
+const
+      __ctWildcard = 'wildcard ';
+
 var
       bRet          : boolean;
       bContains     : boolean;
       nStart        : integer;
       nEnd          : integer;
       strIdentifier : TIdentifierValue;
-      pIdentPair    : PIdentifierPair; 
+      strWildResult : TIdentifierValue;
+      pIdentPair    : PIdentifierPair;
 
 begin
   bRet := true;
@@ -354,35 +358,52 @@ begin
 
     if( bContains )  then
     begin
-      strIdentifier := Copy( strCommand, 
-                              ( nStart + 2 ), 
+      strIdentifier := Copy( strCommand,
+                              ( nStart + 2 ),
                               ( nEnd - nStart - 2 ) );
-      pIdentPair := MkFindIdentifier( handle, strIdentifier );
-      bRet := ( pIdentPair <> nil );
 
-      if( bRet )  then
+      if( Pos( __ctWildcard, strIdentifier ) = 1 )  then
       begin
-        strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                            pIdentPair^.strValue + 
-                            Copy( strCommand, 
-                                  ( nEnd + 1 ), 
+        strIdentifier := Copy( strIdentifier,
+                               Length( __ctWildcard ) + 1,
+                               Length( strIdentifier ) );
+        strWildResult := '';
+        MkWildcard( strIdentifier, strWildResult );
+        strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) +
+                            strWildResult +
+                            Copy( strCommand,
+                                  ( nEnd + 1 ),
                                   Length( strCommand ) );
       end
       else
-      begin  (* Check identifier on OS environment variables *)
-        bRet := MkGetEnv( strIdentifier, strIdentifier );
+      begin
+        pIdentPair := MkFindIdentifier( handle, strIdentifier );
+        bRet := ( pIdentPair <> nil );
 
         if( bRet )  then
         begin
-          strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) + 
-                              strIdentifier + 
-                              Copy( strCommand, 
-                                    ( nEnd + 1 ), 
+          strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) +
+                              pIdentPair^.strValue +
+                              Copy( strCommand,
+                                    ( nEnd + 1 ),
                                     Length( strCommand ) );
         end
         else
-        begin
-          handle.strLastError := 'Identifier not found';
+        begin  (* Check identifier on OS environment variables *)
+          bRet := MkGetEnv( strIdentifier, strIdentifier );
+
+          if( bRet )  then
+          begin
+            strCommand := Copy( strCommand, 0, ( nStart - 1 ) ) +
+                                strIdentifier +
+                                Copy( strCommand,
+                                      ( nEnd + 1 ),
+                                      Length( strCommand ) );
+          end
+          else
+          begin
+            handle.strLastError := 'Identifier not found';
+          end;
         end;
       end;
     end;

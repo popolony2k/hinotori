@@ -80,10 +80,10 @@ end;
   * The function return true if the target should be
   * processed otherwise false;
   * Rules for processing:
-  * 1) If a target file does not exist, the commands will run. 
+  * 1) If a target file does not exist, the commands will run.
   *    If target does exist, no commands will run (target is up o date).
-  * 2) Make decides if it should run a target. 
-  *    It will only run if target doesn't exist, or prereq is newer 
+  * 2) Make decides if it should run a target.
+  *    It will only run if target doesn't exist, or prereq is newer
   *    than target;
   *)
 function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
@@ -104,6 +104,52 @@ begin
   end;
 
   FindClose( target );
-  
+
   MkCheckTarget := bRet;
+end;
+
+(**
+  * Expand a glob pattern and return a space-separated list of matching files.
+  * Zero matches produces an empty result string — this is NOT an error.
+  * @param strPattern The glob pattern to expand (e.g. "*.c" or "src/*.c");
+  * @param strResult  Receives the space-separated list of matching filenames;
+  * The function always returns true.
+  *)
+function MkWildcard( var strPattern : TIdentifierValue;
+                     var strResult  : TIdentifierValue ) : boolean;
+var
+      sr      : TSearchRec;
+      strDir  : string;
+      strAcc  : string;
+      nIdx    : integer;
+
+begin
+  strResult := '';
+  strDir    := '';
+  strAcc    := '';
+
+  for nIdx := Length( strPattern ) downto 1 do
+  begin
+    if( ( strPattern[nIdx] = '/' ) or ( strPattern[nIdx] = '\' ) )  then
+    begin
+      strDir := Copy( strPattern, 1, nIdx );
+      break;
+    end;
+  end;
+
+  if( FindFirst( strPattern, faAnyFile, sr ) = 0 )  then
+  begin
+    repeat
+      if( ( sr.Attr and faDirectory ) = 0 )  then
+      begin
+        if( strAcc <> '' )  then
+          strAcc := strAcc + ' ';
+        strAcc := strAcc + strDir + sr.Name;
+      end;
+    until( FindNext( sr ) <> 0 );
+    FindClose( sr );
+  end;
+
+  strResult  := strAcc;
+  MkWildcard := true;
 end;

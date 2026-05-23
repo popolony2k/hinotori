@@ -47,11 +47,13 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
     mkbuild.pas    Makefile parser (MkBuild)
     mkhelper.pas   Identifier lookup, type detection, variable replacement
     mkexec.pas     Target executor (MkExecute)
-  src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget)
+  src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget, MkWildcard)
   src/make/msx/    MSX-DOS stubs (not yet implemented)
-  samples/makefile              Sample/test makefile
-  samples/makefile.test_auto_vars  Auto-var and pattern-rule test suite
-  docs/WIP.md                  Work-in-progress checklist
+  samples/makefile                  Sample/test makefile
+  samples/makefile.test_auto_vars   Auto-var and pattern-rule test suite
+  samples/makefile.test_errors      Error-handling test suite
+  samples/makefile.test_wildcard    $(wildcard) expansion test suite
+  docs/WIP.md                       Work-in-progress checklist
 
 samples/           MSX sample programs (mapper, socket, sunrise, unapi, …)
 test/              Unit tests (bigint × 16, memory/pointer) — branch only
@@ -131,9 +133,11 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 5. Substitutes `$(VAR)` references via `MkReplaceReferences` (also falls back to OS env)
 6. Runs commands via `MkExecCommand` (platform-specific)
 
-**Variable expansion** (`MkReplaceReferences` in `mkhelper.pas`): handles `$(VAR)` only, with OS environment fallback.
+**Variable expansion** (`MkReplaceReferences` in `mkhelper.pas`): handles `$(VAR)`, OS environment fallback, and `$(wildcard <glob>)`. Wildcard zero-match is not an error — it expands to empty string.
 
-**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`), `$*` (pattern stem). `$%`, `$?` replaced with empty string (not yet implemented). Directory/file suffix variants (`$@D`, `$@F`, etc.) not yet implemented.
+**Wildcard expansion** (`MkWildcard` in `mkoscall.pas`): platform-specific glob expansion. FPC implementation uses `FindFirst`/`FindNext`; directory prefix from the pattern is prepended to each result filename. MSX-DOS stub returns empty string.
+
+**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`), `$*` (pattern stem). Directory/file suffix variants (`$@D`, `$@F`, `$<D`, `$<F`, `$^D`, `$^F`, `$+D`, `$+F`, `$*D`, `$*F`) also implemented — D/F variants replaced before base vars to prevent token collision. `$%`, `$?` replaced with empty string (not yet implemented).
 
 **Pattern-rule matching** (`mkhelper.pas`):
 - `MkMatchPattern` — tests a concrete name against a `%`-pattern; on match, returns the stem
@@ -155,21 +159,21 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - Chained prerequisite execution (depth-first)
 - `$(VAR)` and OS environment variable expansion in commands
 - Multi-line command joining before execution
-- FPC `MkExecCommand` / `MkGetEnv` / `MkCheckTarget` implementations
+- FPC `MkExecCommand` / `MkGetEnv` / `MkCheckTarget` / `MkWildcard` implementations
 - Automatic variables `$@`, `$<`, `$^`, `$+`, `$*` — implemented in `__ReplaceAutoVars` (`mkexec.pas`)
+- Directory/file suffix auto-var variants: `$@D`/`$@F`, `$<D`/`$<F`, `$^D`/`$^F`, `$+D`/`$+F`, `$*D`/`$*F`
 - TAB-indentation enforcement: TAB-prefixed lines with existing targets are always `IDENT_COMMAND`
 - **Target-pattern rules** (`%.o: %.c %.h`) — fully implemented and tested
   - `MkMatchPattern` + `MkFindPatternTarget` in `mkhelper.pas`
   - `__InstantiatePreReqList` in `mkexec.pas` — instantiates prereqs for pattern rules
   - `__ExecTarget` — exact-match first, pattern fallback second; nil-guards for missing rules
   - `$*` carries the stem; `$<`/`$^` expand to instantiated (concrete) prereq names
+- **`$(wildcard <glob>)`** — `MkWildcard` in `fpc/mkoscall.pas`; zero matches = empty string (not an error)
 - `lnkdlist.pas` — fixed O(n²) insertion (`pLastItem` tail pointer), fixed cursor-mutation side effects
 
 ### What is in progress
 - **Automatic variables** — `$%`, `$?` replaced with empty string; not yet implemented
-- **Directory/file suffix variants** (`$@D`, `$@F`, `$<D`, `$<F`, etc.) — not started
-- **Wildcard expansion** `$(wildcard *.c)` — not started
-- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget` — stubs only (intentional: FPC engine must be 100% first)
+- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget`, `MkWildcard` — stubs only (intentional: FPC engine must be 100% first)
 
 ### Wish list (future)
 - `include` directive

@@ -1,0 +1,37 @@
+# Hinotori hmake - $(wildcard ...) expansion test
+#
+# CopyLeft (c) 1995-2024 by PopolonY2k.
+# CopyLeft (c) since 2024 by Hinotori Team.
+#
+# Run all:  hmake -f makefile.test_wildcard
+# Run one:  hmake -f makefile.test_wildcard <target>
+
+ALL_MAKEFILES = $(wildcard makefile*)
+NO_MATCHES    = $(wildcard *.nosuchext)
+
+all: test_wildcard_match test_wildcard_empty test_wildcard_in_cmd
+	echo "--- all wildcard tests passed ---"
+
+.PHONY: all test_wildcard_match test_wildcard_empty test_wildcard_in_cmd
+
+#
+# $(wildcard makefile*) should list all makefile* files in cwd.
+# Expected: ALL_MAKEFILES is non-empty (includes at least "makefile").
+#
+test_wildcard_match:
+	echo "test_wildcard_match: files=[$(ALL_MAKEFILES)]"
+
+#
+# $(wildcard *.nosuchext) should expand to empty string, not an error.
+# Expected: NO_MATCHES is empty string.
+#
+test_wildcard_empty:
+	echo "test_wildcard_empty: no_matches=[$(NO_MATCHES)]"
+
+#
+# $(wildcard ...) used directly in a command (not via a variable).
+# Expected: inline=[makefile makefile.test_auto_vars makefile.test_errors makefile.test_wildcard]
+# (order is filesystem-dependent)
+#
+test_wildcard_in_cmd:
+	echo "test_wildcard_in_cmd: inline=[$(wildcard makefile*)]"

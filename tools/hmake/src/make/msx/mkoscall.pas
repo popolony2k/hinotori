@@ -47,13 +47,27 @@ end;
   * The function return true if the target should be
   * processed otherwise false;
   * Rules for processing:
-  * 1) If a target file does not exist, the commands will run. 
+  * 1) If a target file does not exist, the commands will run.
   *    If target does exist, no commands will run (target is up o date).
-  * 2) Make decides if it should run a target. 
-  *    It will only run if target doesn't exist, or prereq is newer 
+  * 2) Make decides if it should run a target.
+  *    It will only run if target doesn't exist, or prereq is newer
   *    than target;
   *)
 function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
 begin
   MkCheckTarget := false;
+end;
+
+(**
+  * Expand a glob pattern and return a space-separated list of matching files.
+  * MSX-DOS stub — always returns empty result.
+  * @param strPattern The glob pattern to expand;
+  * @param strResult  Receives empty string (not implemented on MSX-DOS);
+  * The function always returns true.
+  *)
+function MkWildcard( var strPattern : TIdentifierValue;
+                     var strResult  : TIdentifierValue ) : boolean;
+begin
+  strResult  := '';
+  MkWildcard := true;
 end;
