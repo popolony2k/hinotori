@@ -5,9 +5,9 @@
 
 
 ## History
-Hinotori Library is the rebrand of PopolonY2k Framework  now moved to GitHub and open to community collaboration.
+Hinotori Library is the rebrand of PopolonY2k Framework now moved to GitHub and open to community collaboration.
 
-The name Hinotori is a tribute to [Ozamu Tezuka's Hi no Tori unfinished manga (and movie) series](https://en.wikipedia.org/wiki/Phoenix_(manga))
+The name Hinotori is a tribute to [Osamu Tezuka's Hi no Tori unfinished manga (and movie) series](https://en.wikipedia.org/wiki/Phoenix_(manga))
 
 ![Hi no Tori (Phoenix)](/resource/hinotori_logo.jpg)
 
@@ -19,12 +19,12 @@ Original PopolonY2k Framework can be reached [here](https://sourceforge.net/proj
 
 The system is developed using the MCCE Turbo Pascal 3.3f for MSX machines, but 
 code made with any other Pascal compilers available for MSX, like the HiSoft 
-Pascal are welcome but just will be accepted on repository, if the code keeps the 
+Pascal are welcome but will only be accepted on repository, if the code keeps the 
 compatibility with Turbo Pascal 3.3f compiler, and following our directories 
 structure.
-Another restriction is about the use of non open source code GPLv3. All code are
+Another restriction is about the use of code not licensed under GPLv3. All code are
 written and released under this license, so if you're sending code based on closed
-source or even using another restrict license your code won't be accepted in our main 
+source or even using another restrictive license your code won't be accepted in our main 
 branch.
 
 ## Setup Hinotori 
@@ -34,7 +34,7 @@ Please rename it to **setenv.bat** and edit its content like explained below:
 
 
 ```bat
-REM Set envionment variables needed by Hinotori integration with TP33f
+REM Set environment variables needed by Hinotori integration with TP33f
 REM
 REM 1) Change the TPPATH variable below to your TP33F compiler binaries path;
 REM 2) Setup HPATH for Hinotori destination path;
@@ -62,7 +62,7 @@ Must be replaced with the path of your TP33f installation, so suppose that your 
 SET TPPATH=C:\TP33F
 ```
 
-The same logic must be used to Hinitori installation path. Suppose that your Hinotori library is installed at **C:\HINOTORI**, so your variable must be set as below :
+The same logic must be used to Hinotori installation path. Suppose that your Hinotori library is installed at **C:\HINOTORI**, so your variable must be set as below :
 
 ```bat
 SET HPATH=C:\HINOTORI
