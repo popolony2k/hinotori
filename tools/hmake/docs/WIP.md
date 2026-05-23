@@ -23,7 +23,7 @@
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
             - PHONY target support (OK);
             - Target-pattern rules implementation (%.o: %.c %.h); (WIP)
-                - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*); (WIP)
+                - Add automatic variables processing ($@, $%, $<, $?, $^, $+, $*); (OK)
                     - Add directory part processing ($@D, $%D, $<D, $?D, $^D, $+D, $*D); (TODO)
                     - Add file part processing ($@F, $%F, $<F, $?F, $^F, $+F, $*F); (TODO)
                 - Implement wildcard processing (eg. $(wildcard *.c)); (TODO)

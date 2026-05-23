@@ -148,10 +148,70 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
   end;
 
   (**
+    * Replace automatic variables ($@, $<, $^, $+, $*, $%, $?) in a command
+    * string using the current target name and its prerequisite list.
+    * @param strCommand The command string to perform replacement on;
+    * @param strTargetName The name of the target currently being built;
+    * @param pTgt Pointer to the target structure;
+    *)
+  procedure __ReplaceAutoVars( var strCommand   : TIdentifierValue;
+                               strTargetName    : TIdentifierName;
+                               pTgt             : PTarget );
+  var
+      strPreReqs     : TIdentifierValue;
+      strFirstPreReq : TIdentifierValue;
+      strValue       : TIdentifierValue;
+      pItem          : PLinkedListItem;
+      bFirst         : boolean;
+
+  begin
+    (* $@ — name of the target being built *)
+    ReplaceAll( strCommand, '$@', strTargetName );
+
+    (* Build prerequisite strings walking via raw pointer — no cursor mutation *)
+    strFirstPreReq := '';
+    strPreReqs     := '';
+    bFirst         := true;
+    pItem          := pTgt^.pPreReqList^.pFirstItem;
+
+    while( pItem <> nil )  do
+    begin
+      Move( pItem^.pValue^, strValue, sizeof( strValue ) );
+
+      if( bFirst )  then
+      begin
+        strFirstPreReq := strValue;
+        strPreReqs     := strValue;
+        bFirst         := false;
+      end
+      else
+        strPreReqs := strPreReqs + ' ' + strValue;
+
+      pItem := pItem^.pNextItem;
+    end;
+
+    (* $< — name of the first prerequisite *)
+    ReplaceAll( strCommand, '$<', strFirstPreReq );
+
+    (* $^ — names of all prerequisites, space-separated *)
+    ReplaceAll( strCommand, '$^', strPreReqs );
+
+    (* $+ — like $^ but preserving duplicates; same result in our implementation *)
+    ReplaceAll( strCommand, '$+', strPreReqs );
+
+    (* $*, $%, $? — not yet implemented; replace with empty to avoid shell expansion *)
+    ReplaceAll( strCommand, '$*', '' );
+    ReplaceAll( strCommand, '$%', '' );
+    ReplaceAll( strCommand, '$?', '' );
+  end;
+
+  (**
     * Execute a commandlist passed as parameter.
     * @param pTgt Pointer to the target struture of command to execute;
+    * @param strCurrentTarget The name of the target currently being built;
     *)
-  function __ExecCommands( pTgt : PTarget ) : boolean;
+  function __ExecCommands( pTgt : PTarget;
+                           strCurrentTarget : TIdentifierName ) : boolean;
   var
          bRet         : boolean;
          bMultiLine   : boolean;
@@ -176,7 +236,10 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
         strCommand := strMultiLine + strCommand;
 
       bRet := MkReplaceReferences( handle, strCommand );
-  
+
+      if( bRet )  then
+        __ReplaceAutoVars( strCommand, strCurrentTarget, pTgt );
+
       if( bRet )  then
       begin
         nPos := Pos( '\', strCommand );
@@ -305,7 +368,7 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
           if( pPreReqItem = nil )  then         
              pTargetItem := MkFindTarget( handle, targetPair.strName );
   
-          bRet := __ExecCommands( pTargetItem );
+          bRet := __ExecCommands( pTargetItem, targetPair.strName );
         end;
 
         __PrintSeparator;
