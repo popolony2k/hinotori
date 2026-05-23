@@ -1,0 +1,96 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        // ----------------------------------------------------------------
+        // macOS — LLDB
+        // ----------------------------------------------------------------
+
+        {
+            "name": "(lldb) test_multiple_targets",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": ["-f", "makefile", "test_multiple_targets", "test_multiple_targets2"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/hmake/samples/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+
+        {
+            "name": "(lldb) test_main",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": ["-f", "makefile", "test_main"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/hmake/samples/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+
+        {
+            "name": "(lldb) test_no_main",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": ["-f", "makefile", "test_no_main"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/hmake/samples/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+
+        {
+            "name": "(lldb) test_auto_vars ($@)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": ["-f", "makefile", "first.c", "second.c"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/hmake/samples/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+
+        {
+            "name": "(lldb) debug all",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": ["-d", "-f", "makefile", "test_multiple_targets", "test_multiple_targets2", "clean", "test_no_pre"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/hmake/samples/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+
+        // ----------------------------------------------------------------
+        // Linux — GDB
+        // ----------------------------------------------------------------
+
+        {
+            "name": "(gdb) test_multiple_targets",
+            "type": "gdb",
+            "request": "launch",
+            "target": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "arguments": "-f makefile test_multiple_targets test_multiple_targets2",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/hmake/samples/",
+            "valuesFormatting": "parseText",
+            "preLaunchTask": "${defaultBuildTask}"
+        }
+
+    ]
+}
