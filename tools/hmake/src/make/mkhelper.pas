@@ -121,25 +121,28 @@ end;
   *)
 function MkFindIdentifier( var handle : TMakeHandle; var strName : TIdentifierName ) : PIdentifierPair;
 var
-      pItem     : PLinkedListItem;
-      pItemPair : PIdentifierPair;
-      bFound    : boolean;
-        
-begin
-  bFound := false;
-  pItem  := GetFirstLinkedListItem( handle.variableList );
+      pItem      : PLinkedListItem;
+      pItemPair  : PIdentifierPair;
+      pLastMatch : PIdentifierPair;
 
-  while( not bFound and ( pItem <> nil ) ) do
+begin
+  (* Walk the full list via raw pointers (no cursor mutation) and return the
+     LAST matching entry so that later assignments override earlier ones,
+     matching GNU make recursive-variable semantics. *)
+  pLastMatch := nil;
+  pItem      := handle.variableList.pFirstItem;
+
+  while( pItem <> nil ) do
   begin
     Move( pItem^.pValue, pItemPair, sizeof( pItemPair ) );
-    bFound := ( pItemPair^.strName = strName );
-    pItem  := GetNextLinkedListItem( handle.variableList );
+
+    if( pItemPair^.strName = strName )  then
+      pLastMatch := pItemPair;
+
+    pItem := pItem^.pNextItem;
   end;
 
-  if( not bFound )  then
-    pItemPair := nil;
-
-  MkFindIdentifier := pItemPair;
+  MkFindIdentifier := pLastMatch;
 end;
 
 (**

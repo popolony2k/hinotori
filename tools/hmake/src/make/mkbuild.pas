@@ -218,9 +218,12 @@ var
     (* Check if target was already defined previously *)
     bRet := ( MkFindTarget( handle, pPair^.strName ) = nil );
 
-    if( bRet )  then
-      bRet := __CreateTargetList( handle, 
-                                  target, 
+    if( not bRet )  then
+      handle.strLastError := 'hmake: *** target ''' + pPair^.strName +
+                             ''' already defined.  Stop.'
+    else
+      bRet := __CreateTargetList( handle,
+                                  target,
                                   pPair^.strName );
 
     if( bRet )  then

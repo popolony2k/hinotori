@@ -1,0 +1,60 @@
+# Hinotori hmake - final integration tests
+#
+# CopyLeft (c) 1995-2024 by PopolonY2k.
+# CopyLeft (c) since 2024 by Hinotori Team.
+#
+# Covers:
+#   - Multiple assignments to the same variable (last write wins)
+#   - Same variable expanded in multiple commands
+#   - Variable whose value references another variable
+#   - Multi-target rules (each target sees its own $@)
+#
+# Run all:  hmake -f makefile.test_final
+# Run one:  hmake -f makefile.test_final <target>
+
+# Multiple assignments — only the last one should take effect.
+FRUIT = apple
+FRUIT = banana
+FRUIT = cherry
+
+# Variable referenced by another variable.
+GREETING = hello
+MSG      = $(GREETING) world
+
+all: test_var_override test_var_multi_use test_var_indirect \
+     test_multi_target_a test_multi_target_b
+	echo "--- all final tests passed ---"
+
+.PHONY: all test_var_override test_var_multi_use test_var_indirect \
+        test_multi_target_a test_multi_target_b
+
+#
+# Last assignment wins: FRUIT was set to cherry last.
+# Expected: fruit=[cherry]
+#
+test_var_override:
+	echo "test_var_override: fruit=[$(FRUIT)]"
+
+#
+# Same variable expanded twice in the same command and in two commands.
+# Expected: a=[cherry] b=[cherry]
+#           again=[cherry]
+#
+test_var_multi_use:
+	echo "test_var_multi_use: a=[$(FRUIT)] b=[$(FRUIT)]"
+	echo "test_var_multi_use: again=[$(FRUIT)]"
+
+#
+# Variable whose value contains a reference to another variable.
+# Expected: msg=[hello world]
+#
+test_var_indirect:
+	echo "test_var_indirect: msg=[$(MSG)]"
+
+#
+# Multi-target rule: each target sees its own $@ name.
+# Expected for test_multi_target_a: current=[test_multi_target_a]
+# Expected for test_multi_target_b: current=[test_multi_target_b]
+#
+test_multi_target_a test_multi_target_b:
+	echo "test_multi_target: current=[$@]"

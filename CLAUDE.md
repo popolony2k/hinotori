@@ -53,6 +53,7 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
   samples/makefile.test_auto_vars   Auto-var and pattern-rule test suite
   samples/makefile.test_errors      Error-handling test suite
   samples/makefile.test_wildcard    $(wildcard) expansion test suite
+  samples/makefile.test_final       Variable override and multi-target final tests
   docs/WIP.md                       Work-in-progress checklist
 
 samples/           MSX sample programs (mapper, socket, sunrise, unapi, …)
@@ -169,6 +170,8 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
   - `__ExecTarget` — exact-match first, pattern fallback second; nil-guards for missing rules
   - `$*` carries the stem; `$<`/`$^` expand to instantiated (concrete) prereq names
 - **`$(wildcard <glob>)`** — `MkWildcard` in `fpc/mkoscall.pas`; zero matches = empty string (not an error)
+- **Variable override** — `MkFindIdentifier` returns last match (full-list raw traversal); later assignments override earlier ones (GNU make semantics)
+- **Duplicate target detection** — proper error message when a target is defined twice
 - `lnkdlist.pas` — fixed O(n²) insertion (`pLastItem` tail pointer), fixed cursor-mutation side effects
 
 ### What is in progress

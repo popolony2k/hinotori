@@ -39,8 +39,11 @@
     - All environment variables are inherited by makefile scripts; (OK)
     <https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment>.
 6. Final tests
-    - Test multiple variable set (the same variable set several times);
-    - Test multiple targets and already defined targets;
+    - Test multiple variable set (the same variable set several times); (OK)
+        - Fixed MkFindIdentifier to return last match (last-write-wins); (OK)
+    - Test multiple targets and already defined targets; (OK)
+        - Multi-target rules ($@ per target): already covered in test_auto_vars; (OK)
+        - Already-defined target produces a proper error message; (OK)
 
 ## Wish list
 
