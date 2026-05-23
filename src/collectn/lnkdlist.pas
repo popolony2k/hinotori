@@ -25,6 +25,7 @@ end;
 type PLinkedList = ^TLinkedList;
      TLinkedList = record
   pFirstItem       : PLinkedListItem;     { First List item           }
+  pLastItem        : PLinkedListItem;     { Last List item            }
   pCurrentItem     : PLinkedListItem;     { Current list item         }
   nListSize        : integer;             { The linked list size      }
   nItemSize        : integer;             { The linked list item size }
@@ -59,15 +60,7 @@ end;
   *)
 function GetLastLinkedListItem( var list : TLinkedList ) : PLinkedListItem;
 begin
-  list.pCurrentItem := list.pFirstItem;
-
-  if( list.pCurrentItem <> nil )  then
-  begin
-    while( list.pCurrentItem^.pNextItem <> nil ) do
-      list.pCurrentItem := list.pCurrentItem^.pNextItem;
-  end;
-
-  GetLastLinkedListItem := list.pCurrentItem;
+  GetLastLinkedListItem := list.pLastItem;
 end;
 
 (**
@@ -79,52 +72,31 @@ end;
 function AddLinkedListItem( var list : TLinkedList;
                             pValue : Pointer ) : PLinkedListItem;
 var
-       pParentItem,
-       pNewItem       : PLinkedListItem;
-       bIsParent      : boolean;
+       pNewItem : PLinkedListItem;
 
 begin
-  pParentItem := GetLastLinkedListItem( list );
+  New( pNewItem );
 
-  (* Check if list is empty *)
-  if( pParentItem = nil )  then
-  begin
-    New( pParentItem );
-    list.pFirstItem := pParentItem;
-    pNewItem  := pParentItem;
-    bIsParent := True;
-  end
-  else
-  begin
-    bIsParent := False;
-    pNewItem  := nil;
-  end;
-
-  if( pParentItem <> nil )  then
-  begin
-    if( not bIsParent )  then
-      New( pNewItem );
-
-    if( pNewItem <> nil )  then
-    begin
-      if( list.nItemSize > 0 )  then
-      begin
-        GetMem( pNewItem^.pValue, list.nItemSize );
-        Move( pValue^, pNewItem^.pValue^, list.nItemSize );
-      end
-      else
-        pNewItem^.pValue := nil;
-
-      pNewItem^.pNextItem := nil;
-    end;
-
-    if( not bIsParent )  then
-      pParentItem^.pNextItem := pNewItem;
-  end;
-
-  (* Increment the list size *)
   if( pNewItem <> nil )  then
+  begin
+    if( list.nItemSize > 0 )  then
+    begin
+      GetMem( pNewItem^.pValue, list.nItemSize );
+      Move( pValue^, pNewItem^.pValue^, list.nItemSize );
+    end
+    else
+      pNewItem^.pValue := nil;
+
+    pNewItem^.pNextItem := nil;
+
+    if( list.pLastItem = nil )  then
+      list.pFirstItem := pNewItem
+    else
+      list.pLastItem^.pNextItem := pNewItem;
+
+    list.pLastItem := pNewItem;
     list.nListSize := Succ( list.nListSize );
+  end;
 
   AddLinkedListItem := pNewItem;
 end;
@@ -144,7 +116,7 @@ end;
   *)
 function IsLinkedListEmpty( var list : TLinkedList ) : boolean;
 begin
-  IsLinkedListEmpty := ( ( list.nListSize = 0 ) or ( list.pFirstItem = nil ) );
+  IsLinkedListEmpty := ( list.nListSize = 0 );
 end;
 
 (**
@@ -159,7 +131,7 @@ var
       pItem    : PLinkedListItem;
 
 begin
-  pItem  := GetFirstLinkedListItem( list );
+  pItem  := list.pFirstItem;
   nCount := 0;
 
   while( ( pItem <> nil ) and ( nCount < nIndex ) )  do
@@ -180,9 +152,10 @@ end;
 procedure CreateLinkedList( var list : TLinkedList; nItemSize : integer );
 begin
   list.pFirstItem   := nil;
+  list.pLastItem    := nil;
   list.pCurrentItem := nil;
-  list.nItemSize  := nItemSize;
-  list.nListSize  := 0;
+  list.nItemSize    := nItemSize;
+  list.nListSize    := 0;
 end;
 
 (**
@@ -195,7 +168,7 @@ var
        pNextItem      : PLinkedListItem;
 
 begin
-  pCurrentItem := GetFirstLinkedListItem( list );
+  pCurrentItem := list.pFirstItem;
 
   (* Release all list's data *)
   while( pCurrentItem <> nil )  do
@@ -213,6 +186,7 @@ begin
   with list do
   begin
     pFirstItem   := nil;
+    pLastItem    := nil;
     pCurrentItem := nil;
     nItemSize    := 0;
     nListSize    := 0;
@@ -234,14 +208,14 @@ begin
 
   if( bRet )  then
   begin
-    pItem := GetFirstLinkedListItem( srcList );
+    pItem := srcList.pFirstItem;
 
     while( bRet and ( pItem <> nil ) ) do
     begin
       bRet := ( AddLinkedListItem( dstList, pItem^.pValue ) <> nil );
 
       if( bRet )  then
-        pItem := GetNextLinkedListItem( srcList );
+        pItem := pItem^.pNextItem;
     end;
   end;
 
