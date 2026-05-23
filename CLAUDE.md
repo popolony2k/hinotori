@@ -49,8 +49,8 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
     mkexec.pas     Target executor (MkExecute)
   src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget, MkWildcard)
   src/make/msx/    MSX-DOS stubs (not yet implemented)
-  samples/makefile                  Sample/test makefile
-  samples/makefile.test_auto_vars   Auto-var and pattern-rule test suite
+  samples/makefile.test_compilation  C compilation simulation: pattern rules, PHONY, multi-target, auto-vars, wildcard vars
+  samples/makefile.test_auto_vars    Auto-var and pattern-rule test suite
   samples/makefile.test_errors      Error-handling test suite
   samples/makefile.test_wildcard    $(wildcard) expansion test suite
   samples/makefile.test_final       Variable override and multi-target final tests
@@ -93,10 +93,10 @@ fpc -FE<workspace>/build -g -gw tools/hmake/src/main/fpc/hmake.pas
 The binary lands in `build/hmake`. The `.vscode/tasks.json` task **"PAS build active file"** does this automatically.
 
 To run/debug, use one of the named launch configurations in `.vscode/launch.json`:
-- `(lldb) test_multiple_targets` — builds multiple targets (`-f makefile`)
-- `(lldb) test_main` / `(lldb) test_no_main` — single target tests (`-f makefile`)
+- `(lldb) test_multiple_targets` — builds multiple targets (`-f makefile.test_compilation`)
+- `(lldb) test_main` / `(lldb) test_no_main` — single target tests (`-f makefile.test_compilation`)
 - `(lldb) test_auto_vars ($@)` — full auto-var + pattern-rule suite (`-f makefile.test_auto_vars`)
-- `(lldb) debug all` — runs with `-d` flag across all main targets (`-f makefile`)
+- `(lldb) debug all` — runs with `-d` flag across all main targets (`-f makefile.test_compilation`)
 - `(gdb) test_multiple_targets` — Linux/GDB equivalent
 
 All configurations set `cwd` to `tools/hmake/samples/`.

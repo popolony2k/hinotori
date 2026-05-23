@@ -12,8 +12,8 @@ C_SOURCE=$(wildcard *.c)
 # .h files
 H_SOURCE=$(wildcard *.h)
 
-# Object files (Not supported)
-#OBJ=$(C_SOURCE:.c=.o)
+# Object files (explicit list; suffix substitution $(VAR:.old=.new) not yet supported)
+OBJ=main.o
 
 # Compiler (spaces on variable names before assignament)
 CC =gcc
@@ -38,9 +38,9 @@ all: $(PROJ_NAME)
 $(PROJ_NAME): $(OBJ)
 	$(CC) -o $@ $^
 
-%.o: %.c %.h
+%.o: %.c
 #	$(CC) -o $@ $< $(CC_FLAGS)
-	echo "building %o"
+	echo "building $@"
 
 #%.o: %.c %.h %.hxx
 #	$(CC) -o $@ $< $(CC_FLAGS)
@@ -52,8 +52,11 @@ $(PROJ_NAME): $(OBJ)
 #
 # test_no_main
 #
+no_main.c:
+	echo "no_main.c executed succesfully (1a)"
+
 no_main.o: no_main.c
-	echo "No main executed succesfully (1)"
+	echo "no_main.o executed succesfully (1b)"
 #
 # end test_no_main
 #

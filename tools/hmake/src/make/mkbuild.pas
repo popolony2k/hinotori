@@ -10,8 +10,8 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
- * - /memory/fpc/pointer.pas;  (depends on archtecture)
- * - /memory/msx/pointer.pas;  (depends on archtecture)
+ * - /memory/fpc/pointer.pas;  (depends on architecture)
+ * - /memory/msx/pointer.pas;  (depends on architecture)
  * - /util/helpstr.pas;
  * - ./make/mktypes.pas;
  * - ./make/mkhelper.pas;
@@ -20,12 +20,12 @@
 
 
 (**
- * Parse and build the makefile data struct. This function will 
- * parse the makefile, creating all needed infrastructure needed
- * by building process of a project;
- * @param handle The handle of a makefile previously opened by 
+ * Parse and build the makefile data structure. Reads the makefile
+ * line by line and populates the variable, target, and command lists
+ * inside handle.
+ * @param handle The handle of a makefile previously opened by
  * @see MkOpen;
- * The function will return true if the operation was successfull 
+ * The function will return true if the operation was successful
  * otherwise false;
  *)
 function MkBuild( var handle : TMakeHandle ) : boolean;
@@ -37,7 +37,7 @@ var
        aChToken     : array [IDENT_VARIABLE..IDENT_TARGETS] of char;
 
   (**
-    * Read comtent from file.
+    * Read content from file.
     * The function return true when operation is success
     * otherwise false;
     *)
@@ -53,15 +53,15 @@ var
 
   (**
     * Create the target list with all targets passed by parameter.
-    * @param handle The handle of a makefile previously opened by 
+    * @param handle The handle of a makefile previously opened by
     * @see MkOpen;
-     * @param target The @link TTarget data struct where list will be 
+    * @param target The @link TTarget data struct where list will be
     * created;
     * @param strTarget The target string with all targets separated by space;
-    * The function return false if some target already exist os list is empty;
+    * The function return false if some target already exists or list is empty;
     *)
-  function __CreateTargetList( var handle : TMakeHandle; 
-                               var target : TTarget; 
+  function __CreateTargetList( var handle : TMakeHandle;
+                               var target : TTarget;
                                strTarget : TIdentifierName ) : boolean;
   var
     pItem      : PLinkedListItem;
@@ -69,89 +69,82 @@ var
     bRet       : boolean;
 
   begin
-    with target do
+    bRet := false;
+
+    (* Create list with all targets (multi-target rule) *)
+    CreateLinkedList( target.targetNameList, sizeof( TIdentifierName ) );
+
+    if( SplitString( strTarget, ' ', target.targetNameList ) > 0 )  then
     begin
-      bRet := false;
+      pItem := GetFirstLinkedListItem( target.targetNameList );
+      bRet  := ( pItem <> nil );
 
-      (* Create list with all targets (Multi-target) *)
-      CreateLinkedList( targetNameList, 
-                        sizeof( TIdentifierName ) );
-
-      if( SplitString( strTarget, ' ', targetNameList ) > 0 ) then
+      while( bRet and ( pItem <> nil ) )  do
       begin
-        pItem := GetFirstLinkedListItem( targetNameList );
-        bRet  := ( pItem <> nil ); 
-        
-        while( bRet and ( pItem <> nil ) )  do
-        begin
-          Move( pItem^.pValue, pStrTarget, sizeof( pStrTarget ) );
-          bRet  := ( MkFindTarget( handle, pStrTarget^ ) = nil );
+        Move( pItem^.pValue, pStrTarget, sizeof( pStrTarget ) );
+        bRet := ( MkFindTarget( handle, pStrTarget^ ) = nil );
 
-          if( bRet )  then
-          begin
-            if( MkReplaceReferences( handle, pStrTarget^ ) ) then;
-            pItem := GetNextLinkedListItem( targetNameList );
-          end
-          else
-            handle.strLastError := 'target [' + pStrTarget^ + 
-                                   '] already defined'
-        end;
+        if( bRet )  then
+        begin
+          if( MkReplaceReferences( handle, pStrTarget^ ) ) then;
+          pItem := GetNextLinkedListItem( target.targetNameList );
+        end
+        else
+          handle.strLastError := 'hmake: *** target ''' + pStrTarget^ +
+                                 ''' already defined.  Stop.';
       end;
     end;
 
     __CreateTargetList := bRet;
   end;
 
- (**
-    * Create the pre-requisites list with all pre-requisites passed by 
+  (**
+    * Create the pre-requisites list with all pre-requisites passed by
     * parameter.
-    * @param handle The handle of a makefile previously opened by 
+    * @param handle The handle of a makefile previously opened by
     * @see MkOpen;
-    * @param target The @link TTarget data struct where list will be 
+    * @param target The @link TTarget data struct where list will be
     * created;
-    * @param strPrereq The pre-requisite string with all pre-requisites 
+    * @param strPrereq The pre-requisite string with all pre-requisites
     * separated by space;
     * The function return false if something goes wrong;
     *)
   function __CreatePrerequisiteList( var handle : TMakeHandle;
-                                     var target : TTarget; 
+                                     var target : TTarget;
                                      strPrereq : TIdentifierValue ) : boolean;
-  var 
+  var
          pItem      : PLinkedListItem;
          bRet       : boolean;
          pStrPrereq : PIdentifierValue;
 
   begin
-    with target do 
-    begin
-      New( pPreReqList );
-      CreateLinkedList( pPreReqList^, sizeof( TIdentifierValue ) );
-      bRet := ( SplitString( strPrereq, ' ', pPreReqList^ ) >= 0 );     
+    New( target.pPreReqList );
+    CreateLinkedList( target.pPreReqList^, sizeof( TIdentifierValue ) );
+    bRet := ( SplitString( strPrereq, ' ', target.pPreReqList^ ) >= 0 );
 
-      if( bRet )  then
+    if( bRet )  then
+    begin
+      pItem := GetFirstLinkedListItem( target.pPreReqList^ );
+
+      while( bRet and ( pItem <> nil ) )  do
       begin
-        pItem := GetFirstLinkedListItem( pPreReqList^ );
-        
-        while( bRet and ( pItem <> nil ) )  do
-        begin
-          Move( pItem^.pValue, pStrPrereq, sizeof( pStrPrereq ) );
-          if( MkReplaceReferences( handle, pStrPrereq^ ) ) then;
-          pItem := GetNextLinkedListItem( pPreReqList^ );
-        end;
-      end
-      else
-        handle.strLastError := 'error processing pre-requisite [' + 
-                               strPrereq + ']';
-    end;
+        Move( pItem^.pValue, pStrPrereq, sizeof( pStrPrereq ) );
+        if( MkReplaceReferences( handle, pStrPrereq^ ) ) then;
+        pItem := GetNextLinkedListItem( target.pPreReqList^ );
+      end;
+    end
+    else
+      handle.strLastError := 'error processing pre-requisite [' +
+                             strPrereq + ']';
 
     __CreatePrerequisiteList := bRet;
   end;
 
   (**
     * Parse identifier value.
-    * @param pair The containing @see TIdentifierPair value that 
-    * will be parsed and the content will return into the same 
-    * variable;  
+    * @param pair The containing @see TIdentifierPair value that
+    * will be parsed and the content will return into the same
+    * variable;
     *)
   function __ParseValue( var pair : TIdentifierPair ) : boolean;
   var
@@ -164,55 +157,48 @@ var
     if( bRet )  then
     begin
       repeat
-        with pair do
+        nPos := Pos( '\', pair.strValue );
+
+        if( nPos > 0 )  then
         begin
-          nPos := Pos( '\', strValue );
+          pair.strValue := Copy( pair.strValue, 1, ( nPos - 1 ) );
+          pair.strValue := RemoveChar( Trim( pair.strValue ), ctTAB );
+          bRet := __ReadFile;
 
-          if( nPos > 0 )  then
+          if( bRet )  then
           begin
-            strValue := Copy( strValue, 1, ( nPos - 1 ) );
-            strValue := RemoveChar( Trim( strValue ), ctTAB );
-            bRet := __ReadFile;
+            nPos := Pos( '\', strLine );
 
-            if( bRet )  then
-            begin
-              nPos := Pos( '\', strLine );
+            (* Line already buffered; decide if the next loop should read again. *)
+            if( nPos <= 0 )  then
+              bMustRead := ( ( Pos( ':', strLine ) = 0 ) and
+                             ( Pos( '=', strLine ) = 0 ) );
 
-              (*
-               * Already read data from file, process in the next loop.
-               *)
-              if( nPos <= 0 )  then
-                bMustRead := ( ( Pos( ':', strLine ) = 0 ) and 
-                               ( Pos( '=', strLine ) = 0 ) );
-
-              if( bMustRead )  then
-              begin
-                strValue := strValue + ' ' + Trim( strLine );
-              end;
-            end
-            else
-              handle.strLastError := 'Error reading makefile';
+            if( bMustRead )  then
+              pair.strValue := pair.strValue + ' ' + Trim( strLine );
           end
           else
-            strValue := Trim( strValue );
-        end;
+            handle.strLastError := 'Error reading makefile';
+        end
+        else
+          pair.strValue := Trim( pair.strValue );
       until( not bRet or ( nPos <= 0 ) );
     end;
 
-    __ParseValue := bRet;  
+    __ParseValue := bRet;
   end;
 
   (**
     * Parse the target content.
     * @param target Reference to target to process;
-    * @param pPair The pointer to pair with target data that will be 
+    * @param pPair The pointer to pair with target data that will be
     * processed.
     *)
-  function __ParseTarget( var target : TTarget; 
+  function __ParseTarget( var target : TTarget;
                           pPair : PIdentifierPair ) : boolean;
-  var 
-        bRet    : boolean;
-        pItem   : PLinkedListItem;
+  var
+        bRet  : boolean;
+        pItem : PLinkedListItem;
 
   begin
     (* Check if target was already defined previously *)
@@ -227,31 +213,28 @@ var
                                   pPair^.strName );
 
     if( bRet )  then
-      bRet := __CreatePrerequisiteList( handle, 
-                                        target, 
+      bRet := __CreatePrerequisiteList( handle,
+                                        target,
                                         pPair^.strValue );
 
     if( bRet )  then
     begin
-      pItem := AddLinkedListItem( handle.targetList, 
+      pItem := AddLinkedListItem( handle.targetList,
                                   ToPointer( target ) );
       bRet := ( pItem <> nil );
 
-      (* 
-      * If there's no default target, it means that is 
-      * the first target being processed, so according 
-      * makefile rules (GNU), the first target id the 
-      * default target.
-      *)
-      if( ( handle.pDefaultTarget = nil ) and bRet )  then
-        Move( pItem^.pValue, 
-              handle.pDefaultTarget, 
-              sizeof( pItem^.pValue ) );
-
       if( bRet )  then
-        Move( pItem^.pValue, 
-              pTargets, 
-              sizeof( pTargets ) )
+      begin
+        (* First target parsed becomes the default target (GNU make rule). *)
+        if( handle.pDefaultTarget = nil )  then
+          Move( pItem^.pValue,
+                handle.pDefaultTarget,
+                sizeof( pItem^.pValue ) );
+
+        Move( pItem^.pValue,
+              pTargets,
+              sizeof( pTargets ) );
+      end
       else
         handle.strLastError := 'Not enough memory -> ' + strLine;
     end;
@@ -262,23 +245,14 @@ var
   (**
     * Parse command.
     *)
-  function __ParseCommand : boolean;
-  var
-          bRet   : boolean;
-
+  procedure __ParseCommand;
   begin
     strLine := RemoveChar( Trim( strLine ), ctTAB );
 
     if( ( pTargets <> nil ) and ( strLine <> '' ) )  then
-    begin
-      bRet := ( AddLinkedListItem( pTargets^.commandList, 
-                                    ToPointer( strLine ) ) <> nil );
-      
-      if( not bRet )  then
+      if( AddLinkedListItem( pTargets^.commandList,
+                              ToPointer( strLine ) ) = nil )  then
         handle.strLastError := 'Not enough memory';
-    end;
-
-    __ParseCommand := bRet;
   end;
 
   (**
@@ -286,7 +260,7 @@ var
     * @param identType The identifier type to process;
     * @param target Reference to target to process;
     * @param pair Reference to a valid @see TIdentifier variable;
-    * @param pPair Reference to a pointer to receive the pair 
+    * @param pPair Reference to a pointer to receive the pair
     * variable deferenced pointer, when identType is IDENT_VARIABLE;
     *)
   function __ParseIdentifier( identType : TIdentifierType;
@@ -353,25 +327,25 @@ var
     begin
       if( ( nCount mod 2 ) = 0 )  then
       begin
-        Move( pItem^.pValue^, 
-              pPair^.strName, 
+        Move( pItem^.pValue^,
+              pPair^.strName,
               sizeof( pPair^.strName ) );
         pPair^.strName := Trim( pPair^.strName );
       end
       else
       begin
-        Move( pItem^.pValue^, 
-              pPair^.strValue, 
+        Move( pItem^.pValue^,
+              pPair^.strValue,
               sizeof( pPair^.strValue ) );
-        
+
         bRet := __ParseValue( pPair^ );
 
         if( bRet )  then
         begin
           case identType of
             TIdentifierType.IDENT_VARIABLE :
-            begin 
-              bRet := AddLinkedListItem( handle.variableList, 
+            begin
+              bRet := AddLinkedListItem( handle.variableList,
                                           ToPointer( pPair^ ) ) <> nil;
 
               if( not bRet )  then
@@ -403,27 +377,27 @@ var
     *)
   function __Parse : boolean;
   var
-        nCount         : integer;
-        bRet           : boolean;
-        bTargetRemark  : boolean;
-        bRegularRemark : boolean;
-        tokenList      : TLinkedList;
-        target         : TTarget;
-        pair           : TIdentifierPair;
-        pPair          : PIdentifierPair;
-        identType      : TIdentifierType;
+        nRemarkPos   : integer;
+        nTokenCount  : integer;
+        bRet         : boolean;
+        bStripRemark : boolean;
+        tokenList    : TLinkedList;
+        target       : TTarget;
+        pair         : TIdentifierPair;
+        pPair        : PIdentifierPair;
+        identType    : TIdentifierType;
 
   begin
     bRet      := true;
     bMustRead := true;
 
-    (* Remove remarks *)
-    nCount := Pos( '#', strLine );
-    bTargetRemark  := ( ( nCount = 1 ) and ( handle.pDefaultTarget <> nil ) );
-    bRegularRemark := ( ( nCount >= 1 ) and ( handle.pDefaultTarget = nil ) ); 
+    (* Strip remarks: anywhere in variable section; only full-line (#) in target section. *)
+    nRemarkPos   := Pos( '#', strLine );
+    bStripRemark := ( nRemarkPos >= 1 ) and
+                    ( ( handle.pDefaultTarget = nil ) or ( nRemarkPos = 1 ) );
 
-    if( bTargetRemark or bRegularRemark )  then 
-      Delete( strLine, nCount, ( Length( strLine ) - nCount + 1 ) );
+    if( bStripRemark )  then
+      Delete( strLine, nRemarkPos, ( Length( strLine ) - nRemarkPos + 1 ) );
 
     identType := MkIdentifierType( handle, strLine );
 
@@ -441,13 +415,13 @@ var
           handle.strLastError := 'Missing separator';
       end;
 
-      TIdentifierType.IDENT_VARIABLE, 
+      TIdentifierType.IDENT_VARIABLE,
       TIdentifierType.IDENT_TARGETS :
       begin
         CreateLinkedList( tokenList, sizeof( TIdentifierValue ) );
-        nCount := SplitString( strLine, aChToken[identType], tokenList );
-        
-        if( nCount > 0 )  then
+        nTokenCount := SplitString( strLine, aChToken[identType], tokenList );
+
+        if( nTokenCount > 0 )  then
         begin
           bRet := __ParseIdentifier( identType, target, pair, pPair );
 
@@ -460,7 +434,7 @@ var
         else
         begin
           handle.strLastError := 'Invalid identifier ' + strLine;
-          bRet := false; 
+          bRet := false;
         end;
 
         DestroyLinkedList( tokenList );
@@ -473,14 +447,14 @@ var
   end;
 
 (*
- * MkBuid main routine
+ * MkBuild main routine
  *)
 begin
   bRet := handle.bIsOpen;
 
   if( bRet )  then
   begin
-    (* General perser init *)
+    (* General parser init *)
     bMustRead  := true;
     pTargets   := nil;
     aChToken[IDENT_VARIABLE] := '=';
@@ -488,7 +462,7 @@ begin
 
     Write( 'Processing ( )' );
     Write( #27, handle.chCSI, 'D' );
-  
+
     while( bRet and not eof( handle.hFile ) ) do
     begin
       if( bMustRead )  then

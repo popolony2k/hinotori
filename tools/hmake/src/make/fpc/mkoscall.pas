@@ -93,14 +93,24 @@ var
       preReq : TSearchRec;
 
 begin
+  (* bRet = true  → target is up-to-date; skip execution.
+     bRet = false → target needs rebuilding; execute commands. *)
   bRet := ( FindFirst( pair.strName, faAnyFile, target ) = 0 );
 
-  if( not bRet )  then
+  (* Directories must never be treated as up-to-date target files. *)
+  if( bRet )  then
+    bRet := ( ( target.Attr and faDirectory ) = 0 );
+
+  (* Target file exists; check whether a prerequisite file is newer. *)
+  if( bRet and ( pair.strValue <> '' ) )  then
   begin
     if( FindFirst( pair.strValue, faAnyFile, preReq ) = 0 )  then
-      bRet := ( preReq.Time > target.Time );
-
-    FindClose( preReq );
+    begin
+      if( ( preReq.Attr and faDirectory ) = 0 )  then
+        if( preReq.Time > target.Time )  then
+          bRet := false;
+      FindClose( preReq );
+    end;
   end;
 
   FindClose( target );
