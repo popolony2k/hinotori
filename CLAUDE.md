@@ -55,7 +55,9 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
 samples/           MSX sample programs (mapper, socket, sunrise, unapi, …)
 test/              Unit tests (bigint × 16, memory/pointer) — branch only
 build/             Compiled output (gitignored)
-docs/              Project documentation and VSCode setup guide
+docs/              Project documentation
+  vscode/VSCODE.md   VSCode setup guide (extensions, launch configs, tasks)
+  vscode/sample/     Template .vscode files (extensions.json, launch.json, tasks.json)
 ```
 
 ---
@@ -86,7 +88,14 @@ fpc -FE<workspace>/build -g -gw tools/hmake/src/main/fpc/hmake.pas
 
 The binary lands in `build/hmake`. The `.vscode/tasks.json` task **"PAS build active file"** does this automatically.
 
-To run/debug: the launch configuration **"(lldb) Debug current Pascal file"** invokes `build/hmake` with args pointing at `tools/hmake/samples/makefile`.
+To run/debug, use one of the named launch configurations in `.vscode/launch.json`:
+- `(lldb) test_multiple_targets` — builds multiple targets
+- `(lldb) test_main` / `(lldb) test_no_main` — single target tests
+- `(lldb) test_auto_vars ($@)` — automatic variable expansion test
+- `(lldb) debug all` — runs with `-d` flag across all main targets
+- `(gdb) test_multiple_targets` — Linux/GDB equivalent
+
+All configurations set `cwd` to `tools/hmake/samples/` and pass `-f makefile`.
 
 ---
 
