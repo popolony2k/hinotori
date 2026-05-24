@@ -49,12 +49,18 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
     mkexec.pas     Target executor (MkExecute)
   src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget, MkWildcard)
   src/make/msx/    MSX-DOS stubs (not yet implemented)
+  bootstrap/       Host-side bootstrap scripts to build hmake before hmake exists
+    build.sh           Unix shell script (run from repo root)
+    build.bat          Windows batch script (run from repo root)
+    GNUmakefile        GNU Make — incremental rebuild via find *.pas
+    build_hmake.pas    Pascal program using process unit (FPC-native, no fpmake infra needed)
+    fpmake.pp          fpmake reference template (see file header for infrastructure caveats)
   samples/makefile.test_compilation  C compilation simulation: pattern rules, PHONY, multi-target, auto-vars, wildcard vars
   samples/makefile.test_auto_vars    Auto-var and pattern-rule test suite
-  samples/makefile.test_errors      Error-handling test suite
-  samples/makefile.test_wildcard    $(wildcard) expansion test suite
-  samples/makefile.test_final       Variable override and multi-target final tests
-  docs/WIP.md                       Work-in-progress checklist
+  samples/makefile.test_errors       Error-handling test suite
+  samples/makefile.test_wildcard     $(wildcard) expansion test suite
+  samples/makefile.test_final        Variable override and multi-target final tests
+  docs/WIP.md                        Work-in-progress checklist
 
 samples/           MSX sample programs (mapper, socket, sunrise, unapi, …)
 test/              Unit tests (bigint × 16, memory/pointer) — branch only
@@ -78,19 +84,29 @@ All code under `src/` must compile cleanly with **Turbo Pascal 3.3f for MSX**:
 - All modules are `{$i include}`d into a single compilation unit — there are no separate `.TPU` files
 - Include order matters; each file lists its dependencies in a header comment
 
-FPC-specific extensions (object pascal `{$mode objfpc}{$H+}`, `uses process`, `RunCommand`, `GetEnv`, etc.) are only allowed under `tools/hmake/src/make/fpc/` and `tools/hmake/src/main/fpc/`.
+FPC-specific extensions (object pascal `{$mode objfpc}{$H+}`, `uses process`, `RunCommand`, `GetEnv`, etc.) are only allowed under `tools/hmake/src/make/fpc/`, `tools/hmake/src/main/fpc/`, and `tools/hmake/bootstrap/`.
 
 ---
 
 ## Building hmake (FPC — host side)
 
-Open `tools/hmake/src/main/fpc/hmake.pas` in VSCode and use the default build task:
+**Quick build** — open `tools/hmake/src/main/fpc/hmake.pas` in VSCode and use the default build task:
 
 ```
 fpc -FE<workspace>/build -g -gw tools/hmake/src/main/fpc/hmake.pas
 ```
 
 The binary lands in `build/hmake`. The `.vscode/tasks.json` task **"PAS build active file"** does this automatically.
+
+**Bootstrap scripts** (when hmake doesn't exist yet; all run from the repository root):
+
+| Script | How to use |
+| --- | --- |
+| `tools/hmake/bootstrap/build.sh` | `sh tools/hmake/bootstrap/build.sh` |
+| `tools/hmake/bootstrap/build.bat` | `tools\hmake\bootstrap\build.bat` (Windows) |
+| `tools/hmake/bootstrap/GNUmakefile` | `make -f tools/hmake/bootstrap/GNUmakefile` |
+| `tools/hmake/bootstrap/build_hmake.pas` | `fpc tools/hmake/bootstrap/build_hmake.pas -FEtools/hmake/bootstrap` then `tools/hmake/bootstrap/build_hmake` |
+| `tools/hmake/bootstrap/fpmake.pp` | Reference only — see file header for fpmake infrastructure caveats |
 
 To run/debug, use one of the named launch configurations in `.vscode/launch.json`:
 - `(lldb) test_multiple_targets` — builds multiple targets (`-f makefile.test_compilation`)
@@ -150,9 +166,10 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 ---
 
-## Active Branch: `target_pattern_support`
+## hmake Status (branch: `main`)
 
-### What is done
+### Implemented
+
 - Multi-line values and commands (`\` continuation)
 - Remark stripping (`#`) in both variable and target sections
 - Multiple targets on one line (`tgt1 tgt2: prereq`)
@@ -160,11 +177,12 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - Chained prerequisite execution (depth-first)
 - `$(VAR)` and OS environment variable expansion in commands
 - Multi-line command joining before execution
-- FPC `MkExecCommand` / `MkGetEnv` / `MkCheckTarget` / `MkWildcard` implementations
+- FPC `MkExecCommand` / `MkGetEnv` / `MkWildcard` implementations
+- **`MkCheckTarget`** (`fpc/mkoscall.pas`) — fixed two bugs: (1) `faAnyFile` matched directories causing targets named after dirs to be silently skipped; (2) timestamp comparison now runs when target IS found, not when missing; (3) directory attribute guard on prereq; (4) `pair.strValue <> ''` guard against uninitialised value
 - Automatic variables `$@`, `$<`, `$^`, `$+`, `$*` — implemented in `__ReplaceAutoVars` (`mkexec.pas`)
 - Directory/file suffix auto-var variants: `$@D`/`$@F`, `$<D`/`$<F`, `$^D`/`$^F`, `$+D`/`$+F`, `$*D`/`$*F`
 - TAB-indentation enforcement: TAB-prefixed lines with existing targets are always `IDENT_COMMAND`
-- **Target-pattern rules** (`%.o: %.c %.h`) — fully implemented and tested
+- **Target-pattern rules** (`%.o: %.c`) — fully implemented and tested
   - `MkMatchPattern` + `MkFindPatternTarget` in `mkhelper.pas`
   - `__InstantiatePreReqList` in `mkexec.pas` — instantiates prereqs for pattern rules
   - `__ExecTarget` — exact-match first, pattern fallback second; nil-guards for missing rules
@@ -173,12 +191,15 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - **Variable override** — `MkFindIdentifier` returns last match (full-list raw traversal); later assignments override earlier ones (GNU make semantics)
 - **Duplicate target detection** — proper error message when a target is defined twice
 - `lnkdlist.pas` — fixed O(n²) insertion (`pLastItem` tail pointer), fixed cursor-mutation side effects
+- **Bootstrap scripts** — `tools/hmake/bootstrap/`: `build.sh`, `build.bat`, `GNUmakefile`, `build_hmake.pas`, `fpmake.pp` (reference)
 
-### What is in progress
-- **Automatic variables** — `$%`, `$?` replaced with empty string; not yet implemented
-- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget`, `MkWildcard` — stubs only (intentional: FPC engine must be 100% first)
+### Not yet implemented
+
+- `$%`, `$?` — replaced with empty string; logic not written
+- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget`, `MkWildcard` — stubs only (intentional: FPC engine must be complete first)
 
 ### Wish list (future)
+
 - `include` directive
 - `:=` immediate (non-recursive) assignment
 - `__ARCH__` builtin constant

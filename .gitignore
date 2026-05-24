@@ -10,3 +10,5 @@ setenv.bat
 *.lps
 *.lpr
 **/build/
+tools/hmake/bootstrap/build_hmake
+tools/hmake/bootstrap/fpmake
