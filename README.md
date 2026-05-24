@@ -81,4 +81,10 @@ CD SAMPLES\MAPPER
 HBUILD mappdemo.pas
 ```
 
+## Tools
+
+| Tool | Description |
+| --- | --- |
+| [hmake](tools/hmake/HMAKE.md) | GNU make-compatible build tool written in Pascal, targeting MSX-DOS and host FPC |
+
 Hinotori Team
