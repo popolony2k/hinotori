@@ -63,7 +63,7 @@ STSCRN : integer =        $0002; { Exec address for startup screen on MSX 2 }
 (* (e.g. when the machine has a diskdrive or a harddisk interface *)
 (* connected).                                                    *)
 
-Var
+var
 
 RAMAD0 : byte absolute    $F341; { Slot addr. of RAM in page 0 (DOS)       }
 RAMAD1 : byte absolute    $F342; { Slot addr. of RAM in page 1 (DOS)       }

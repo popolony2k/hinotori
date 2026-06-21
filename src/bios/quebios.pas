@@ -11,5 +11,5 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctLFTQ    = $00F6;      { Return the number of bytes in queue      }
+const     ctLFTQ    = $00F6;      { Return the number of bytes in queue      }
           ctPUTQ    = $00F9;      { Put byte in queue                        }

@@ -18,24 +18,24 @@
   * @param nPrimarySlot The primary slot number returned;
   * @param nSecondarySlot The secondary slot number returned;
   *)
-Procedure FindSCC( Var nPrimarySlot, nSecondarySlot : Byte );
-Const
-        ctPPISlotSel    : Byte = $A8;       { PPI slot selection }
-Var
-        bResult         : Boolean;
-        nCount          : Integer;
-        nSlotPages      : Byte;
+procedure FindSCC( var nPrimarySlot, nSecondarySlot : byte );
+const
+        ctPPISlotSel    : byte = $A8;       { PPI slot selection }
+var
+        bResult         : boolean;
+        nCount          : integer;
+        nSlotPages      : byte;
         nSlotNumber     : TSlotNumber;
 
-Begin
+begin
   nPrimarySlot := 0;
 
   (* Search for SCC slot *)
-  Repeat
+  repeat
     nSecondarySlot := 0;
 
-    Repeat
-      bResult := True;
+    repeat
+      bResult := true;
       nSlotNumber := MakeSlotNumber( nPrimarySlot, nSecondarySlot );
 
       (*
@@ -52,14 +52,14 @@ Begin
        * The memory area from $9800 to $987F behaves as RAM, so we can write
        * something there and try to read the same content.
        *)
-      For nCount := $9800 To $987F Do
-      Begin
+      for nCount := $9800 to $987F do
+      begin
         WRSLT( nSlotNumber, nCount, $7F );
-        bResult := bResult And ( RDSLT( nSlotNumber, nCount ) = $7F );
-      End;
+        bResult := bResult and ( RDSLT( nSlotNumber, nCount ) = $7F );
+      end;
 
-      If( bResult )  Then
-      Begin
+      if( bResult )  then
+      begin
         (*
          * The memory area between $9880 to $98FF is write only, so if you
          * try to read it, it'll always return $FF.
@@ -68,38 +68,38 @@ Begin
          * 1 to 5, so if we test it they would be reseted and the SCC
          * channels won't play anymore.
          *)
-        For nCount := $9880 To $988E Do
-        Begin
+        for nCount := $9880 to $988E do
+        begin
           WRSLT( nSlotNumber, nCount, 1 );
-          bResult := bResult And ( RDSLT( nSlotNumber, nCount ) = $FF );
-        End;
-      End;
+          bResult := bResult and ( RDSLT( nSlotNumber, nCount ) = $FF );
+        end;
+      end;
 
-      If( Not bResult )  Then
+      if( not bResult )  then
         nSecondarySlot := nSecondarySlot + 1;
-    Until( bResult Or
-           ( nSecondarySlot = ctMaxSecSlots ) Or
+    until( bResult or
+           ( nSecondarySlot = ctMaxSecSlots ) or
            ( EXPTBL[nPrimarySlot] = 0 ) );
 
-    If( Not bResult )  Then
+    if( not bResult )  then
       nPrimarySlot := nPrimarySlot + 1;
-  Until( bResult Or ( nPrimarySlot = ctMaxSlots ) );
+  until( bResult or ( nPrimarySlot = ctMaxSlots ) );
 
-  If( Not bResult )  Then
-  Begin
+  if( not bResult )  then
+  begin
     nPrimarySlot   := ctUnitializedSlot;
     nSecondarySlot := ctUnitializedSlot;
-  End
-  Else
-  Begin
+  end
+  else
+  begin
     (*
      * Get the active sub-slots for all selected pages based on the primary
      * slot where SCC is connected.
      * For more information about memory slot selection, please check:
      * http://www.angelfire.com/art2/unicorndreams/msx/RR-PPI.html
      *)
-    nSlotPages     := ( Not SLTTBL[nPrimarySlot] ) And $CF;
-    nSecondarySlot := ( ( ( nSecondarySlot ShL 4 ) Or $CF ) Or nSlotPages );
+    nSlotPages     := ( not SLTTBL[nPrimarySlot] ) and $CF;
+    nSecondarySlot := ( ( ( nSecondarySlot shl 4 ) or $CF ) or nSlotPages );
 
     (*
      * The SCC primary slot and the secondary slot must be positioned on the
@@ -107,11 +107,11 @@ Begin
      * Activates page 3 on selected Slot for accessing the SubSlot selection
      * register and respectively activates page 2 for SCC accessing.
      *)
-    nSlotPages   := ( nPrimarySlot ShL 6 );
-    nPrimarySlot := ( ( ( nPrimarySlot ShL 4 ) Or $0F ) Or nSlotPages );
+    nSlotPages   := ( nPrimarySlot shl 6 );
+    nPrimarySlot := ( ( ( nPrimarySlot shl 4 ) or $0F ) or nSlotPages );
 
     (* Get the active slots for all other pages *)
-    nSlotPages   := Port[ctPPISlotSel] Or $F0;
-    nPrimarySlot := nPrimarySlot And nSlotPages;
-  End;
-End;
+    nSlotPages   := Port[ctPPISlotSel] or $F0;
+    nPrimarySlot := nPrimarySlot and nSlotPages;
+  end;
+end;

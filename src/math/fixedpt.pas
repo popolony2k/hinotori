@@ -12,9 +12,9 @@
 (**
   * New fixed point definitions.
   *)
-Type TFixedPoint  = Integer;
+type TFixedPoint  = integer;
      TUFixedPoint = TWord;
-     TDynFixedPointArray = Array[0..0] Of TFixedPoint;
+     TDynFixedPointArray = array[0..0] of TFixedPoint;
      PDynFixedPointArray = ^TDynFixedPointArray;
 
 
@@ -50,10 +50,10 @@ End;
   * @param B The second value to multiply;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function MulFixed( A, B : TFixedPoint; Q : Byte ) : TFixedPoint;
-Begin
-  MulFixed := TFixedPoint( TFixedPoint( A * B ) ShR Q );
-End;
+function MulFixed( A, B : TFixedPoint; Q : byte ) : TFixedPoint;
+begin
+  MulFixed := TFixedPoint( TFixedPoint( A * B ) shr Q );
+end;
 
 (**
   * Perform the division of two @link TFixedPoint values.
@@ -61,60 +61,60 @@ End;
   * @param B The second value to divide;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function DivFixed( A, B : TFixedPoint; Q : Byte ) : TFixedPoint;
-Begin
-  DivFixed := TFixedPoint( TFixedPoint( A ShL Q ) Div B );
-End;
+function DivFixed( A, B : TFixedPoint; Q : byte ) : TFixedPoint;
+begin
+  DivFixed := TFixedPoint( TFixedPoint( A shl Q ) div B );
+end;
 
 (**
   * Convert @link TFixedPoint to Real;
   * @param A The @link TFixedPoint to convert;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function FixedToReal( A : TFixedPoint; Q : Byte ): Real;
-Begin
-  FixedToReal := ( A / TFixedPoint( 1 ShL Q ) );
-End;
+function FixedToReal( A : TFixedPoint; Q : byte ): real;
+begin
+  FixedToReal := ( A / TFixedPoint( 1 shl Q ) );
+end;
 
 (**
   * Convert Real to @link TFixedPoint;
   * @param R The Real value to convert;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function RealToFixed( R : Real; Q : Byte ) : TFixedPoint;
-Begin
-  RealToFixed := Round( ( R * TFixedPoint( 1 ShL Q ) ) );
-End;
+function RealToFixed( R : real; Q : byte ) : TFixedPoint;
+begin
+  RealToFixed := Round( ( R * TFixedPoint( 1 shl Q ) ) );
+end;
 
 (**
   * Convert @link TFixedPoint to Integer;
   * @param A The @link TFixedPoint to convert;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function FixedToInt( A : TFixedPoint; Q : Byte ) : Integer;
-Begin
-  FixedToInt :=  TInteger( A Div ( 1 ShL Q ) ); {( A ShR Q );}
-End;
+function FixedToInt( A : TFixedPoint; Q : byte ) : integer;
+begin
+  FixedToInt :=  TInteger( A div ( 1 shl Q ) ); {( A ShR Q );}
+end;
 
 (**
   * Convert Integer to @link TFixedPoint;
   * @param R The Integer value to convert;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function IntToFixed( I : Integer; Q : Byte ) : TFixedPoint;
-Begin
-  IntToFixed :=  TFixedPoint( I * ( 1 ShL Q ) ); {( I ShL Q );}
-End;
+function IntToFixed( I : integer; Q : byte ) : TFixedPoint;
+begin
+  IntToFixed :=  TFixedPoint( I * ( 1 shl Q ) ); {( I ShL Q );}
+end;
 
 (**
   * Get the @see TFixedPoint fractional part;
   * @param A The @link TFixedPoint value to retrieve the fractional part;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function FixedFracPart( A : TFixedPoint; Q : Byte ) : Integer;
-Begin
-  FixedFracPart := ( A And Q );
-End;
+function FixedFracPart( A : TFixedPoint; Q : byte ) : integer;
+begin
+  FixedFracPart := ( A and Q );
+end;
 
 { Unsigned operations - Is missing several manipulations (WIP) }
 
@@ -125,9 +125,9 @@ End;
   * @param B The second value to multiply;
   * @param Q The Number of bits used to fixed point calculations;
   *)
-Function MulFixedUFixed( A : TFixedPoint;
-                         B : TUFixedPoint; Q : Byte ) : TUFixedPoint;
-Begin
-  MulFixedUFixed := TUFixedPoint ( TFixedPoint( A Div 2 ) *
-                                   TUFixedPoint( B ShR ( Q - 1 ) ) );
-End;
+function MulFixedUFixed( A : TFixedPoint;
+                         B : TUFixedPoint; Q : byte ) : TUFixedPoint;
+begin
+  MulFixedUFixed := TUFixedPoint ( TFixedPoint( A div 2 ) *
+                                   TUFixedPoint( B shr ( Q - 1 ) ) );
+end;

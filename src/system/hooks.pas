@@ -50,8 +50,8 @@ begin
 
   if( pHookAddr <> nil )  then
   begin
-    Move( pHookAddr^, oldHookCode, SizeOf( THookCode ) );
-    Move( newHookCode, pHookAddr^, SizeOf( THookCode ) );
+    Move( pHookAddr^, oldHookCode, sizeof( THookCode ) );
+    Move( newHookCode, pHookAddr^, sizeof( THookCode ) );
   end;
 
   inline( $FB );     { EI }
@@ -72,6 +72,6 @@ begin
   (*
    * This hook just executes a RET instruction code.
    *)
-  FillChar( hookNOP, SizeOf( hookNOP ), $C9 );
+  FillChar( hookNOP, sizeof( hookNOP ), $C9 );
   SetHook( hookType, hookNOP, oldHookCode );
 end;

@@ -13,7 +13,7 @@
 
 (* Module constant definitions *)
 
-Const     __ctError : Byte = $FF; { MSXDOS error code For internal use only }
+const     __ctError : byte = $FF; { MSXDOS error code For internal use only }
 
 
 (* Time functions implementation *)
@@ -23,11 +23,11 @@ Const     __ctError : Byte = $FF; { MSXDOS error code For internal use only }
   * @param time The @see TTime data variable containing the new system
   * time;
   *)
-Function DOSSetTime( time : TTime ) : Boolean;
-Var
+function DOSSetTime( time : TTime ) : boolean;
+var
        regs   : TRegs;
 
-Begin
+begin
   regs.C := ctSetTime;
   regs.H := time.nHours;
   regs.L := time.nMinutes;
@@ -37,18 +37,18 @@ Begin
 
   MSXBDOS( regs );
   DOSSetTime := ( regs.A <> __ctError );
-End;
+end;
 
 (**
   * Retrieve the system time using BDOS call.
   * @param time Reference to the @see TTime structure to receive the system
   * time;
   *)
-Procedure DOSGetTime( Var time : TTime );
-Var
+procedure DOSGetTime( var time : TTime );
+var
        regs  : TRegs;
 
-Begin
+begin
   regs.C := ctGetTime;
 
   MSXBDOS( regs );
@@ -57,18 +57,18 @@ Begin
   time.nMinutes := regs.L;
   time.nSeconds := regs.D;
   time.nCentiSeconds := regs.E;
-End;
+end;
 
 (**
   * Set the system date using BDOS call.
   * @param date The @see TDate data variable containing the new system
   * date;
   *)
-Function DOSSetDate( date : TDate ) : Boolean;
-Var
+function DOSSetDate( date : TDate ) : boolean;
+var
        regs  : TRegs;
 
-Begin
+begin
   regs.C  := ctSetDate;
   regs.HL := date.nYear;
   regs.D  := date.nMonth;
@@ -78,18 +78,18 @@ Begin
   MSXBDOS( regs );
 
   DOSSetDate := ( regs.A <> __ctError );
-End;
+end;
 
 (**
   * Retrieve the system date using BDOS call.
   * @param date Reference to the @see TDate structure to receive the system
   * date;
   *)
-Procedure DOSGetDate( Var date : TDate );
-Var
+procedure DOSGetDate( var date : TDate );
+var
        regs   : TRegs;
 
-Begin
+begin
   regs.C := ctGetDate;
 
   MSXBDOS( regs );
@@ -97,7 +97,7 @@ Begin
   date.nYear  := regs.HL;
   date.nMonth := regs.D;
   date.nDay   := regs.E;
-End;
+end;
 
 (**
   * Get the current date and time storing it on @see TDateTime
@@ -105,8 +105,8 @@ End;
   * @param datetime Reference to the structure that will receive
   * the @see TDateTime structure;
   *)
-Procedure DOSGetDateTime( Var datetime : TDateTime );
-Begin
+procedure DOSGetDateTime( var datetime : TDateTime );
+begin
   DOSGetDate( datetime.date );
   DOSGetTime( datetime.time );
-End;
+end;

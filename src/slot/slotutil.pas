@@ -17,27 +17,27 @@
   * disk interface connected;
   * @param nAddress The address to check the slot number;
   *)
-Function GetSlotNumberByAddress( nAddress : Integer ) : Byte;
-Var
-       nRAMAD0 : Byte Absolute $f341; { Slot address of RAM in page 0 }
-       nRAMAD1 : Byte Absolute $f342; { Slot address of RAM in page 1 }
-       nRAMAD2 : Byte Absolute $f343; { Slot address of RAM in page 2 }
-       nRAMAD3 : Byte Absolute $f344; { Slot address of RAM in page 3 }
-       nRet    : Byte;
-Begin
+function GetSlotNumberByAddress( nAddress : integer ) : byte;
+var
+       nRAMAD0 : byte absolute $f341; { Slot address of RAM in page 0 }
+       nRAMAD1 : byte absolute $f342; { Slot address of RAM in page 1 }
+       nRAMAD2 : byte absolute $f343; { Slot address of RAM in page 2 }
+       nRAMAD3 : byte absolute $f344; { Slot address of RAM in page 3 }
+       nRet    : byte;
+begin
   nRet := -1; { Something is wrong }
 
-  If( ( nAddress >= $0000 ) And ( nAddress <= $4000 ) ) Then
+  if( ( nAddress >= $0000 ) and ( nAddress <= $4000 ) ) then
     nRet := nRAMAD0
-  Else
-  If( ( nAddress > $4000 ) And ( nAddress <= $8000 ) ) Then
+  else
+  if( ( nAddress > $4000 ) and ( nAddress <= $8000 ) ) then
     nRet := nRAMAD1
-  Else
-  If( ( nAddress > $8000 ) And ( nAddress <= $C000 ) ) Then
+  else
+  if( ( nAddress > $8000 ) and ( nAddress <= $C000 ) ) then
     nRet := nRAMAD2
-  Else
-  If( ( nAddress > $C000 ) And ( nAddress <= $FFFF ) ) Then
+  else
+  if( ( nAddress > $C000 ) and ( nAddress <= $FFFF ) ) then
     nRet := nRAMAD3;
 
   GetSlotNumberByAddress := nRet;
-End;
+end;

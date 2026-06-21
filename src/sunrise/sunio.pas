@@ -16,7 +16,7 @@
 
 (* Sunrise-like IDE BIOS calls *)
 
-Const     ctBIOSAbsSectorRead  = $7F89;  { Absolute sector read function  }
+const     ctBIOSAbsSectorRead  = $7F89;  { Absolute sector read function  }
           ctBIOSAbsSectorWrite = $7F8C;  { Absolute sector write function }
 
 
@@ -36,15 +36,15 @@ Const     ctBIOSAbsSectorRead  = $7F89;  { Absolute sector read function  }
   * This result has the same values of DISKIO DOS function return codes.
   * For this codes please check the <doscodes.pas> module;
   *)
-Function SunAbsoluteSectorRead( nSlotNumber : TSlotNumber;
+function SunAbsoluteSectorRead( nSlotNumber : TSlotNumber;
                                 ptrDriveField : PDriveField;
                                 n24SectorNumber : TInt24;
-                                nSectorsToRead : Byte;
-                                nBufferAddress : Integer ) : Byte;
-Var
+                                nSectorsToRead : byte;
+                                nBufferAddress : integer ) : byte;
+var
       regs  : TRegs;
 
-Begin
+begin
   regs.A  := ptrDriveField^.nDeviceCodeByte;
   regs.B  := nSectorsToRead;
   regs.C  := n24SectorNumber[2];
@@ -57,11 +57,11 @@ Begin
   CALSLT( regs );
 
   { Check carry for error }
-  If( ( regs.F And $1 ) = 0 )  Then
+  if( ( regs.F and $1 ) = 0 )  then
     SunAbsoluteSectorRead := ctDISKIOSuccess
-  Else
+  else
     SunAbsoluteSectorRead := regs.A;
-End;
+end;
 
 (**
   * Perform a low level sector absolute write to IDE connected device.
@@ -77,15 +77,15 @@ End;
   * This result has the same values of DISKIO DOS function return codes.
   * For this codes please check the <doscodes.pas> module;
   *)
-Function SunAbsoluteSectorWrite( nSlotNumber : TSlotNumber;
+function SunAbsoluteSectorWrite( nSlotNumber : TSlotNumber;
                                  ptrDriveField : PDriveField;
                                  n24SectorNumber : TInt24;
-                                 nSectorsToWrite : Byte;
-                                 nBufferAddress : Integer ) : Byte;
-Var
+                                 nSectorsToWrite : byte;
+                                 nBufferAddress : integer ) : byte;
+var
       regs  : TRegs;
 
-Begin
+begin
   regs.A  := ptrDriveField^.nDeviceCodeByte;
   regs.B  := nSectorsToWrite;
   regs.C  := n24SectorNumber[2];
@@ -98,8 +98,8 @@ Begin
   CALSLT( regs );
 
   { Check carry for error }
-  If( ( regs.F And $1 ) = 0 )  Then
+  if( ( regs.F and $1 ) = 0 )  then
     SunAbsoluteSectorWrite := ctDISKIOSuccess
-  Else
+  else
     SunAbsoluteSectorWrite := regs.A;
-End;
+end;

@@ -27,11 +27,11 @@
 (**
   * The RAM Helper structure containing the RAM helper routines.
   *)
-Type TRAMHelper = Record
-  nJumpTableEntries : Byte;
+type TRAMHelper = record
+  nJumpTableEntries : byte;
   { TODO: JumpTableAddresses here }
-  nMappersTableAddr : Integer;
-End;
+  nMappersTableAddr : integer;
+end;
 
 
 (**
@@ -39,12 +39,12 @@ End;
   * @param helper The structure containing the RAM Helper pointers
   * to the data and routines used by the helper functions;
   *)
-Function GetRAMHelper( Var helper : TRAMHelper ) : Boolean;
-Var
+function GetRAMHelper( var helper : TRAMHelper ) : boolean;
+var
      regs    : TRegs;
-     bRet    : Boolean;
+     bRet    : boolean;
 
-Begin
+begin
   regs.A  := $ff;
   regs.B  := 0;
   regs.D  := ctUNAPI;
@@ -55,26 +55,26 @@ Begin
 
   bRet := ( regs.HL <> 0 );
 
-  If( bRet )  Then
-  Begin
-    With helper Do
-    Begin
+  if( bRet )  then
+  begin
+    with helper do
+    begin
       nJumpTableEntries := regs.A;
       nMappersTableAddr := regs.BC;
       { TODO: FINISH }
-    End;
-  End;
+    end;
+  end;
 
   GetRAMHelper := bRet;
-End;
+end;
 
 
 { TEST }
-Var
+var
       helper : TRAMHelper;
-Begin
+begin
   WriteLn( 'Is RAMHELPER installed ', GetRAMHelper( helper ) );
 
   WriteLn( 'ENTRIES -> ', helper.nJumpTableEntries );
   WriteLn( 'Mappers Address -> ', helper.nMappersTableAddr );
-End.
+end.

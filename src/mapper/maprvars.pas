@@ -12,11 +12,11 @@
 (**
   * MSXDOS System variables used on Memory Mapper management.
   *)
-Var
-               CURSEGPAGE0       : Byte Absolute $F2C7; { Current page 0     }
-               CURSEGPAGE1       : Byte Absolute $F2C8; { Current page 1     }
-               CURSEGPAGE2       : Byte Absolute $F2C9; { Current page 2     }
-               CURSEGPAGE3       : Byte Absolute $F2CA; { Current page 3     }
-               LASTSEGPAGE2      : Byte Absolute $F2CF; { Segment page 2     }
-               LASTSEGPAGE0      : Byte Absolute $F2D0; { Segment page 0     }
+var
+               CURSEGPAGE0       : byte absolute $F2C7; { Current page 0     }
+               CURSEGPAGE1       : byte absolute $F2C8; { Current page 1     }
+               CURSEGPAGE2       : byte absolute $F2C9; { Current page 2     }
+               CURSEGPAGE3       : byte absolute $F2CA; { Current page 3     }
+               LASTSEGPAGE2      : byte absolute $F2CF; { Segment page 2     }
+               LASTSEGPAGE0      : byte absolute $F2D0; { Segment page 0     }
 

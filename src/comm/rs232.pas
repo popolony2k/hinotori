@@ -22,7 +22,7 @@
 (* Module useful constants *)
 
 (* RS232 BIOS call function ID - for EXTBIO use *)
-Const        ctRS232INIT     = 1;   { Initialize RS232 port }
+const        ctRS232INIT     = 1;   { Initialize RS232 port }
              ctRS232OPEN     = 2;   { Open RS232 port }
              ctRS232STAT     = 3;   { Read status }
              ctRS232GETCHR   = 4;   { Receive data }
@@ -39,63 +39,63 @@ Const        ctRS232INIT     = 1;   { Initialize RS232 port }
 (**
   * Character lenght.
   *)
-Const        ctCharLen5Bit   = '5';
+const        ctCharLen5Bit   = '5';
              ctCharLen8Bit   = '8';
 
 (**
   * Parity.
   *)
-Const        ctParityOdd     = 'O';
+const        ctParityOdd     = 'O';
              ctParityEven    = 'E';
              ctParityNone    = 'N';
 
 (**
   * Stop Bits.
   *)
-Const        ctStopBit1      = '1';
+const        ctStopBit1      = '1';
              ctStopBit2      = '2';
              ctStopBit3      = '3';
 
 (**
   * Flow Control (XON/XOFF).
   *)
-Const        ctFlowCtrlON    = 'X';
+const        ctFlowCtrlON    = 'X';
              ctFlowCtrlOFF   = 'N';
 
 (**
   * CTS handshake.
   *)
-Const        ctCTSRTSYes     = 'H';
+const        ctCTSRTSYes     = 'H';
              ctCTSRTSNo      = 'N';
 
 (**
   * Auto receive Line Feed control.
   *)
-Const        ctAutoLFYes     = 'A';
+const        ctAutoLFYes     = 'A';
              ctAutoLFNo      = 'N';
 
 (**
   * SI/SO control.
   *)
-Const        ctSISOYes       = 'S';
+const        ctSISOYes       = 'S';
              ctSISONo        = 'N';
 
 (**
   * Initialization structure for RS232 communication.
   *)
-Type TRS232Parms = Record
-  chCharLen       : Char;
-  chParity        : Char;
-  chStopBits      : Char;
-  chFlowCtrl      : Char;
-  chCTSRTSCtrl    : Char;
-  chRecvAutoLF    : Char;
-  chSndAutoLF     : Char;
-  chSISOCtrl      : Char;
-  nRXBaudRate     : Integer;
-  nTXBaudRate     : Integer;
-  nTimeout        : Byte;
-End;
+type TRS232Parms = record
+  chCharLen       : char;
+  chParity        : char;
+  chStopBits      : char;
+  chFlowCtrl      : char;
+  chCTSRTSCtrl    : char;
+  chRecvAutoLF    : char;
+  chSndAutoLF     : char;
+  chSISOCtrl      : char;
+  nRXBaudRate     : integer;
+  nTXBaudRate     : integer;
+  nTimeout        : byte;
+end;
 
 
 (**
@@ -103,13 +103,13 @@ End;
   * @param commParms The communication parameters;
   * @return The status of initialization. True Success, otherwise Fail;
   *)
-Function CommInit( Var commParms : TRS232Parms ) : Boolean;
-Var
+function CommInit( var commParms : TRS232Parms ) : boolean;
+var
        regs  : TRegs;
-       nAddr : Integer;
+       nAddr : integer;
 
-Begin
-  FillChar( regs, SizeOf( regs ), 0 );
+begin
+  FillChar( regs, sizeof( regs ), 0 );
   nAddr   := Addr( commParms );
   regs.HL := nAddr;
   regs.B  := GetSlotNumberByAddress( nAddr );
@@ -117,16 +117,16 @@ Begin
   regs.E  := ctRS232INIT;
   EXTBIO( regs );
 
-  CommInit := ( ( ( regs.F And $1 ) <> 1 ) And ( regs.A = 1 ) );
-End;
+  CommInit := ( ( ( regs.F and $1 ) <> 1 ) and ( regs.A = 1 ) );
+end;
 
 { TODO: REMOVE AT THE END - WORK IN PROGRESS }
 
-Var   parms : TRS232Parms;
+var   parms : TRS232Parms;
 
-Begin
-  With parms  Do
-  Begin
+begin
+  with parms  do
+  begin
     chCharLen    := ctCharLen8Bit;
     chParity     := ctParityOdd;
     chStopBits   := ctStopBit1;
@@ -138,7 +138,7 @@ Begin
     nRXBaudRate  := 75;
     nTXBaudRate  := 75;
     nTimeout     := 20;
-  End;
+  end;
 
   WriteLn( CommInit( parms ) );
-End.
+end.

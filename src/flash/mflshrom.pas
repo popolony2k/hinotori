@@ -18,7 +18,7 @@
 (*
  * Module constants.
  *)
-Const
+const
        ctAM29F040BDeviceId      = $A4;        { Device ID for AM29F040B       }
        ctAM29F040BWriteAddr1    = $4555;      { AM29F040B cmd address 1       }
        ctAM29F040BWriteAddr2    = $42AA;      { AM29F040B cmd address 2       }
@@ -38,7 +38,7 @@ Const
 (**
   * ROM types.
   *)
-Type TROMType = ( Konami4,
+type TROMType = ( Konami4,
                   KonamiSCC,
                   ASCII8,
                   ASCII16,
@@ -47,7 +47,7 @@ Type TROMType = ( Konami4,
 (**
   * Flash operation status.
   *)
-Type TFlashStatus = ( FlashReset,        { Internal status use }
+type TFlashStatus = ( FlashReset,        { Internal status use }
                       FlashSuccess,
                       FlashWriteError,
                       FlashEraseError,
@@ -59,18 +59,18 @@ Type TFlashStatus = ( FlashReset,        { Internal status use }
 (**
   * Flash ROM operation handle.
   *)
-Type TFlashHandle = Record
+type TFlashHandle = record
   nSlot       : TSlotNumber;       { MFR Slot number }
   romType     : TROMType;          { ROM type        }
-End;
+end;
 
 (*
  * MSX slot related memory addresses used by local internal functions.
  * Do not use it in your software (for internal use only).
  *)
-Var
-     __aSLTTBL  : Array[0..ctMaxSecSlots] Of Byte Absolute $FCC5;
-     __aRAMAD   : Array[0..ctMaxSecSlots] Of Byte Absolute $F341;
+var
+     __aSLTTBL  : array[0..ctMaxSecSlots] of byte absolute $FCC5;
+     __aRAMAD   : array[0..ctMaxSecSlots] of byte absolute $F341;
 
 
 (* Routines for internal module use only *)
@@ -88,53 +88,53 @@ Var
   *  1) Erase process;
   *  2) Data writing on the first Konami4 megarom bank;
   *)
-Function __FlashPolling( nFlshAddr,
+function __FlashPolling( nFlshAddr,
                          nSrcAddr,
-                         nBankSelAddr : Integer;
-                         nBankId      : Byte;
-                         bDataPolling : Boolean ) : TFlashStatus;
-Var
+                         nBankSelAddr : integer;
+                         nBankId      : byte;
+                         bDataPolling : boolean ) : TFlashStatus;
+var
        status : TFlashStatus;
-       nData  : Byte;
+       nData  : byte;
 
-Begin
+begin
   status := FlashReset;
 
-  Repeat
+  repeat
     (*
      * Check the AM29F040B Datasheet, for these statuses below at
      * Page 16 (Figure 3).
      *)
     nData := Mem[nFlshAddr];
 
-    If( ( nData And $80 ) = ( Mem[nSrcAddr] And $80 ) ) Then
+    if( ( nData and $80 ) = ( Mem[nSrcAddr] and $80 ) ) then
       status := FlashSuccess
-    Else
-    Begin
-      If( ( nData And $20 ) = $20 )  Then
-      Begin
+    else
+    begin
+      if( ( nData and $20 ) = $20 )  then
+      begin
         (*
          * Select bank before new a data reading.
          *)
-        If( bDataPolling )  Then
+        if( bDataPolling )  then
           Mem[nBankSelAddr] := nBankId;
 
-        If( ( Mem[nFlshAddr] And $80 ) = ( Mem[nSrcAddr] And $80 ) ) Then
+        if( ( Mem[nFlshAddr] and $80 ) = ( Mem[nSrcAddr] and $80 ) ) then
           status := FlashSuccess
-        Else
+        else
           status := FlashPollingError;
-      End
-      Else
+      end
+      else
         (*
          * Select bank before new a data reading.
          *)
-        If( bDataPolling )  Then
+        if( bDataPolling )  then
           Mem[nBankSelAddr] := nBankId;
-    End;
-  Until( status In [FlashSuccess, FlashPollingError] );
+    end;
+  until( status in [FlashSuccess, FlashPollingError] );
 
   __FlashPolling := status;
-End;
+end;
 
 (* User routines *)
 
@@ -143,33 +143,33 @@ End;
   * @param handle Reference to the MegaFlashROM structure handle with
   * information to be returned, about the connected device;
   *)
-Function FindMFR( Var handle : TFlashHandle ) : Boolean;
-Var
+function FindMFR( var handle : TFlashHandle ) : boolean;
+var
         nSlotNumber      : TSlotNumber;
         nPrimarySlot     : TSlotNumber;
         nSecondarySlot   : TSlotNumber;
         nPriRAMSlotPage1 : TSlotNumber;
         nSecRAMSlotPage1 : TSlotNumber;
-        bResult          : Boolean;
+        bResult          : boolean;
 
-Begin
+begin
   (* Save current RAM slot *)
   nPriRAMSlotPage1 := __aRAMAD[1];
-  nSecRAMSlotPage1 := ( __aSLTTBL[1] And $0C );
+  nSecRAMSlotPage1 := ( __aSLTTBL[1] and $0C );
   nPrimarySlot := 0;
-  bResult := False;
+  bResult := false;
 
   (* Search for the MFR slot *)
-  Repeat
+  repeat
     nSecondarySlot := 0;
 
-    Repeat
+    repeat
       nSlotNumber := MakeSlotNumber( nPrimarySlot, nSecondarySlot );
 
       (* Enable page 1 at specified slot *)
       ENASLT( nSlotNumber, 1 );
 
-      Inline( $F3 );       { DI }
+      inline( $F3 );       { DI }
       Mem[$4000] := $F0;                  { Write reset }
 
       (*
@@ -186,53 +186,53 @@ Begin
        * $4000 - Manufacturer Id.
        * $4001 - Device Id.
        *)
-      bResult := ( ( Mem[ctAM29F040BManIdAddr] = 01 ) And
+      bResult := ( ( Mem[ctAM29F040BManIdAddr] = 01 ) and
                    ( Mem[ctAM29F040BDevIdAddr] = ctAM29F040BDeviceId ) );
 
-      If( Not bResult )  Then
+      if( not bResult )  then
         nSecondarySlot := nSecondarySlot + 1;
-      Inline( $FB );       { EI }
-    Until( bResult Or ( nSecondarySlot = ctMaxSecSlots ) );
+      inline( $FB );       { EI }
+    until( bResult or ( nSecondarySlot = ctMaxSecSlots ) );
 
-    If( Not bResult )  Then
+    if( not bResult )  then
       nPrimarySlot := nPrimarySlot + 1;
-  Until( bResult Or ( nPrimarySlot = ctMaxSlots ) );
+  until( bResult or ( nPrimarySlot = ctMaxSlots ) );
 
-  If( Not bResult )  Then
-  Begin
+  if( not bResult )  then
+  begin
     handle.nSlot   := ctUnitializedSlot;
     handle.romType := UnknownROM;
-  End
-  Else
-  Begin
+  end
+  else
+  begin
     handle.nSlot   := nSlotNumber;
     handle.romType := Konami4;
-  End;
+  end;
 
   FindMFR := bResult;
-End;
+end;
 
 (**
   * Erase whole flash memory.
   * @param handle Reference to the MegaFlashROM structure handle with
   * information about the connected device;
   *)
-Function EraseMFR( Var handle : TFlashHandle ) : TFlashStatus;
-Var
+function EraseMFR( var handle : TFlashHandle ) : TFlashStatus;
+var
         nPriRAMSlotPage1,
         nSecRAMSlotPage1 : TSlotNumber;
-        nEraseStatus     : Byte;
+        nEraseStatus     : byte;
         status           : TFlashStatus;
 
-Begin
-  If( handle.nSlot <> ctUnitializedSlot )  Then
-  Begin
+begin
+  if( handle.nSlot <> ctUnitializedSlot )  then
+  begin
     (* Save current RAM slot *)
     nPriRAMSlotPage1 := __aRAMAD[1];
-    nSecRAMSlotPage1 := ( __aSLTTBL[1] And $0C );
+    nSecRAMSlotPage1 := ( __aSLTTBL[1] and $0C );
     nEraseStatus     := $FF;
 
-    Inline( $F3 );       { DI }
+    inline( $F3 );       { DI }
     Mem[$4000] := $F0;                   { Write reset }
 
     (*
@@ -248,17 +248,17 @@ Begin
     Mem[ctAM29F040BWriteAddr1] := $10;
 
     (* Check data written status *)
-    status := __FlashPolling( $4000, Addr( nEraseStatus ), 0, 0, False );
-    Inline( $FB );       { EI }
+    status := __FlashPolling( $4000, Addr( nEraseStatus ), 0, 0, false );
+    inline( $FB );       { EI }
 
     (* Restore the original RAM slot for page 1 *)
     ENASLT( MakeSlotNumber( nPriRAMSlotPage1, nSecRAMSlotPage1 ), 1 );
-  End
-  Else
+  end
+  else
     status := FlashEraseError;
 
   EraseMFR := status;
-End;
+end;
 
  (**
   * Write a buffer to flash.
@@ -271,51 +271,51 @@ End;
   * @param nBankSel The flash 8Kb bank selection number (0..3);
   * @param nBankId The Id for the selected bank;
   *)
-Function WriteToMFR( Var handle : TFlashHandle;
-                     Var buffer;
-                     Var nFlashPos : Integer;
-                     nSize : Integer;
+function WriteToMFR( var handle : TFlashHandle;
+                     var buffer;
+                     var nFlashPos : integer;
+                     nSize : integer;
                      nBankSel,
-                     nBankId : Byte ) : TFlashStatus;
-Var
-       bDataPolling  : Boolean;
-       nCount        : Integer;
-       nBufferAddr   : Integer;
-       nFlshAddr     : Integer;
-       nBankSelAddr  : Integer;
+                     nBankId : byte ) : TFlashStatus;
+var
+       bDataPolling  : boolean;
+       nCount        : integer;
+       nBufferAddr   : integer;
+       nFlshAddr     : integer;
+       nBankSelAddr  : integer;
        status        : TFlashStatus;
        nPriSlotPage1 : TSlotNumber;
        nPriSlotPage2 : TSlotNumber;
        nSecSlotPage1 : TSlotNumber;
        nSecSlotPage2 : TSlotNumber;
 
-Begin
-  If( handle.nSlot <> ctUnitializedSlot )  Then
-  Begin
+begin
+  if( handle.nSlot <> ctUnitializedSlot )  then
+  begin
     status := FlashSuccess;
-    bDataPolling := True;
+    bDataPolling := true;
 
-    If( nBankSel > ctMaxMegaFlashROMBankSel )  Then
+    if( nBankSel > ctMaxMegaFlashROMBankSel )  then
       status := FlashInvalidBankSelection
-    Else
-      Case handle.romType Of
-        Konami4 :  Begin
-                     Case nBankSel Of
-                       0 : Begin
+    else
+      case handle.romType of
+        Konami4 :  begin
+                     case nBankSel of
+                       0 : begin
                              nBankSelAddr := ctKonami4Bank1;
-                             bDataPolling := False;
-                           End;
+                             bDataPolling := false;
+                           end;
                        1 : nBankSelAddr := ctKonami4Bank2;
                        2 : nBankSelAddr := ctKonami4Bank3;
                        3 : nBankSelAddr := ctKonami4Bank4;
-                     End;
-                   End;
-        Else
+                     end;
+                   end;
+        else
           status := FlashInvalidMapperType;
-      End;
+      end;
 
-    If( status = FlashSuccess ) Then
-    Begin
+    if( status = FlashSuccess ) then
+    begin
       nFlshAddr   := ( nBankSelAddr + nFlashPos );
       nBufferAddr := Addr( buffer );
       nCount      := 0;
@@ -323,19 +323,19 @@ Begin
       (* Save current RAM slot *)
       nPriSlotPage1 := __aRAMAD[1];
       nPriSlotPage2 := __aRAMAD[2];
-      nSecSlotPage1 := ( __aSLTTBL[1] And $0C );
-      nSecSlotPage2 := ( __aSLTTBL[2] And $30 );
+      nSecSlotPage1 := ( __aSLTTBL[1] and $0C );
+      nSecSlotPage2 := ( __aSLTTBL[2] and $30 );
 
       (* Enable MFR pages 1 & 2 to RAM *)
       ENASLT( handle.nSlot, 1 );
 
-      If( nBankSel > 1 )  Then
+      if( nBankSel > 1 )  then
         ENASLT( handle.nSlot, 2 );
 
-      Inline( $F3 );       { DI }
+      inline( $F3 );       { DI }
 
-      While( ( nCount <> nSize ) And ( status = FlashSuccess ) ) Do
-      Begin
+      while( ( nCount <> nSize ) and ( status = FlashSuccess ) ) do
+      begin
         (*
          * Byte programming.
          * Please check the command below at AM29F040B Datasheet
@@ -354,30 +354,30 @@ Begin
                                   nBankId,
                                   bDataPolling );
 
-        If( status = FlashSuccess )  Then
-        Begin
+        if( status = FlashSuccess )  then
+        begin
           nCount      := Succ( nCount );
           nFlshAddr   := Succ( nFlshAddr );
           nBufferAddr := Succ( nBufferAddr );
-        End;
-      End;
+        end;
+      end;
 
       nFlashPos := ( nFlashPos + nCount );
 
-      Inline( $FB );       { EI }
+      inline( $FB );       { EI }
 
       (* Restore RAM to pages 1 & 2 *)
       ENASLT( MakeSlotNumber( nPriSlotPage1, nSecSlotPage1 ) , 1 );
 
-       If( nBankSel > 1 )  Then
+       if( nBankSel > 1 )  then
         ENASLT( MakeSlotNumber( nPriSlotPage2, nSecSlotPage2 ) , 2 );
-    End;
-  End
-  Else
+    end;
+  end
+  else
     status := FlashWriteError;
 
   WriteToMFR := status;
-End;
+end;
 
 (**
   * Select the MegaFlashROM ROM starting pages.
@@ -386,11 +386,11 @@ End;
   * @param bReset Flag to inform if the machine will be restarted after
   * the pages selecting;
   *)
-Function SelectInitialMFRPages( Var handle : TFlashHandle;
-                                bReset : Boolean ) : TFlashStatus;
-Var
-       nCount        : Byte;
-       aBankSelAddr  : Array[0..ctMaxMegaFlashROMBankSel] Of Integer;
+function SelectInitialMFRPages( var handle : TFlashHandle;
+                                bReset : boolean ) : TFlashStatus;
+var
+       nCount        : byte;
+       aBankSelAddr  : array[0..ctMaxMegaFlashROMBankSel] of integer;
        status        : TFlashStatus;
        nPriSlotPage1 : TSlotNumber;
        nPriSlotPage2 : TSlotNumber;
@@ -398,58 +398,58 @@ Var
        nSecSlotPage2 : TSlotNumber;
        regs          : TRegs;
 
-Begin
-  If( handle.nSlot <> ctUnitializedSlot )  Then
-  Begin
+begin
+  if( handle.nSlot <> ctUnitializedSlot )  then
+  begin
     status := FlashSuccess;
 
-    Case handle.romType Of
-      Konami4 :  Begin
+    case handle.romType of
+      Konami4 :  begin
                    aBankSelAddr[0] := 0;
                    aBankSelAddr[1] := ctKonami4Bank2;
                    aBankSelAddr[2] := ctKonami4Bank3;
                    aBankSelAddr[3] := ctKonami4Bank4;
-                 End;
-      Else
+                 end;
+      else
         status := FlashInvalidMapperType;
-    End;
+    end;
 
-    If( status = FlashSuccess ) Then
-    Begin
+    if( status = FlashSuccess ) then
+    begin
       (* Save current RAM slot *)
       nPriSlotPage1 := __aRAMAD[1];
       nPriSlotPage2 := __aRAMAD[2];
-      nSecSlotPage1 := ( __aSLTTBL[1] And $0C );
-      nSecSlotPage2 := ( __aSLTTBL[2] And $30 );
+      nSecSlotPage1 := ( __aSLTTBL[1] and $0C );
+      nSecSlotPage2 := ( __aSLTTBL[2] and $30 );
 
       (* Enable MFR pages 1 & 2 to RAM *)
       ENASLT( handle.nSlot, 1 );
       ENASLT( handle.nSlot, 2 );
 
-      Inline( $F3 );       { DI }
+      inline( $F3 );       { DI }
 
-      For nCount := 0 To ctMaxMegaFlashROMBankSel Do
-      Begin
-        If( aBankSelAddr[nCount] <> 0 )  Then
+      for nCount := 0 to ctMaxMegaFlashROMBankSel do
+      begin
+        if( aBankSelAddr[nCount] <> 0 )  then
           Mem[aBankSelAddr[nCount]] := nCount;
-      End;
+      end;
 
-      Inline( $FB );       { EI }
+      inline( $FB );       { EI }
 
       (* Restore RAM to pages 1 & 2 *)
       ENASLT( MakeSlotNumber( nPriSlotPage1, nSecSlotPage1 ) , 1 );
       ENASLT( MakeSlotNumber( nPriSlotPage2, nSecSlotPage2 ) , 2 );
 
       (* Reset the machine - See CHKRAM BIOS call *)
-      If( bReset )  Then
-      Begin
-        FillChar( regs, SizeOf( regs ), 0 );
+      if( bReset )  then
+      begin
+        FillChar( regs, sizeof( regs ), 0 );
         CALSLT( regs );
-      End;
-    End;
-  End
-  Else
+      end;
+    end;
+  end
+  else
     status := FlashSelectionError;
 
   SelectInitialMFRPages := status;
-End;
+end;

@@ -15,7 +15,7 @@
   * @param nCompareBits The bits to compare;
   * @param nValue The Value to check;
   *)
-Function BitCmp( nCompareBits, nValue : Integer ) : Boolean;
-Begin
-  BitCmp := ( ( nValue And nCompareBits ) = nCompareBits );
-End;
+function BitCmp( nCompareBits, nValue : integer ) : boolean;
+begin
+  BitCmp := ( ( nValue and nCompareBits ) = nCompareBits );
+end;

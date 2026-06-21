@@ -11,7 +11,7 @@
 
 (* Constants, Types and strucutres of MSX IDE library *)
 
-Const    ctDriveFieldSize = 5;      { IDE Max drive letters - 1 }
+const    ctDriveFieldSize = 5;      { IDE Max drive letters - 1 }
 
 
 (* IDE types and definitions *)
@@ -19,12 +19,12 @@ Const    ctDriveFieldSize = 5;      { IDE Max drive letters - 1 }
 (**
   * IDE information (Connected Slot, BIOS Version, ...)
   *)
-Type TIDEInfo = Record
+type TIDEInfo = record
   nMajor,
   nMinor,
-  nRevision   : Byte;
+  nRevision   : byte;
   nSlotNumber : TSlotNumber;
-End;
+end;
 
 (*
  * Drive field definition. The size of drive fields is variable
@@ -34,50 +34,50 @@ End;
  * > 8 for BIOS 3.xx and higher;
  * See idesys.txt for details
  *)
-Type TDriveField = Record
-  nDeviceCodeByte     : Byte;
+type TDriveField = record
+  nDeviceCodeByte     : byte;
   n24PartitionStart,                        { 24Bit absolute sector number }
   n24PartitionLenght  : TInt24;             { 24Bit sector (count - 1) }
   nAdditionalPartInfo,                      { Addition partition info }
   (* The two bytes below is reserved to BIOS 3.xx or higher *)
   nPartitionStart,                          { Partition start bit 24 to 31 }
-  nPartitionLength    : Byte;               { Partition (lenght - 1) 24 to 31 }
-End;
+  nPartitionLength    : byte;               { Partition (lenght - 1) 24 to 31 }
+end;
 
-Type PDriveField = ^TDriveField;            { TDriveField pointer type }
+type PDriveField = ^TDriveField;            { TDriveField pointer type }
 
 (*
  * Device info bytes definition.
  * 6 bytes for BIOS 1.9x and 2.xx.
  *)
-Type TDeviceInfoBytes = Record
+type TDeviceInfoBytes = record
   nNumOfHeadsMaster,             { For ATA Devices }
   nNumOfHeadsSlave,              { For ATA Devices }
   nNumSectorsCylMaster,          { For ATA Devices }
   nNumSectorsCylSlave,           { For ATA Devices }
   nDeviceTypeMaster,
   nDeviceTypeSlave,
-  nUndefined           : Byte;   { Undefined yet - don`t use them }
-End;
+  nUndefined           : byte;   { Undefined yet - don`t use them }
+end;
 
-Type PDeviceInfoBytes = ^TDeviceInfoBytes;  { TDeviceInfoBytes pointer type }
+type PDeviceInfoBytes = ^TDeviceInfoBytes;  { TDeviceInfoBytes pointer type }
 
 (**
   * Free space worspace area.
   *)
-Type TFreeSpace = Array[0..17] Of Byte;
-Type PFreeSpace = ^TFreeSpace;              { TFreeSpace pointer type }
+type TFreeSpace = array[0..17] of byte;
+type PFreeSpace = ^TFreeSpace;              { TFreeSpace pointer type }
 
 (*
  * IDE interface Workspace allocate at boot process.
  * More details check idesys.txt file at this library
  * directory.
  *)
-Type TIDEWorkspace = Record
-  ptrDriveField      : Array[0..ctDriveFieldSize] Of PDriveField;
+type TIDEWorkspace = record
+  ptrDriveField      : array[0..ctDriveFieldSize] of PDriveField;
   ptrDeviceInfoBytes : PDeviceInfoBytes;
   ptrFreeSpace       : PFreeSpace;
-End;
+end;
 
 (* High level struct definitions *)
 
@@ -88,13 +88,13 @@ End;
   * retrieve the struct from given device byte
   * code;
   *)
-Type TDeviceInfo = Record
-  nPartitionLocation : Byte;
+type TDeviceInfo = record
+  nPartitionLocation : byte;
   bPartitionIsMaster,
   bMediumChanged,
   bPartitionInUse,
-  bDriveLocked       : Boolean;
-End;
+  bDriveLocked       : boolean;
+end;
 
 (**
   * This struct is a high level representation
@@ -104,11 +104,11 @@ End;
   * function to retrieve the struct from given
   * additional partition info byte code;
   *)
-Type TAdditionalPartitionInfo = Record
+type TAdditionalPartitionInfo = record
   bEnabledDuringBoot,
   bIsBootable,
-  bLogicallyWriteProtected : Boolean;
-End;
+  bLogicallyWriteProtected : boolean;
+end;
 
 (**
   + This struct is a high level representation
@@ -118,11 +118,11 @@ End;
   * retrieve the struct from given device type
   * byte code;
   *)
-Type TDeviceType = Record
+type TDeviceType = record
   bIsATA,
   bIsATAPI,
   bUsesOnlyCHSAddressing,
   bSupportAlsoLBAAddressing,
   bDirectAccess,
-  bIsCDROM                  : Boolean;
-End;
+  bIsCDROM                  : boolean;
+end;

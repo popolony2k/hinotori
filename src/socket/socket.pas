@@ -20,25 +20,25 @@
   * @param nInitDriverFnAddr The function address of the driver that
   * will be used to communicate using sockets;
   *)
-Procedure InitSocket( Var socket : TSocket; nInitDriverFnAddr : Integer );
-Var
+procedure InitSocket( var socket : TSocket; nInitDriverFnAddr : integer );
+var
      parms : TDriverParms;
 
-Begin
-  With socket Do
-  Begin
+begin
+  with socket do
+  begin
     Connection.nSocketHandle  := 0;
-    FillChar( DriverLayer, SizeOf( DriverLayer ), 0 );
-  End;
+    FillChar( DriverLayer, sizeof( DriverLayer ), 0 );
+  end;
 
-  With parms Do
-  Begin
+  with parms do
+  begin
     nInParm  := Addr( socket );
     nOutParm := 0;
-  End;
+  end;
 
   CallProc( nInitDriverFnAddr, Addr( parms ) );
-End;
+end;
 
 (**
   * Try to connect with another peer using the socket specification passed
@@ -47,27 +47,27 @@ End;
   * to be stablished;
   * The function @return a @see TSocketResult return status;
   *)
-Function SocketConnect( Var socket : TSocket ) : TSocketResult;
-Var
+function SocketConnect( var socket : TSocket ) : TSocketResult;
+var
         parms      : TDriverParms;
         ResultCode : TSocketResult;
 
-Begin
-  If( socket.DriverLayer.nConnectFn <> 0 )  Then
-  Begin
-    With parms Do
-    Begin
+begin
+  if( socket.DriverLayer.nConnectFn <> 0 )  then
+  begin
+    with parms do
+    begin
       nInParm  := Addr( socket );
       nOutParm := Addr( ResultCode );
-    End;
+    end;
 
     CallProc( socket.DriverLayer.nConnectFn, Addr( parms ) );
-  End
-  Else
+  end
+  else
     ResultCode := SocketNotInitialized;
 
   SocketConnect := ResultCode;
-End;
+end;
 
 (**
   * Disconnect from a previous session connected by @see SocketConnect
@@ -75,101 +75,101 @@ End;
   * @param socket The socket containing the information about the connection
   * to be disconnected;
   *)
-Function SocketDisconnect( Var socket : TSocket ) : TSocketResult;
-Var
+function SocketDisconnect( var socket : TSocket ) : TSocketResult;
+var
        parms      : TDriverParms;
        ResultCode : TSocketResult;
 
-Begin
-  If( socket.DriverLayer.nDisconnectFn <> 0 )  Then
-  Begin
-    If( socket.Connection.nSocketHandle <> 0 )  Then
-    Begin
-      With parms Do
-      Begin
+begin
+  if( socket.DriverLayer.nDisconnectFn <> 0 )  then
+  begin
+    if( socket.Connection.nSocketHandle <> 0 )  then
+    begin
+      with parms do
+      begin
         nInParm  := Addr( socket );
         nOutParm := Addr( ResultCode );
-      End;
+      end;
 
       CallProc( socket.DriverLayer.nDisconnectFn, Addr( parms ) );
-    End
-    Else
+    end
+    else
       ResultCode := SocketNotConnected;
-  End
-  Else
+  end
+  else
     ResultCode := SocketNotInitialized;
 
   SocketDisconnect := ResultCode;
-End;
+end;
 
 (**
   * Send a packet through the ethernet card.
   * @param socket The socket with a stablished connection with the card;
   * @param packet The packet to send to the connected peer, through the card;
   *)
-Function SocketSendPacket( Var socket : TSocket;
-                           Var packet : TSocketPacket ) : TSocketResult;
-Var
+function SocketSendPacket( var socket : TSocket;
+                           var packet : TSocketPacket ) : TSocketResult;
+var
        parms      : TDriverParms;
        ResultCode : TSocketResult;
 
-Begin
-  If( socket.DriverLayer.nSendPacketFn <> 0 )  Then
-  Begin
-    If( ( socket.Connection.nSocketHandle > 0 ) Or
-        ( socket.Connection.SocketType = SOCK_DGRAM ) )  Then
-    Begin
+begin
+  if( socket.DriverLayer.nSendPacketFn <> 0 )  then
+  begin
+    if( ( socket.Connection.nSocketHandle > 0 ) or
+        ( socket.Connection.SocketType = SOCK_DGRAM ) )  then
+    begin
       packet.pSock := Ptr( Addr( socket ) );
 
-      With parms Do
-      Begin
+      with parms do
+      begin
         nInParm  := Addr( packet );
         nOutParm := Addr( ResultCode );
-      End;
+      end;
 
       CallProc( socket.DriverLayer.nSendPacketFn, Addr( parms ) );
-    End
-    Else
+    end
+    else
       ResultCode := SocketNotConnected;
-  End
-  Else
+  end
+  else
     ResultCode := SocketNotInitialized;
 
   SocketSendPacket := ResultCode;
-End;
+end;
 
 (**
   * Receive a packet from the ethernet card.
   * @param socket The socket with a stablished connection with the card;
   * @param packet The packet to receive from the connected peer;
   *)
-Function SocketRecvPacket( Var socket : TSocket;
-                           Var packet : TSocketPacket ) : TSocketResult;
-Var
+function SocketRecvPacket( var socket : TSocket;
+                           var packet : TSocketPacket ) : TSocketResult;
+var
        parms      : TDriverParms;
        ResultCode : TSocketResult;
 
-Begin
-  If( socket.DriverLayer.nRecvPacketFn <> 0 )  Then
-  Begin
-    If( ( socket.Connection.nSocketHandle > 0 ) Or
-        ( socket.Connection.SocketType = SOCK_DGRAM ) ) Then
-    Begin
+begin
+  if( socket.DriverLayer.nRecvPacketFn <> 0 )  then
+  begin
+    if( ( socket.Connection.nSocketHandle > 0 ) or
+        ( socket.Connection.SocketType = SOCK_DGRAM ) ) then
+    begin
       packet.pSock := Ptr( Addr( socket ) );
 
-      With parms Do
-      Begin
+      with parms do
+      begin
         nInParm  := Addr( packet );
         nOutParm := Addr( ResultCode );
-      End;
+      end;
 
       CallProc( socket.DriverLayer.nRecvPacketFn, Addr( parms ) );
-    End
-    Else
+    end
+    else
       ResultCode := SocketNotConnected;
-  End
-  Else
+  end
+  else
     ResultCode := SocketNotInitialized;
 
   SocketRecvPacket := ResultCode;
-End;
+end;

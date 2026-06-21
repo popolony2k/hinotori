@@ -18,71 +18,71 @@
   * The function return True if the operation was successfull,
   * otherwise false.
   *)
-Function SetEnv( strEnvVar, strValue : TFileName ) : Boolean;
-Var
+function SetEnv( strEnvVar, strValue : TFileName ) : boolean;
+var
         szValue,
-        szEnv        : Array[0..ctMaxPath] Of Char;
+        szEnv        : array[0..ctMaxPath] of char;
         regs         : TRegs;
-        nPos         : Byte;
-Begin
-  For nPos := 1 To Length( strEnvVar ) Do
+        nPos         : byte;
+begin
+  for nPos := 1 to Length( strEnvVar ) do
     szEnv[nPos - 1] := strEnvVar[nPos];
 
   szEnv[nPos] := #0;
 
-  For nPos := 1 To Length( strValue ) Do
+  for nPos := 1 to Length( strValue ) do
     szValue[nPos - 1] := strValue[nPos];
 
   szValue[nPos] := #0;
 
-  With regs Do
-  Begin
+  with regs do
+  begin
     C  := ctSetEnvironmentItem;
     HL := Addr( szEnv );
     DE := Addr( szValue );
-  End;
+  end;
 
   MSXBDOS( regs );
 
   SetEnv := ( regs.A = 0 );
-End;
+end;
 
 (**
   * Get value of specified environment variable.
   * @param strEnvVar The environment variable to get data;
   *)
-Function GetEnv( strEnvVar : TFileName ) : TFileName;
-Var
+function GetEnv( strEnvVar : TFileName ) : TFileName;
+var
         szValue,
-        szEnv        : Array[0..ctMaxPath] Of Char;
+        szEnv        : array[0..ctMaxPath] of char;
         regs         : TRegs;
-        nPos         : Byte;
-Begin
-  For nPos := 1 To Length( strEnvVar ) Do
+        nPos         : byte;
+begin
+  for nPos := 1 to Length( strEnvVar ) do
     szEnv[nPos - 1] := strEnvVar[nPos];
 
   szEnv[nPos] := #0;
   szValue[0]  := #0;
 
-  With regs Do
-  Begin
-    B  := SizeOf( szValue );
+  with regs do
+  begin
+    B  := sizeof( szValue );
     C  := ctGetEnvironmentItem;
     HL := Addr( szEnv );
     DE := Addr( szValue );
-  End;
+  end;
 
   MSXBDOS( regs );
 
   nPos := Pos( #0, szValue );
 
-  If( nPos <> 1 )  Then
-  Begin
+  if( nPos <> 1 )  then
+  begin
     Move( szValue, strEnvVar[1], nPos );
-    strEnvVar[0] := Char( nPos );
-  End
-  Else
+    strEnvVar[0] := char( nPos );
+  end
+  else
     strEnvVar := '';
 
   GetEnv := strEnvVar;
-End;
+end;

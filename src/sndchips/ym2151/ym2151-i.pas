@@ -12,7 +12,7 @@
  * - sltsrch.pas;
  *)
 
-Const
+const
        { YM2151 related constants }
        ctYM2151Identification            = $80;   { YM2151 string ident. }
 
@@ -22,28 +22,28 @@ Const
   * @param nPrimarySlot The primary slot number returned;
   * @param nSecondarySlot The secondary slot number returned;
   *)
-Procedure FindYM2151( Var nPrimarySlot, nSecondarySlot : Byte );
-Const
-        ctPPISlotSel    : Byte    = $A8;       { PPI slot selection }
-        ctSubSlotSel    : Integer = $FFFF;     { Sub slot selection }
-Var
-        strSignature : String[6];
+procedure FindYM2151( var nPrimarySlot, nSecondarySlot : byte );
+const
+        ctPPISlotSel    : byte    = $A8;       { PPI slot selection }
+        ctSubSlotSel    : integer = $FFFF;     { Sub slot selection }
+var
+        strSignature : string[6];
         nSlotNumber  : TSlotNumber;
-        nSlotPages   : Byte;
+        nSlotPages   : byte;
 
-Begin
+begin
   strSignature := 'MCHFM0';
   {$v-}
   nSlotNumber := FindSignature( strSignature, ctYM2151Identification );
   {$v+}
 
-  If( nSlotNumber = ctUnitializedSlot )  Then
-  Begin
+  if( nSlotNumber = ctUnitializedSlot )  then
+  begin
     nPrimarySlot   := ctUnitializedSlot;
     nSecondarySlot := ctUnitializedSlot;
-  End
-  Else
-  Begin
+  end
+  else
+  begin
     SplitSlotNumber( nSlotNumber, nPrimarySlot, nSecondarySlot );
 
     (*
@@ -52,8 +52,8 @@ Begin
      * For more information about memory slot selection, please check:
      * http://www.angelfire.com/art2/unicorndreams/msx/RR-PPI.html
      *)
-    nSlotPages     := ( ( Not SLTTBL[nPrimarySlot] ) And $FC );
-    nSecondarySlot := ( nSecondarySlot Or nSlotPages );
+    nSlotPages     := ( ( not SLTTBL[nPrimarySlot] ) and $FC );
+    nSecondarySlot := ( nSecondarySlot or nSlotPages );
 
     (*
      * The YM2151 primary slot and the secondary slot must be positioned on
@@ -61,11 +61,11 @@ Begin
      * Activates page 3 on selected Slot for accessing the SubSlot selection
      * register and respectively activates page 0 for YM2151 access.
      *)
-    nSlotPages   := ( nPrimarySlot ShL 6 );
-    nPrimarySlot := ( ( nPrimarySlot Or $3C ) Or nSlotPages );
+    nSlotPages   := ( nPrimarySlot shl 6 );
+    nPrimarySlot := ( ( nPrimarySlot or $3C ) or nSlotPages );
 
     (* Get the active slots for all other pages *)
-    nSlotPages   := Port[ctPPISlotSel] Or $C3;
-    nPrimarySlot := nPrimarySlot And nSlotPages;
-  End;
-End;
+    nSlotPages   := Port[ctPPISlotSel] or $C3;
+    nPrimarySlot := nPrimarySlot and nSlotPages;
+  end;
+end;

@@ -16,13 +16,13 @@
 (*
  * Constant definitions for Widgets module.
  *)
-Const
-          ctRadioSel : Char    = '*'; { Radio widget selection char }
+const
+          ctRadioSel : char    = '*'; { Radio widget selection char }
 
 (*
  * New type definitions for widgets management.
  *)
-Type TMenuItem  = Array[0..21] Of PTinyString;
+type TMenuItem  = array[0..21] of PTinyString;
 
 
 (**
@@ -32,7 +32,7 @@ Type TMenuItem  = Array[0..21] Of PTinyString;
   * NextWidget - The TAB Key was typed, passing the control
   * to the next widget;
   *)
-Type TSelectionAction = ( NoSelection,
+type TSelectionAction = ( NoSelection,
                           ItemSelected,
                           NextWidget );
 
@@ -45,69 +45,69 @@ Type TSelectionAction = ( NoSelection,
   * @param nItemPos The item index of selection made by user;
   * The function return the @TSelectionAction with the latest user operation.
   *)
-Function RadioButton( nX, nY : Byte;
+function RadioButton( nX, nY : byte;
                       Items : TMenuItem;
-                      Var nItemPos : Byte ) : TSelectionAction;
-Var
+                      var nItemPos : byte ) : TSelectionAction;
+var
     nCount,
-    nOldItem    : Byte;
-    chOption    : Char;
+    nOldItem    : byte;
+    chOption    : char;
     Selection   : TSelectionAction;
 
-Begin
+begin
   nCount := 0;
 
   { Fill the radiobuttons with items }
-  While( Items[nCount] <> Nil ) Do
-  Begin
+  while( Items[nCount] <> nil ) do
+  begin
     _GotoXY( nX, nY + nCount );
     Write( '( )' + Items[nCount]^ );
     nCount := nCount + 1;
-  End;
+  end;
 
   nCount   := nCount - 1;
   nOldItem := nItemPos;
 
-  Repeat
+  repeat
     _GotoXY( ( nX + 1 ), ( nY + nItemPos ) );
     Write( ctRadioSel );
     chOption := ReadKey;
 
     (* Key processing *)
-    Case( Byte( chOption ) ) Of
+    case( byte( chOption ) ) of
       ctKbKeyDown,
-      ctKbKeyRight :  Begin
+      ctKbKeyRight :  begin
                         _GotoXY( ( nX + 1 ), ( nY + nItemPos ) );
                         Write( ' ' );
 
-                        If( nItemPos = nCount ) Then
+                        if( nItemPos = nCount ) then
                           nItemPos := 0
-                        Else
+                        else
                           nItemPos := nItemPos + 1;
-                      End;
+                      end;
       ctKbKeyUp,
-      ctKbKeyLeft  :  Begin
+      ctKbKeyLeft  :  begin
                         _GotoXY( ( nX + 1 ), ( nY + nItemPos ) );
                         Write( ' ' );
 
-                        If( nItemPos = 0 ) Then
+                        if( nItemPos = 0 ) then
                           nItemPos := nCount
-                        Else
+                        else
                           nItemPos := nItemPos - 1;
-                      End;
-    End;
-  Until( Byte( chOption ) In [ctKbReturn, ctKbEsc, ctKbTab] );
+                      end;
+    end;
+  until( byte( chOption ) in [ctKbReturn, ctKbEsc, ctKbTab] );
 
-  Case Byte( chOption ) Of
+  case byte( chOption ) of
     ctKbReturn :   Selection := ItemSelected;
     ctKbTab    :   Selection := NextWidget;
-    ctKbEsc    :   Begin
+    ctKbEsc    :   begin
                      nItemPos  := nOldItem;
                      Selection := NoSelection;
                      _GotoXY( ( nX + 1 ), nY );  { Clear selection }
                      Write( ' ' );
-                   End;
-  End;
+                   end;
+  end;
 
   RadioButton := Selection;
-End;
+end;

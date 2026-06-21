@@ -9,7 +9,7 @@
  * -
  *)
 
-Const     ctKbEsc       = $1B;         { Escape key              }
+const     ctKbEsc       = $1B;         { Escape key              }
           ctKbCtrlE     = $5;          { Ctrl+E combo key        }
           ctKbCTRLS     = $13;         { Ctrl+S combo key        }
           ctKbCtrlG     = $7;          { Ctrl+G combo key        }
@@ -31,24 +31,24 @@ Const     ctKbEsc       = $1B;         { Escape key              }
   * Check if a byte is a printable character,
   * @param nByte The byte to check;
   *)
-Function IsChar( nByte : Byte ) : Boolean;
-Begin
-  If( nByte > 32 )  Then
-    IsChar := True
-  Else
-    IsChar := False;
-End;
+function IsChar( nByte : byte ) : boolean;
+begin
+  if( nByte > 32 )  then
+    IsChar := true
+  else
+    IsChar := false;
+end;
 
 (**
   * Retrieve a character from keyboard device.
   * This function is here to make Turbo Pascal 3
   * compatible with new Pascal versions.
   *)
-Function ReadKey : Char;
-Var
-      chChar  : Char;
+function ReadKey : char;
+var
+      chChar  : char;
 
-Begin
+begin
   Read( KBD, chChar );
   ReadKey := chChar;
-End;
+end;

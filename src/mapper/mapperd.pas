@@ -12,14 +12,14 @@
 (**
   * Ports/segments type definition.
   *)
-Type TPortsSegments = Array[0..ctMapperSegsSize] Of Byte;
+type TPortsSegments = array[0..ctMapperSegsSize] of byte;
      PPortsSegments = ^TPortsSegments;
 
 (*
  * Internal module data.
  *)
-Var
-         __nMapperSegmentsEx : Integer;          { Max. mapper segs }
+var
+         __nMapperSegmentsEx : integer;          { Max. mapper segs }
          __aMapperPortSegsEx : TPortsSegments;   { Port segments    }
 
 
@@ -27,24 +27,24 @@ Var
   * Get the full capacity for all memory mappers installed in the machine.
   * The result is given in kilobytes;
   *)
-Function GetMapperCapacity : Integer;
-Var
-       nMapperSize   : Integer;
+function GetMapperCapacity : integer;
+var
+       nMapperSize   : integer;
 
-Begin
+begin
   nMapperSize := ( ( 256 - Port[ctMapperPortPage3] ) *
-                   ( ctMapperPageSize Div 1024 ) );
+                   ( ctMapperPageSize div 1024 ) );
 
   GetMapperCapacity := nMapperSize;
-End;
+end;
 
 (**
   * Return the maximum number of mapper segments.
   *)
-Function GetMaxMapperSegments : Integer;
-Begin
-  GetMaxMapperSegments := ( GetMapperCapacity Div 16 );
-End;
+function GetMaxMapperSegments : integer;
+begin
+  GetMaxMapperSegments := ( GetMapperCapacity div 16 );
+end;
 
 (**
   * Allocate a memory mapper segment.
@@ -52,77 +52,77 @@ End;
   * @param nMapperPagePort The page port corresponding to the main memory
   * page that will allocated on mapper;
   *)
-Function AllocMapperSegmentEx( nMapperSegmentId,
-                               nMapperPagePort : Byte ) : Boolean;
-Begin
-  If( nMapperPagePort In [ctMapperPortPage0..ctMapperPortPage3] )  Then
-  Begin
-    If( __aMapperPortSegsEx[nMapperSegmentId] = ctFreeSegment )  Then
-    Begin
-      If( nMapperSegmentId < __nMapperSegmentsEx )  Then
-      Begin
+function AllocMapperSegmentEx( nMapperSegmentId,
+                               nMapperPagePort : byte ) : boolean;
+begin
+  if( nMapperPagePort in [ctMapperPortPage0..ctMapperPortPage3] )  then
+  begin
+    if( __aMapperPortSegsEx[nMapperSegmentId] = ctFreeSegment )  then
+    begin
+      if( nMapperSegmentId < __nMapperSegmentsEx )  then
+      begin
         __aMapperPortSegsEx[nMapperSegmentId] := nMapperPagePort;
-        AllocMapperSegmentEx := True;
-      End
-      Else
-        AllocMapperSegmentEx := False;
-    End
-    Else
-      AllocMapperSegmentEx := False;
-  End
-  Else
-    AllocMapperSegmentEx := False;
-End;
+        AllocMapperSegmentEx := true;
+      end
+      else
+        AllocMapperSegmentEx := false;
+    end
+    else
+      AllocMapperSegmentEx := false;
+  end
+  else
+    AllocMapperSegmentEx := false;
+end;
 
 (**
   * Release an allocated memory mapper segment.
   * @param nMaperSegmentId The mapper id that will be allocated;
   *)
-Function FreeMapperSegmentEx( nMapperSegmentId : Byte ) : Boolean;
-Begin
-  If( __aMapperPortSegsEx[nMapperSegmentId] <> ctReservedSegment )  Then
-    If( nMapperSegmentId < __nMapperSegmentsEx )  Then
-    Begin
+function FreeMapperSegmentEx( nMapperSegmentId : byte ) : boolean;
+begin
+  if( __aMapperPortSegsEx[nMapperSegmentId] <> ctReservedSegment )  then
+    if( nMapperSegmentId < __nMapperSegmentsEx )  then
+    begin
       __aMapperPortSegsEx[nMapperSegmentId] := ctFreeSegment;
-      FreeMapperSegmentEx := True;
-    End
-    Else
-      FreeMapperSegmentEx := False
-  Else
-    FreeMapperSegmentEx := False;
-End;
+      FreeMapperSegmentEx := true;
+    end
+    else
+      FreeMapperSegmentEx := false
+  else
+    FreeMapperSegmentEx := false;
+end;
 
 (**
   * Activate a mapper segment to the main memory based on mapper id;
   * @param nMapperId The mapper id that will be activated;
   *)
-Function ActivateMapperSegmentEx( nMapperSegmentId : Byte ) : Boolean;
-Begin
-  If( nMapperSegmentId < __nMapperSegmentsEx )  Then
-  Begin
-    If( __aMapperPortSegsEx[nMapperSegmentId] <> ctFreeSegment )  Then
-    Begin
-      If( __aMapperPortSegsEx[nMapperSegmentId] <> ctReservedSegment )  Then
-      Begin
+function ActivateMapperSegmentEx( nMapperSegmentId : byte ) : boolean;
+begin
+  if( nMapperSegmentId < __nMapperSegmentsEx )  then
+  begin
+    if( __aMapperPortSegsEx[nMapperSegmentId] <> ctFreeSegment )  then
+    begin
+      if( __aMapperPortSegsEx[nMapperSegmentId] <> ctReservedSegment )  then
+      begin
         Port[__aMapperPortSegsEx[nMapperSegmentId]] := nMapperSegmentId;
-        ActivateMapperSegmentEx := True;
+        ActivateMapperSegmentEx := true;
         Exit;
-      End
-      Else
-      Begin
-        ActivateMapperSegmentEx := False;
+      end
+      else
+      begin
+        ActivateMapperSegmentEx := false;
         Exit;
-      End;
-    End
-    Else
-    Begin
-      ActivateMapperSegmentEx := False;
+      end;
+    end
+    else
+    begin
+      ActivateMapperSegmentEx := false;
       Exit;
-    End;
-  End
-  Else
-    ActivateMapperSegmentEx := False;
-End;
+    end;
+  end
+  else
+    ActivateMapperSegmentEx := false;
+end;
 
 (**
   * Mark/unmark a segment as reserved. After a segment is marked as reserved
@@ -131,14 +131,14 @@ End;
   * @param nMapperSegmentId The segment id that will be marked/unmarked
   * as reserved;
   *)
-Procedure SetReservedMapperSegmentEx( bReserved : Boolean;
-                                      nMapperSegmentId : Byte );
-Begin
-  If( bReserved )  Then
+procedure SetReservedMapperSegmentEx( bReserved : boolean;
+                                      nMapperSegmentId : byte );
+begin
+  if( bReserved )  then
     __aMapperPortSegsEx[nMapperSegmentId] := ctReservedSegment
-  Else
+  else
     __aMapperPortSegsEx[nMapperSegmentId] := ctFreeSegment;
-End;
+end;
 
 (**
   * Initialize the mapper engine.
@@ -146,14 +146,14 @@ End;
   * which will initialize the engine. If a Nil pointer is passed to this
   * function, the internal data will be initialized with zeros;
   *)
-Procedure InitMapperEx( pPortsSegs : PPortsSegments );
-Begin
+procedure InitMapperEx( pPortsSegs : PPortsSegments );
+begin
   __nMapperSegmentsEx := GetMaxMapperSegments;
 
-  If( pPortsSegs = Nil ) Then
+  if( pPortsSegs = nil ) then
     FillChar( __aMapperPortSegsEx,
-              SizeOf( __aMapperPortSegsEx ),
+              sizeof( __aMapperPortSegsEx ),
               ctFreeSegment )
-  Else
-    Move( pPortsSegs^, __aMapperPortSegsEx, SizeOf( __aMapperPortSegsEx ) );
-End;
+  else
+    Move( pPortsSegs^, __aMapperPortSegsEx, sizeof( __aMapperPortSegsEx ) );
+end;

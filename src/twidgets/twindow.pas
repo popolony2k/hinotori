@@ -21,11 +21,11 @@
   * @param nX2 Final X-Axis coordinate of window;
   * @param nY2 Final Y-Axis coordinate of window;
   *)
-Procedure OpenWindow( nX1, nY1, nX2, nY2 : Byte );
-Var
-     nCounter : Byte;
+procedure OpenWindow( nX1, nY1, nX2, nY2 : byte );
+var
+     nCounter : byte;
 
-Begin
+begin
   _GotoXY( nX1, nY1 ); { Top-Left corner     }
   Write( #24 );
   _GotoXY( nX2, nY1 ); { Top-Right corner    }
@@ -36,20 +36,20 @@ Begin
   Write( #26 );
 
   (* Horizontal lines *)
-  For nCounter := ( nX1 + 1 ) To ( nX2 - 1 ) Do
-  Begin
+  for nCounter := ( nX1 + 1 ) to ( nX2 - 1 ) do
+  begin
     _GotoXY( nCounter, nY1 );
     Write( #23 );
     _GotoXY( nCounter, nY2 );
     Write( #23 );
-  End;
+  end;
 
   (* Vertical lines *)
-  For nCounter := ( nY1 + 1 ) To ( nY2 - 1 ) Do
-  Begin
+  for nCounter := ( nY1 + 1 ) to ( nY2 - 1 ) do
+  begin
     _GotoXY( nX1, nCounter );
     Write( #22 );
     _GotoXY( nX2, nCounter );
     Write( #22 );
-  End;
-End;
+  end;
+end;

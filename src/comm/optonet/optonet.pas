@@ -18,7 +18,7 @@
 (*
  * Internal addresses and commands used by all OptoNet compatible cards.
  *)
-Const
+const
            { Ethernet commands }
            ctCMDSetIPAddr         = 30;   { Set a new board IP address }
            ctCMDSetGatewayAddr    = 35;   { Set gateway IP address }
@@ -39,8 +39,8 @@ Const
   * Set the port to use in the next call to @link __OptoNetSetAddress();
   * @param nPort The port to set;
   *)
-Function __OptoNetSetPort( nPort : Integer ) : TSocketResult;
-Begin
+function __OptoNetSetPort( nPort : integer ) : TSocketResult;
+begin
   __OptoClearBuffers( ctCommandPort );
   __OptoWritePort( ctDataPort, Hi( nPort ) );   { Local port }
   __OptoWritePort( ctDataPort, Lo( nPort ) );
@@ -57,52 +57,52 @@ Begin
   Sleep( ctCommandPortWait );
 
   __OptoNetSetPort := SocketSuccess;
-End;
+end;
 
 (**
   * Set a IP address into the board.
   * @param nCMD A valid board command to set new IP;
   * @param strAddress A valid internet address to set on the board;
   *)
-Function __OptoNetSetAddress( nCMD : Byte;
+function __OptoNetSetAddress( nCMD : byte;
                               strAddress : TIPAddress ) : TSocketResult;
-Var
+var
      aStrIPAddr  : TStringArray;
-     aIntIPAddr  : Array[0..3] Of Integer;
-     nCount      : Byte;
-     nCode       : Integer;
+     aIntIPAddr  : array[0..3] of integer;
+     nCount      : byte;
+     nCode       : integer;
      ResultCode  : TSocketResult;
 
-Begin
+begin
   nCount := Split( strAddress, '.', aStrIPAddr );
 
-  If( nCount = 4 )  Then
-  Begin
+  if( nCount = 4 )  then
+  begin
     ResultCode := SocketSuccess;
     nCount := 0;
 
-    While( nCount < 4 ) Do
-    Begin
+    while( nCount < 4 ) do
+    begin
       Val( aStrIPAddr[nCount], aIntIPAddr[nCount], nCode );
 
-      If( nCode <> 0 )  Then
-      Begin
+      if( nCode <> 0 )  then
+      begin
         nCount := 4;
         ResultCode := SocketInvalidIP;
-      End
-      Else
+      end
+      else
         nCount := nCount + 1;
-    End;
-  End
-  Else
+    end;
+  end
+  else
     ResultCode := SocketInvalidIP;
 
   { Send command to the board }
-  If( ResultCode = SocketSuccess )  Then
-  Begin
+  if( ResultCode = SocketSuccess )  then
+  begin
     __OptoClearBuffers( ctCommandPort );
 
-    For nCount := 0 To 3 Do
+    for nCount := 0 to 3 do
       __OptoWritePort( ctDataPort, aIntIPAddr[nCount] );
 
     __OptoWritePort( ctCommandPort, nCMD );
@@ -116,29 +116,29 @@ Begin
     Sleep( ctCommandPortWait );
 
     __OptoClearBuffers( ctCommandPort );
-  End;
+  end;
 
   __OptoNetSetAddress := ResultCode;
-End;
+end;
 
 (**
   * Send a UDP data to the board.
   * @param strData The data to be sent;
   *)
-Function __OptoNetSendUDPPacket( Var packet : TSocketPacket ) : TSocketResult;
-Var
-         nPacketAddress : Integer;
+function __OptoNetSendUDPPacket( var packet : TSocketPacket ) : TSocketResult;
+var
+         nPacketAddress : integer;
          nPacketSize,
-         nCount         : Byte;
+         nCount         : byte;
          ResultCode     : TSocketResult;
 
-Begin
-  If( packet.nSize > 0 )  Then
-  Begin
+begin
+  if( packet.nSize > 0 )  then
+  begin
     nPacketAddress := Ord( packet.pData );
     nPacketSize    := packet.nSize - 1;
 
-    For nCount := 0 To nPacketSize Do
+    for nCount := 0 to nPacketSize do
       __OptoWritePort( ctDataPort, Mem[nPacketAddress + nCount] );
 
     __OptoWritePort( ctCommandPort, ctCMDSendUDPPacket );
@@ -152,39 +152,39 @@ Begin
      * This will be fixed until the end of OptoNet network development.
      *)
     Sleep( ctCommandPortWait );
-  End
-  Else
+  end
+  else
     ResultCode := SocketInvalidPacket;
 
   __OptoNetSendUDPPacket := ResultCode;
-End;
+end;
 
 (**
   * Receive a UDP data from the board.
   * @param packet The data to be received;
   *)
-Function __OptoNetRecvUDPPacket( Var packet : TSocketPacket ) : TSocketResult;
-Var
-         nPacketAddress : Integer;
+function __OptoNetRecvUDPPacket( var packet : TSocketPacket ) : TSocketResult;
+var
+         nPacketAddress : integer;
          nPacketSize,
-         nCount         : Byte;
+         nCount         : byte;
          ResultCode     : TSocketResult;
 
-Begin
+begin
   nPacketAddress := Ord( packet.pData );
   (* Request the buffer size to board *)
   __OptoWritePort( ctCommandPort, ctCMDRequestBufferSize );
 
   nPacketSize := __OptoReadPort( ctDataPort );
 
-  If( nPacketSize > 0 )  Then
-  Begin
+  if( nPacketSize > 0 )  then
+  begin
     packet.nSize := nPacketSize;
     nPacketSize  := nPacketSize - 1;
 
-    For nCount := 0 To nPacketSize Do
+    for nCount := 0 to nPacketSize do
       Mem[nPacketAddress + nCount] := __OptoReadPort( ctDataPort );
-  End;
+  end;
 
   (*
    * FIXME:
@@ -197,7 +197,7 @@ Begin
   ResultCode := SocketSuccess;
 
   __OptoNetRecvUDPPacket := ResultCode;
-End;
+end;
 
 (*
  * Driver functions to provide abstract socket compatibility.
@@ -208,60 +208,60 @@ End;
   * @param nDriverParms The pointer to the @see TDriverParms struct
   * containing the driver input and output parameters;
   *)
-Procedure __OptoNetDrvConnect( nDriverParms : Integer );
-Var
+procedure __OptoNetDrvConnect( nDriverParms : integer );
+var
        pParms      : PDriverParms;
        pSock       : PSocket;
        pResult     : PSocketResult;
-Begin
+begin
   pParms := Ptr( nDriverParms );
 
-  With pParms^ Do
-  Begin
+  with pParms^ do
+  begin
     pSock   := Ptr( nInParm );
     pResult := Ptr( nOutParm );
 
-    With pSock^ Do
-    Begin
+    with pSock^ do
+    begin
       Connection.nSocketHandle := 0;
       pResult^ := __OptoNetSetPort( nPort );
 
-      If( pResult^ = SocketSuccess )  Then
-      Begin
+      if( pResult^ = SocketSuccess )  then
+      begin
         pResult^ := __OptoNetSetAddress( ctCMDSetRemoteIPAddr, strIPAddress );
 
-        If( pResult^ = SocketSuccess )  Then
+        if( pResult^ = SocketSuccess )  then
           Connection.nSocketHandle := 1;   { Simulating a valid handle }
-      End;
-    End;
-  End;
-End;
+      end;
+    end;
+  end;
+end;
 
 (**
   * Function provided by OptoNet driver to provide socket Disconnection.
   * @param nDriverParms The pointer to the @see TDriverParms struct
   * containing the driver input and output parameters;
   *)
-Procedure __OptoNetDrvDisconnect( nDriverParms : Integer );
-Var
+procedure __OptoNetDrvDisconnect( nDriverParms : integer );
+var
        pParms      : PDriverParms;
        pSock       : PSocket;
        pResult     : PSocketResult;
-Begin
+begin
   pParms := Ptr( nDriverParms );
 
-  With pParms^ Do
-  Begin
+  with pParms^ do
+  begin
     pSock   := Ptr( nInParm );
     pResult := Ptr( nOutParm );
 
-    With pSock^ Do
-    Begin
+    with pSock^ do
+    begin
       Connection.nSocketHandle := 0;
       pResult^ := SocketSuccess;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
 (**
   * Function provided by OptoNet driver to provide send a information
@@ -269,25 +269,25 @@ End;
   * @param nDriverParms The pointer to the @see TDriverParms struct
   * containing the driver input and output parameters;
   *)
-Procedure __OptoNetDrvSendPacket( nDriverParms : Integer );
-Var
+procedure __OptoNetDrvSendPacket( nDriverParms : integer );
+var
        pParms      : PDriverParms;
        pPacket     : PSocketPacket;
        pResult     : PSocketResult;
-Begin
+begin
   pParms := Ptr( nDriverParms );
 
-  With pParms^ Do
-  Begin
+  with pParms^ do
+  begin
     pPacket := Ptr( nInParm );
     pResult := Ptr( nOutParm );
 
-    If( pPacket^.pSock^.Connection.SocketType = SOCK_DGRAM )  Then
+    if( pPacket^.pSock^.Connection.SocketType = SOCK_DGRAM )  then
       pResult^ := __OptoNetSendUDPPacket( pPacket^ )
-    Else
+    else
       pResult^ := SocketNotImplemented;
-  End;
-End;
+  end;
+end;
 
 (**
   * Function provided by OptoNet driver to provide receive a information
@@ -295,48 +295,48 @@ End;
   * @param nDriverParms The pointer to the @see TDriverParms struct
   * containing the driver input and output parameters;
   *)
-Procedure __OptoNetDrvRecvPacket( nDriverParms : Integer );
-Var
+procedure __OptoNetDrvRecvPacket( nDriverParms : integer );
+var
        pParms      : PDriverParms;
        pPacket     : PSocketPacket;
        pResult     : PSocketResult;
-Begin
+begin
   pParms := Ptr( nDriverParms );
 
-  With pParms^ Do
-  Begin
+  with pParms^ do
+  begin
     pPacket := Ptr( nInParm );
     pResult := Ptr( nOutParm );
 
-    If( pPacket^.pSock^.Connection.SocketType = SOCK_DGRAM )  Then
+    if( pPacket^.pSock^.Connection.SocketType = SOCK_DGRAM )  then
       pResult^ := __OptoNetRecvUDPPacket( pPacket^ )
-    Else
+    else
       pResult^ := SocketNotImplemented;
-  End;
-End;
+  end;
+end;
 
 (**
   * Function provided by OptoNet driver to provide socket initialization.
   * @param nDriverParms The pointer to the @see TDriverParms struct
   * containing the driver input and output parameters;
   *)
-Procedure OptoNetDrvSocketInit( nDriverParms : Integer );
-Var
+procedure OptoNetDrvSocketInit( nDriverParms : integer );
+var
        pParms    : PDriverParms;
        pSock     : PSocket;
-Begin
+begin
   pParms := Ptr( nDriverParms );
 
-  With pParms^ Do
-  Begin
+  with pParms^ do
+  begin
     pSock := Ptr( nInParm );
 
-    With pSock^ Do
-    Begin
+    with pSock^ do
+    begin
       DriverLayer.nConnectFn    := Addr( __OptoNetDrvConnect );
       DriverLayer.nDisconnectFn := Addr( __OptoNetDrvDisconnect );
       DriverLayer.nSendPacketFn := Addr( __OptoNetDrvSendPacket );
       DriverLayer.nRecvPacketFn := Addr( __OptoNetDrvRecvPacket );;
-    End;
-  End;
-End;
+    end;
+  end;
+end;

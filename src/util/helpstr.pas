@@ -96,7 +96,7 @@ end;
   *)
 function UpperCase( var strString : TString ) : TString;
 var
-       nCount  : Byte;
+       nCount  : byte;
 begin
   for nCount := 1 to Length( strString ) do
     strString[nCount] := UpCase( strString[nCount] );

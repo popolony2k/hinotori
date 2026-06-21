@@ -13,7 +13,7 @@
 
 (* Module useful constants *)
 
-Const         { EXTBIO valid addresses }
+const         { EXTBIO valid addresses }
               ctEXTBIO     = $FFCA;    { The EXTBIO hook }
               { The constants below represents all known extended devices }
               ctReserved   = $00;      { Reserved for broadcasters }
@@ -33,12 +33,12 @@ Const         { EXTBIO valid addresses }
   * Check if there a installed hook to a new BIOS call.
   * @return The status of hook installation;
   *)
-Function HasInstalledHook : Boolean;
-Var
-         nHOKVLD : Byte Absolute $FB20;  { Valid hook ??? }
-Begin
-  HasInstalledHook := Odd( nHOKVLD And 1 );
-End;
+function HasInstalledHook : boolean;
+var
+         nHOKVLD : byte absolute $FB20;  { Valid hook ??? }
+begin
+  HasInstalledHook := Odd( nHOKVLD and 1 );
+end;
 
 (**
   * Call the extended BIOS function.
@@ -50,11 +50,11 @@ End;
   * of extended BIOS and the register E the function number to call in
   * the extended BIOS call.
   *)
-Procedure EXTBIO( Var regs : TRegs );
-Var
-     nRAMAD3 : Byte Absolute $F344; { Slot addr.of RAM in page 3 (DOS/BASIC) }
-Begin
+procedure EXTBIO( var regs : TRegs );
+var
+     nRAMAD3 : byte absolute $F344; { Slot addr.of RAM in page 3 (DOS/BASIC) }
+begin
   regs.IX := ctEXTBIO;
   regs.IY := nRAMAD3;
   CALSLT( regs );
-End;
+end;

@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctCHGCAP  = $0132;      { Alternates the cap lamp status           }
+const     ctCHGCAP  = $0132;      { Alternates the cap lamp status           }
           ctCHGSND  = $0135;      { Alternates the 1-nit soud port status    }
           ctRSLREG  = $0138;      { Read the primary slot register           }
           ctWSLREG  = $013B;      { Write value to the primary slot register }

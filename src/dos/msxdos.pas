@@ -13,7 +13,7 @@
 
 (* BDOS/MSXDOS functions list - Official function names *)
 
-Const   ctReset                = $0;    { system reset                    }
+const   ctReset                = $0;    { system reset                    }
         ctConIn                = $1;    { console input                   }
         ctConOut               = $2;    { console output                  }
         ctAuxIn                = $3;    { auxiliary input                 }
@@ -62,12 +62,12 @@ Const   ctReset                = $0;    { system reset                    }
   * Execute a MSX BDOS function.
   * @param regs The registers needed to call a specific DOS2 function;
   *)
-Procedure MSXBDOS( Var regs : TRegs );
-Var
+procedure MSXBDOS( var regs : TRegs );
+var
         nHL, nDE, nBC,
-        nIX, nIY       : Integer;
-        nA, nF         : Byte;
-Begin
+        nIX, nIY       : integer;
+        nA, nF         : byte;
+begin
   nA  := regs.A;
   nHL := regs.HL;
   nDE := regs.DE;
@@ -75,7 +75,7 @@ Begin
   nIX := regs.IX;
   nIY := regs.IY;
 
-  InLine( $F5/                  { PUSH AF      ; Push all registers  }
+  inline( $F5/                  { PUSH AF      ; Push all registers  }
           $C5/                  { PUSH BC                            }
           $D5/                  { PUSH DE                            }
           $E5/                  { PUSH HL                            }
@@ -113,4 +113,4 @@ Begin
   regs.HL := nHL;
   regs.IY := nIY;
   regs.IX := nIX;
-End;
+end;

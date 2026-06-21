@@ -22,18 +22,18 @@
   * operation;
   * The function return true if opRetValue is equal opExpected;
   *)
-Function TEST_OP( strTestName : TTinyString;
-                  opRetValue, opExpected : TOperationCode ) : Boolean;
+function TEST_OP( strTestName : TTinyString;
+                  opRetValue, opExpected : TOperationCode ) : boolean;
   (**
     * Helper function to convert a @see TOperationCode value to
     * String representation.
     * @param opValue The TOperationCode to convert;
     *)
-  Function __OpToString( opValue : TOperationCode ) : TTinyString;
-  Var
+  function __OpToString( opValue : TOperationCode ) : TTinyString;
+  var
         strRet : TTinyString;
-  Begin
-    Case( opValue ) Of
+  begin
+    case( opValue ) of
       Success           : strRet := 'Success';
       Overflow          : strRet := 'Overflow';
       Underflow         : strRet := 'Underflow';
@@ -41,24 +41,24 @@ Function TEST_OP( strTestName : TTinyString;
       NoMemoryAvailable : strRet := 'NoMemoryAvailable';
       IncompatibleParms : strRet := 'IncompatibleParameters';
       NotImplemented    : strRet := 'NotImplemented';
-    End;
+    end;
 
     __OpToString := strRet;
-  End;
+  end;
 
-Begin
+begin
   Write( '[', strTestName, '] ===> ' );
 
-  If( opRetValue <> opExpected )  Then
+  if( opRetValue <> opExpected )  then
     WriteLn( '[ERROR] - Value ',
              __OpToString( opRetValue ),
              ' expected ',
              __OpToString( opExpected ) )
-  Else
+  else
     WriteLn( '[SUCCESS]' );
 
   TEST_OP := ( opRetValue = opExpected );
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -69,37 +69,37 @@ End;
   * operation;
   * The function return true if compCode is equal compExpected;
   *)
-Function TEST_BIGINT_CMP( strTestName : TTinyString;
-                          compCode, compExpected : TCompareCode ) : Boolean;
+function TEST_BIGINT_CMP( strTestName : TTinyString;
+                          compCode, compExpected : TCompareCode ) : boolean;
   (**
     * Helper function to convert a @see TCompareCode value to
     * String representation.
     * @param compCode The TCompareCode to convert;
     *)
-  Function __CompToString( compCode : TCompareCode ) : TTinyString;
-  Var
+  function __CompToString( compCode : TCompareCode ) : TTinyString;
+  var
         strRet : TTinyString;
-  Begin
-    Case( compCode ) Of
+  begin
+    case( compCode ) of
       Equals         : strRet := 'Equals';
       GreaterThan    : strRet := 'GreaterThan';
       LessThan       : strRet := 'LessThan';
       CompareError   : strRet := 'CompareError';
-    End;
+    end;
 
     __CompToString := strRet;
-  End;
+  end;
 
-Begin
+begin
   Write( '[', strTestName, '] ===> ' );
 
-  If( compCode <> compExpected )  Then
+  if( compCode <> compExpected )  then
     WriteLn( '[ERROR] - Value ',
              __CompToString( compCode ),
              ' expected ',
              __CompToString( compExpected ) )
-  Else
+  else
     WriteLn( '[SUCCESS]' );
 
   TEST_BIGINT_CMP := ( compCode = compExpected );
-End;
+end;

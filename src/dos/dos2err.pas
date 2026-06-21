@@ -12,27 +12,27 @@
  * - /dos/msxdos2.pas;
  *)
 
-Const       ctMSXDOSMsgSize = 65;  { Error message buffer size }
+const       ctMSXDOSMsgSize = 65;  { Error message buffer size }
 
 
 (**
   * MSXDOS error and message string.
   *)
-Type TMSXDOSString = String[ctMSXDOSMsgSize];
+type TMSXDOSString = string[ctMSXDOSMsgSize];
 
 
 (**
   * Get the error code, caused by the previous MSX-DOS function call.
   *)
-Function GetLastErrorCode : Byte;
-Var
+function GetLastErrorCode : byte;
+var
        regs  : TRegs;
 
-Begin
+begin
   regs.C := ctGetPreviousErrorCode;
   MSXBDOS( regs );
   GetLastErrorCode := regs.B;
-End;
+end;
 
 (**
   * Get the error message based on MSX-DOS error code passed by
@@ -41,27 +41,27 @@ End;
   * @param strErrMsg A reference to string that will receive the error
   * message;
   *)
-Procedure GetErrorMessage( nErrorCode : Byte; Var strErrMsg : TMSXDOSString );
-Var
+procedure GetErrorMessage( nErrorCode : byte; var strErrMsg : TMSXDOSString );
+var
       regs      : TRegs;
-      szErrMsg  : Array[0..ctMSXDOSMsgSize] Of Char;
-      nZeroPos  : Byte;
+      szErrMsg  : array[0..ctMSXDOSMsgSize] of char;
+      nZeroPos  : byte;
 
-Begin
+begin
   strErrMsg := '';
   regs.C    := ctExplainErrorCode;
   regs.B    := nErrorCode;
   regs.DE   := Addr( szErrMsg );
   MSXBDOS( regs );
 
-  If( ( regs.B = 0 ) Or ( regs.B = nErrorCode ) )  Then
-  Begin
+  if( ( regs.B = 0 ) or ( regs.B = nErrorCode ) )  then
+  begin
     nZeroPos := Pos( #0, szErrMsg );
 
-    If( nZeroPos > 0 )  Then
-    Begin
-      strErrMsg[0] := Char( nZeroPos );
+    if( nZeroPos > 0 )  then
+    begin
+      strErrMsg[0] := char( nZeroPos );
       Move( szErrMsg, strErrMsg[1], nZeroPos );
-    End;
-  End;
-End;
+    end;
+  end;
+end;

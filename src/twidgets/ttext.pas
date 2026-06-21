@@ -26,49 +26,49 @@
   * @param bForceHexa Force the input to be Hexadecimal values only;
   * @param bForceNumber Force the input to be numeric values only;
   *)
-Function GetString( nX, nY : Integer;
-                    Var strRet : TShortString;
-                    nMaxSize : Byte;
+function GetString( nX, nY : integer;
+                    var strRet : TShortString;
+                    nMaxSize : byte;
                     bForceHexa,
-                    bForceNumber : Boolean ) : Integer;
-Var
+                    bForceNumber : boolean ) : integer;
+var
      nCounter,
-     nKeyCode : Byte;
+     nKeyCode : byte;
      bSetPos,
-     bExit    : Boolean;
+     bExit    : boolean;
      strTmp   : TShortString;
 
-Begin
+begin
   strTmp   := strRet;
   nCounter := 1;
-  bExit    := False;
+  bExit    := false;
   _GotoXY( nX, nY );
 
-  While( Not bExit ) Do
-  Begin
-    bSetPos  := False;
-    nKeyCode := Byte( ReadKey );
+  while( not bExit ) do
+  begin
+    bSetPos  := false;
+    nKeyCode := byte( ReadKey );
 
-    Case( nKeyCode ) Of
-      ctKbBackSpace :  If( nCounter > 1 )  Then
-                       Begin
+    case( nKeyCode ) of
+      ctKbBackSpace :  if( nCounter > 1 )  then
+                       begin
                          _GotoXY( ( nX + nCounter - 2 ), nY );
 
-                         If( bForceHexa Or bForceNumber )  Then
-                         Begin
+                         if( bForceHexa or bForceNumber )  then
+                         begin
                            Write( '0' );
                            strTmp[nCounter] := '0';
                            nCounter := ( nCounter - 1 );
-                         End
-                         Else
-                         Begin
+                         end
+                         else
+                         begin
                            Write( ' ' );
                            nCounter  := ( nCounter - 1 );
-                           strTmp[0] := Char( nCounter );
-                         End;
+                           strTmp[0] := char( nCounter );
+                         end;
 
                          _GotoXY( ( nX + nCounter - 1 ), nY );
-                       End;
+                       end;
       ctKbKeyUp,
       ctKbKeyDown,
       ctKbKeyLeft,
@@ -76,71 +76,71 @@ Begin
       ctKbReturn,
       ctKbSelect,
       ctKbEsc,
-      ctKbTab       :  Begin
-                         If( nCounter <= nMaxSize )  Then
-                           strTmp[0] := Char( nCounter )
-                         Else
-                           strTmp[0] := Char( nMaxSize );
+      ctKbTab       :  begin
+                         if( nCounter <= nMaxSize )  then
+                           strTmp[0] := char( nCounter )
+                         else
+                           strTmp[0] := char( nMaxSize );
 
                          { Update the return buffer }
-                         If( nKeyCode <> ctKbEsc ) Then
-                         Begin
-                           If( Length( strTmp ) < nMaxSize )  Then
+                         if( nKeyCode <> ctKbEsc ) then
+                         begin
+                           if( Length( strTmp ) < nMaxSize )  then
                              Move( strTmp[1], strRet[1], Length( strTmp ) )
-                           Else
+                           else
                              strRet := strTmp;
-                         End
-                         Else
-                         Begin
+                         end
+                         else
+                         begin
                            _GotoXY( nX, nY );
                            Write( strRet );
-                           bSetPos := True;
-                         End;
+                           bSetPos := true;
+                         end;
 
-                         bExit := True;
-                       End;
-      Else
-        If( ( nCounter <= nMaxSize ) And
-            ( nKeyCode <> ctKbBackSpace ) )  Then
-        Begin
+                         bExit := true;
+                       end;
+      else
+        if( ( nCounter <= nMaxSize ) and
+            ( nKeyCode <> ctKbBackSpace ) )  then
+        begin
           _GotoXY( ( nX + nCounter - 1 ), nY );
 
-          If( bForceHexa Or bForceNumber )  Then
-          Begin
+          if( bForceHexa or bForceNumber )  then
+          begin
             { Letter only }
-            If( ( UpCase( Char( nKeyCode ) ) In [#65..#70] ) And
-                Not bForceNumber )  Then
-            Begin
-              strTmp[nCounter] := UpCase( Char( nKeyCode ) );
+            if( ( UpCase( char( nKeyCode ) ) in [#65..#70] ) and
+                not bForceNumber )  then
+            begin
+              strTmp[nCounter] := UpCase( char( nKeyCode ) );
               Write( strTmp[nCounter] );
               nCounter := nCounter + 1;
-              bSetPos  := True;
-            End
-            Else
-              If( nKeyCode In [48..57] )  Then { Numeric only }
-              Begin
-                strTmp[nCounter] := Char( nKeyCode );
+              bSetPos  := true;
+            end
+            else
+              if( nKeyCode in [48..57] )  then { Numeric only }
+              begin
+                strTmp[nCounter] := char( nKeyCode );
                 Write( strTmp[nCounter] );
                 nCounter := nCounter + 1;
-                bSetPos  := True;
-              End;
-          End
-          Else
-          Begin
-            strTmp[nCounter] := Char( nKeyCode );
+                bSetPos  := true;
+              end;
+          end
+          else
+          begin
+            strTmp[nCounter] := char( nKeyCode );
             Write( strTmp[nCounter] );
             nCounter := nCounter + 1;
-            bSetPos  := True;
-          End;
-        End;
-    End;
+            bSetPos  := true;
+          end;
+        end;
+    end;
 
-    If( bSetPos )  Then
+    if( bSetPos )  then
       _GotoXY( ( nX + nCounter - 2 ), nY );
-  End;
+  end;
 
   GetString := nKeyCode;
-End;
+end;
 
 (**
   * Print a text blinking on the specified position, waiting
@@ -149,27 +149,27 @@ End;
   * @param nY The coordinate in the Y-Axis on screen;
   * @param strMessage String that will be displayed;
   *)
-Procedure WaitBlinking( nX, nY : Integer; Var strMessage : TShortString );
-Const
+procedure WaitBlinking( nX, nY : integer; var strMessage : TShortString );
+const
        ctDelayJiffy = 20;       { Blink delay in JIFFY }
-Var
-       nCount   : Byte;
-       chChar   : Char;
+var
+       nCount   : byte;
+       chChar   : char;
        strEmpty : TShortString;
 
-Begin
-  strEmpty[0] := Char( Length( strMessage ) );
+begin
+  strEmpty[0] := char( Length( strMessage ) );
   FillChar( strEmpty[1], Length( strMessage ), ' ' );
 
-  While( Not( KeyPressed ) ) Do
-  Begin
+  while( not( KeyPressed ) ) do
+  begin
     _GotoXY( nX, nY );
     Write( strMessage );
     Sleep( ctDelayJiffy );
     _GotoXY( nX, nY );
     Write( strEmpty );
     Sleep( ctDelayJiffy );
-  End;
+  end;
 
   chChar := ReadKey; { Clear keyboard buffer }
-End;
+end;

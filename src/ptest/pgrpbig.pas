@@ -25,23 +25,23 @@
   * information tests;
   * The function return true if opRetValue is equal opExpected;
   *)
-Function GRP_TEST_OP( strTestName : TTinyString;
+function GRP_TEST_OP( strTestName : TTinyString;
                       opRetValue, opExpected : TOperationCode;
-                      Var grp : TTestGroup ) : Boolean;
-Var
-      bRet : Boolean;
-Begin
+                      var grp : TTestGroup ) : boolean;
+var
+      bRet : boolean;
+begin
   bRet := TEST_OP( strTestName, opRetValue, opExpected );
 
-  If( Not bRet )  Then
+  if( not bRet )  then
     grp.nFailedCount := grp.nFailedCount + 1
-  Else
+  else
     grp.nSuccessCount := grp.nSuccessCount + 1;
 
   grp.nTestCount := grp.nTestCount + 1;
 
   GRP_TEST_OP := bRet;
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -54,20 +54,20 @@ End;
   * information tests;
   * The function return true if compCode is equal compExpected;
   *)
-Function GRP_TEST_BIGINT_CMP( strTestName : TTinyString;
+function GRP_TEST_BIGINT_CMP( strTestName : TTinyString;
                               compCode, compExpected : TCompareCode;
-                              Var grp : TTestGroup ) : Boolean;
-Var
-      bRet : Boolean;
-Begin
+                              var grp : TTestGroup ) : boolean;
+var
+      bRet : boolean;
+begin
   bRet := TEST_BIGINT_CMP( strTestName, compCode, compExpected );
 
-  If( Not bRet )  Then
+  if( not bRet )  then
     grp.nFailedCount := grp.nFailedCount + 1
-  Else
+  else
     grp.nSuccessCount := grp.nSuccessCount + 1;
 
   grp.nTestCount := grp.nTestCount + 1;
 
   GRP_TEST_BIGINT_CMP := bRet;
-End;
+end;

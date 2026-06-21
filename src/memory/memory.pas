@@ -22,7 +22,7 @@ var
         nResult : integer;
 
 begin
-  nCount := SizeOf( integer );
+  nCount := sizeof( integer );
   Move( Mem[nAddress], Mem[Addr( nResult )], nCount );
   nAddress := nAddress + nCount;
   GetInteger := nResult;

@@ -19,46 +19,46 @@
 (**
   * The addresses below are related to the mapper routines jump table.
   *)
-Const
-           ctALL_SEG       : Byte = $00; { Allocate a 16Kb segment           }
-           ctFRE_SEG       : Byte = $03; { Free a 16Kb segment               }
-           ctRD_SEG        : Byte = $06; { Read byte from address a:AL to A  }
-           ctWR_SEG        : Byte = $09; { Write byte from E to address A:HL }
-           ctCAL_SEG       : Byte = $0C; { Inter-segment call                }
-           ctCALLS         : Byte = $0F; { Inter-segment call                }
-           ctPUT_PH        : Byte = $12; { Put segment into page (HL)        }
-           ctGET_PH        : Byte = $15; { Get current segment for page (HL) }
-           ctPUT_P0        : Byte = $18; { Put segment into page 0           }
-           ctGET_P0        : Byte = $1B; { Get current segment for page 0    }
-           ctPUT_P1        : Byte = $1E; { Put segment into page 1           }
-           ctGET_P1        : Byte = $21; { Get current segment for page 1    }
-           ctPUT_P2        : Byte = $24; { Put segment into page 2           }
-           ctGET_P2        : Byte = $27; { Get current segment for page 2    }
-           ctPUT_P3        : Byte = $2A; { Put segment into page 3           }
-           ctGET_P3        : Byte = $2D; { Get current segment for page 3    }
+const
+           ctALL_SEG       : byte = $00; { Allocate a 16Kb segment           }
+           ctFRE_SEG       : byte = $03; { Free a 16Kb segment               }
+           ctRD_SEG        : byte = $06; { Read byte from address a:AL to A  }
+           ctWR_SEG        : byte = $09; { Write byte from E to address A:HL }
+           ctCAL_SEG       : byte = $0C; { Inter-segment call                }
+           ctCALLS         : byte = $0F; { Inter-segment call                }
+           ctPUT_PH        : byte = $12; { Put segment into page (HL)        }
+           ctGET_PH        : byte = $15; { Get current segment for page (HL) }
+           ctPUT_P0        : byte = $18; { Put segment into page 0           }
+           ctGET_P0        : byte = $1B; { Get current segment for page 0    }
+           ctPUT_P1        : byte = $1E; { Put segment into page 1           }
+           ctGET_P1        : byte = $21; { Get current segment for page 1    }
+           ctPUT_P2        : byte = $24; { Put segment into page 2           }
+           ctGET_P2        : byte = $27; { Get current segment for page 2    }
+           ctPUT_P3        : byte = $2A; { Put segment into page 3           }
+           ctGET_P3        : byte = $2D; { Get current segment for page 3    }
 
 
 (**
   * Internal module data.
   *)
-Var
-          aGetPageEntry : Array[0..3] Of Byte;  { GET_Pn function entries    }
-          aPutPageEntry : Array[0..3] Of Byte;  { PUT_Pn function entries    }
+var
+          aGetPageEntry : array[0..3] of byte;  { GET_Pn function entries    }
+          aPutPageEntry : array[0..3] of byte;  { PUT_Pn function entries    }
 
 
 
 (**
   * Init modeule internal handlers.
   *)
-Function InitMapperInternals : Boolean;
-Var
-        bRet   : Boolean;
+function InitMapperInternals : boolean;
+var
+        bRet   : boolean;
 
-Begin
+begin
   bRet := HasInstalledHook;
 
-  If( bRet )  Then
-  Begin
+  if( bRet )  then
+  begin
     (* Initialize all GET pages entries *)
     aGetPageEntry[0] := ctGET_P0;
     aGetPageEntry[1] := ctGET_P1;
@@ -70,43 +70,43 @@ Begin
     aPutPageEntry[1] := ctPUT_P1;
     aPutPageEntry[2] := ctPUT_P2;
     aPutPageEntry[3] := ctPUT_P3;
-  End;
+  end;
 
   InitMapperInternals := bRet;
-End;
+end;
 
 (**
   * Initialize the mapper engine.
   * @param handle Reference to mapper handle containing information about
   * connected mapper;
   *)
-Function InitMapper( Var handle : TMapperHandle ) : Boolean;
-Var
-        bRet   : Boolean;
+function InitMapper( var handle : TMapperHandle ) : boolean;
+var
+        bRet   : boolean;
         regs   : TRegs;
 
-Begin
+begin
   bRet := InitMapperInternals;
 
-  If( bRet )  Then
-  Begin
+  if( bRet )  then
+  begin
     (* Get the mapper variable table *)
-    FillChar( regs, SizeOf( regs ), 0 );
+    FillChar( regs, sizeof( regs ), 0 );
 
-    With regs Do
-    Begin
+    with regs do
+    begin
       D := ctDOS2Memory;
       E := 1;
       ExtBIO( regs );
       handle.nMapperVarTblAddr := HL;
       handle.nPriMapperSlotId  := A;
-    End;
+    end;
 
     (* Get the mapper support routines *)
-    FillChar( regs, SizeOf( regs ), 0 );
+    FillChar( regs, sizeof( regs ), 0 );
 
-    With regs Do
-    Begin
+    with regs do
+    begin
       D := ctDOS2Memory;
       E := 2;
       ExtBIO( regs );
@@ -114,18 +114,18 @@ Begin
       handle.nFreePriMapperSegs := C;
       handle.nStartAddrJumpTbl  := HL;
       bRet := ( A <> 0 );
-    End;
-  End;
+    end;
+  end;
 
   InitMapper := bRet;
-End;
+end;
 
 (**
   * Get the pointer to the mapper array containing all mappers connected
   * to computer.
   * @param handle Reference to previsously allocated mapper handle;
   *)
-Function GetMapperVarTable( Var handle : TMapperHandle ) : PMapperVarTable;
-Begin
+function GetMapperVarTable( var handle : TMapperHandle ) : PMapperVarTable;
+begin
   GetMapperVarTable := Ptr( handle.nMapperVarTblAddr );
-End;
+end;

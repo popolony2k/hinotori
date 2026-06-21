@@ -15,7 +15,7 @@
  * Internal addresses and commands used by all OptoNet compatible cards.
  * (J) means JIFFY;
  *)
-Const
+const
            { Serial communication commands config }
            ctCMDUARTInit1200      = 1;    { Init UART 1200 baud rate        }
            ctCMDUARTInit2400      = 2;    { Init UART 2400 baud rate        }
@@ -45,7 +45,7 @@ Const
 (*
  * Driver card operation return codes.
  *)
-Type  TOptoCardResult = ( OptoCardSuccess,      { OptoCard I/O result codes }
+type  TOptoCardResult = ( OptoCardSuccess,      { OptoCard I/O result codes }
                           OptoCardError,
                           OptoCardTimeoutReached,
                           OptoCardNotInitialized,
@@ -61,36 +61,36 @@ Type  TOptoCardResult = ( OptoCardSuccess,      { OptoCard I/O result codes }
   * @param nPort The port to send the data;
   * @param nData The Data to send over the port;
   *)
-Procedure __OptoWritePort( nPort : Integer; nData : Byte );
-Begin
+procedure __OptoWritePort( nPort : integer; nData : byte );
+begin
   Port[nPort] := nData;
   Sleep( ctIOPortWait );
-End;
+end;
 
 (**
   * Read a information from OPTONET port;
   * @param nPort The port to read;
   *)
-Function __OptoReadPort( nPort : Integer ) : Byte;
-Begin
+function __OptoReadPort( nPort : integer ) : byte;
+begin
   __OptoReadPort := Port[nPort];
   Sleep( ctIOPortWait );
-End;
+end;
 
 (**
   * Reset the network card.
   * @param nPort The COMMAND port to write command data;
   *)
-Procedure __OptoResetBoard( nPort : Integer );
-Begin
+procedure __OptoResetBoard( nPort : integer );
+begin
   __OptoWritePort( nPort, ctCMDResetBoard );
-End;
+end;
 
 (**
   * Clear the network card buffers.
   * @param nPort The COMMAND port to write command data;
   *)
-Procedure __OptoClearBuffers( nPort : Integer );
-Begin
+procedure __OptoClearBuffers( nPort : integer );
+begin
   __OptoWritePort( nPort, ctCMDClearBuffers );
-End;
+end;

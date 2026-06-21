@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctDISSCR  = $0041;      { Disable screen display                   }
+const     ctDISSCR  = $0041;      { Disable screen display                   }
           ctENASCR  = $0044;      { Enable screen display                    }
           ctWRTVDP  = $0047;      { Write to the VDP register                }
           ctRDVRM   = $004A;      { Read the VRAM adddress                   }

@@ -12,7 +12,7 @@
 
 (* Internet module definitions *)
 
-Type TIPAddress     = String[15];                  { IP Addr. representation }
+type TIPAddress     = string[15];                  { IP Addr. representation }
      TSocketTypes   = ( SOCK_DGRAM, SOCK_STREAM ); { Socket types }
      TSocketResult  = ( SocketSuccess,             { Network result codes }
                         SocketError,
@@ -26,7 +26,7 @@ Type TIPAddress     = String[15];                  { IP Addr. representation }
                         SocketNotImplemented );
      PSocketResult  = ^TSocketResult;
 
-Const            INADDR_ANY       : TIPAddress = '0.0.0.0';
+const            INADDR_ANY       : TIPAddress = '0.0.0.0';
                  INADDR_LOOPBACK  : TIPAddress = '127.0.0.1';
                  INADDR_NONE      : TIPAddress = '255.255.255.255';
 
@@ -36,52 +36,52 @@ Const            INADDR_ANY       : TIPAddress = '0.0.0.0';
   * Driver functions to be registered by specific driver layer and that
   * will be used on each socket;
   *)
-Type TNetworkDriverLayer = Record
+type TNetworkDriverLayer = record
   nConnectFn,
   nDisconnectFn,
   nSendPacketFn,
-  nRecvPacketFn : Integer;
-End;
+  nRecvPacketFn : integer;
+end;
 
 (**
   * Strucuture to pass and receive parameters from driver functions.
   *)
-Type TDriverParms = Record
+type TDriverParms = record
   nInParm,
-  nOutParm      : Integer;
-End;
+  nOutParm      : integer;
+end;
 
-Type PDriverParms = ^TDriverParms;
+type PDriverParms = ^TDriverParms;
 
 (* Network layer definitions *)
 
 (**
   * Socket handle specification.
   *)
-Type TSocketHandle = Record
-  nSocketHandle    : Integer;     { Future use to communicate with the board }
+type TSocketHandle = record
+  nSocketHandle    : integer;     { Future use to communicate with the board }
   SocketType       : TSocketTypes;
-End;
+end;
 
 (**
   * Structure with the socket connection specification.
   *)
-Type TSocket = Record
+type TSocket = record
   strIPAddress     : TIPAddress;
-  nPort            : Integer;
+  nPort            : integer;
   Connection       : TSocketHandle;
   DriverLayer      : TNetworkDriverLayer;
-End;
+end;
 
-Type PSocket = ^TSocket;
+type PSocket = ^TSocket;
 
 (**
   * Packet structure to send data packet to the network board.
   *)
-Type TSocketPacket = Record
-  nSize     : Integer;
-  pData     : ^Byte;
+type TSocketPacket = record
+  nSize     : integer;
+  pData     : ^byte;
   pSock     : PSocket;
-End;
+end;
 
-Type PSocketPacket = ^TSocketPacket;
+type PSocketPacket = ^TSocketPacket;
