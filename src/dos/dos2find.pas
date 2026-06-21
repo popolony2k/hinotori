@@ -52,10 +52,10 @@ end;
   * match entries of any attribute);
   * @param info Reference to the fileinfo block that receives the match
   * and the search continuation context. Must be passed unchanged to a
-  * following @see MSXFindNext call;
+  * following @see FindNext call;
   * The function returns true on a match, false otherwise.
   *)
-function MSXFindFirst( strPattern : TFileName;
+function FindFirst( strPattern : TFileName;
                        nAttrMask : byte;
                        var info : TFileInfoBlock ) : boolean;
 var
@@ -77,17 +77,17 @@ begin
 
   MSXBDOS( regs );
 
-  MSXFindFirst := ( regs.A = 0 );
+  FindFirst := ( regs.A = 0 );
 end;
 
 (**
-  * Continue a search started by @see MSXFindFirst.
-  * @param info The same fileinfo block passed to MSXFindFirst, holding
+  * Continue a search started by @see FindFirst.
+  * @param info The same fileinfo block passed to FindFirst, holding
   * the search continuation context;
   * The function returns true on a match, false otherwise (including no
   * more matches).
   *)
-function MSXFindNext( var info : TFileInfoBlock ) : boolean;
+function FindNext( var info : TFileInfoBlock ) : boolean;
 var
       regs : TRegs;
 
@@ -98,15 +98,15 @@ begin
 
   MSXBDOS( regs );
 
-  MSXFindNext := ( regs.A = 0 );
+  FindNext := ( regs.A = 0 );
 end;
 
 (**
   * Extract the matched filename from a fileinfo block as a Pascal string.
-  * @param info The fileinfo block previously filled by MSXFindFirst or
-  * MSXFindNext;
+  * @param info The fileinfo block previously filled by FindFirst or
+  * FindNext;
   *)
-function MSXFindInfoName( var info : TFileInfoBlock ) : TFileName;
+function FindInfoName( var info : TFileInfoBlock ) : TFileName;
 var
       strName : TFileName;
       nPos    : byte;
@@ -121,7 +121,7 @@ begin
     nPos    := Succ( nPos );
   end;
 
-  MSXFindInfoName := strName;
+  FindInfoName := strName;
 end;
 
 (**
@@ -133,14 +133,14 @@ end;
   * @param info1 The fileinfo block to check if it's newer;
   * @param info2 The fileinfo block to compare against;
   *)
-function MSXTimeStampNewer( var info1, info2 : TFileInfoBlock ) : boolean;
+function TimeStampNewer( var info1, info2 : TFileInfoBlock ) : boolean;
 begin
   if( info1.aDate[1] <> info2.aDate[1] )  then
-    MSXTimeStampNewer := ( info1.aDate[1] > info2.aDate[1] )
+    TimeStampNewer := ( info1.aDate[1] > info2.aDate[1] )
   else if( info1.aDate[0] <> info2.aDate[0] )  then
-    MSXTimeStampNewer := ( info1.aDate[0] > info2.aDate[0] )
+    TimeStampNewer := ( info1.aDate[0] > info2.aDate[0] )
   else if( info1.aTime[1] <> info2.aTime[1] )  then
-    MSXTimeStampNewer := ( info1.aTime[1] > info2.aTime[1] )
+    TimeStampNewer := ( info1.aTime[1] > info2.aTime[1] )
   else
-    MSXTimeStampNewer := ( info1.aTime[0] > info2.aTime[0] );
+    TimeStampNewer := ( info1.aTime[0] > info2.aTime[0] );
 end;

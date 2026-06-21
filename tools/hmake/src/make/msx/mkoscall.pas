@@ -68,7 +68,7 @@ var
 begin
   (* bRet = true  → target is up-to-date; skip execution.
      bRet = false → target needs rebuilding; execute commands. *)
-  bRet := MSXFindFirst( pair.strName, ctFindAnyAttr, target );
+  bRet := FindFirst( pair.strName, ctFindAnyAttr, target );
 
   (* Directories must never be treated as up-to-date target files. *)
   if( bRet )  then
@@ -77,10 +77,10 @@ begin
   (* Target file exists; check whether a prerequisite file is newer. *)
   if( bRet and ( pair.strValue <> '' ) )  then
   begin
-    if( MSXFindFirst( pair.strValue, ctFindAnyAttr, preReq ) )  then
+    if( FindFirst( pair.strValue, ctFindAnyAttr, preReq ) )  then
     begin
       if( ( preReq.nAttr and ctAttrDirectory ) = 0 )  then
-        if( MSXTimeStampNewer( preReq, target ) )  then
+        if( TimeStampNewer( preReq, target ) )  then
           bRet := false;
     end;
   end;
@@ -119,20 +119,20 @@ begin
     end;
   end;
 
-  bFound := MSXFindFirst( strPattern, ctFindAnyAttr, info );
+  bFound := FindFirst( strPattern, ctFindAnyAttr, info );
 
   while( bFound )  do
   begin
     if( ( info.nAttr and ctAttrDirectory ) = 0 )  then
     begin
-      strName := MSXFindInfoName( info );
+      strName := FindInfoName( info );
 
       if( strAcc <> '' )  then
         strAcc := strAcc + ' ';
       strAcc := strAcc + strDir + strName;
     end;
 
-    bFound := MSXFindNext( info );
+    bFound := FindNext( info );
   end;
 
   strResult  := strAcc;
