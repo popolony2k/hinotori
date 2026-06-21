@@ -27,6 +27,8 @@ const   ctFindAnyAttr   : byte = $3F; { Match entries of any attribute }
   * 21..24 - File size (32bit, low byte first);
   * 25     - Logical drive;
   * 26..63 - Search continuation data; must not be modified by callers.
+  * @see https://map.grauw.nl/resources/dos2_environment.php (section 3.4,
+  * "File Info Blocks")
   *)
 type PMSXFileInfo = ^TMSXFileInfo;
      TMSXFileInfo = record
