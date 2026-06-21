@@ -224,7 +224,7 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 ## Coding Conventions
 
-- Reserved keywords (`function`, `procedure`, `var`, `const`, `type`, `begin`, `end`, `if`, `then`, `else`, `while`, `do`, `for`, `array`, `of`, `record`, `case`) and built-in type names (`byte`, `integer`, `boolean`, `char`) are lowercase. Standard library routine names keep their natural PascalCase (`Move`, `ReadLn`, `WriteLn`, `Length`, `Copy`, `Pos`, `Succ`, `FillChar`, `Addr`, `SizeOf`, `High`) — only the language keywords and built-in type names get the lowercase treatment, not the whole standard library
+- Reserved keywords (`function`, `procedure`, `var`, `const`, `type`, `begin`, `end`, `if`, `then`, `else`, `while`, `do`, `for`, `array`, `of`, `record`, `case`), built-in type names (`byte`, `integer`, `boolean`, `char`), and the special builtins `true`/`false`/`sizeof` are lowercase. Standard library routine names keep their natural PascalCase (`Move`, `ReadLn`, `WriteLn`, `Length`, `Copy`, `Pos`, `Succ`, `FillChar`, `Addr`, `High`) — only the language keywords, built-in type names, and `true`/`false`/`sizeof` get the lowercase treatment, not the whole standard library
 - Procedures and functions use Pascal-style result assignment (`FunctionName := value`)
 - Nested procedures/functions are used extensively for logical grouping (prefixed `__`)
 - All pointer manipulation uses `Move` for type-unsafe copies
