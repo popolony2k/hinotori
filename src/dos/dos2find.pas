@@ -56,8 +56,8 @@ end;
   * The function returns true on a match, false otherwise.
   *)
 function FindFirst( strPattern : TFileName;
-                       nAttrMask : byte;
-                       var info : TFileInfoBlock ) : boolean;
+                    nAttrMask : byte;
+                    var info : TFileInfoBlock ) : boolean;
 var
       szPattern : array[0..ctMaxPath] of char;
       regs      : TRegs;
