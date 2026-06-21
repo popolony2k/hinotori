@@ -253,7 +253,7 @@ tools/hmake/
       mkhelper.pas               Identifier lookup, type detection, variable/pattern expansion
       mkexec.pas                 Target executor (MkExecute, __ExecTarget, __ReplaceAutoVars)
       fpc/mkoscall.pas           FPC OS layer: MkExecCommand, MkGetEnv, MkCheckTarget, MkWildcard
-      msx/mkoscall.pas           MSX-DOS OS layer stubs (not yet implemented)
+      msx/mkoscall.pas           MSX-DOS OS layer: MkGetEnv/MkCheckTarget/MkWildcard implemented, MkExecCommand stub
 ```
 
 ---
@@ -304,7 +304,7 @@ automatic variables receive concrete names rather than raw `%`-patterns.
 - `$(wildcard <glob>)` expansion — zero matches = empty string
 - Variable override — last assignment wins (GNU make semantics)
 - Duplicate target detection with descriptive error
-- MSX-DOS OS layer — `MkGetEnv` (`src/dos/envvars.pas`), `MkCheckTarget` and `MkWildcard` (`src/dos/dos2find.pas`, wrapping BDOS `_FFIRST`/`_FNEXT`)
+- MSX-DOS OS layer — `MkGetEnv` (`src/dos/envvars.pas`), `MkCheckTarget` and `MkWildcard` (`src/dos/dos2find.pas`, wrapping BDOS `_FFIRST`/`_FNEXT`). Implemented on branch `hmake_msx_dos_oscall`, not yet merged to `main` — **not yet built or run on real MSX-DOS2 hardware**
 
 ### Not yet implemented
 

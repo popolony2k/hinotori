@@ -18,6 +18,7 @@
             - MSX-DOS; (OK)
                 - Implemented via src/dos/dos2find.pas (MSXFindFirst/Next
                   wrapper around BDOS 40h/41h); (OK)
+                - Not yet built or run on real MSX-DOS2 hardware; (TODO)
             - Add support to multiple prerequisites processing; (OK)
                 - Add support to chain requisites execution; (OK)
                 - Check errors return messages for error processing cases; (OK)
@@ -44,6 +45,7 @@
     - FPC implementation; (OK)
     - MSX-DOS implementation; (OK)
         - Implemented via src/dos/envvars.pas (existing GetEnv); (OK)
+        - Not yet built or run on real MSX-DOS2 hardware; (TODO)
     - All environment variables are inherited by makefile scripts; (OK)
     <https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment>.
 6. Final tests

@@ -166,7 +166,7 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 ---
 
-## hmake Status (branch: `main`)
+## hmake Status (branch: `hmake_msx_dos_oscall`, not yet merged to `main`)
 
 ### Implemented
 
@@ -192,7 +192,8 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - **Duplicate target detection** — proper error message when a target is defined twice
 - `lnkdlist.pas` — fixed O(n²) insertion (`pLastItem` tail pointer), fixed cursor-mutation side effects
 - **Bootstrap scripts** — `tools/hmake/bootstrap/`: `build.sh`, `build.bat`, `GNUmakefile`, `build_hmake.pas`, `fpmake.pp` (reference)
-- **MSX-DOS `MkGetEnv`/`MkCheckTarget`/`MkWildcard`** (`msx/mkoscall.pas`) — implemented; logic ported 1:1 from the FPC versions, backed by a new `src/dos/dos2find.pas` (`MSXFindFirst`/`MSXFindNext`/`MSXFindInfoName`/`MSXTimeStampNewer`) wrapping BDOS `_FFIRST`/`_FNEXT` ($40/$41); fileinfo block layout sourced from the MSX-DOS2 Program Interface Specification, section 3.4. Timestamp comparison uses byte-pair comparison, not `integer`, since `TWord` is a signed 16-bit type on this platform
+- **MSX-DOS `MkGetEnv`/`MkCheckTarget`/`MkWildcard`** (`msx/mkoscall.pas`) — implemented; logic ported 1:1 from the FPC versions, backed by a new `src/dos/dos2find.pas` (`MSXFindFirst`/`MSXFindNext`/`MSXFindInfoName`/`MSXTimeStampNewer`) wrapping BDOS `_FFIRST`/`_FNEXT` ($40/$41); fileinfo block layout sourced from the MSX-DOS2 Program Interface Specification, section 3.4 (cited in the code). Timestamp comparison uses byte-pair comparison, not `integer`, since `TWord` is a signed 16-bit type on this platform. **Not yet built or run on real MSX-DOS2 hardware** — needs `HBUILD` + a hardware test before merging to `main` (see verification steps in `tools/hmake/docs/WIP.md`)
+- Pascal keyword/type casing normalized to lowercase across all of `src/` (90 files) — cosmetic only, no behavior change; merged into this branch
 
 ### Not yet implemented
 
