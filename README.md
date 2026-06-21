@@ -45,7 +45,7 @@ SET TPPATH=<drive:\your_tp33f_turbo_compiler_path>
 SET TP3=%TPPATH%\TURBO
 SET TPPATH=
 SET HPATH=<drive:\your_hinotori_library_path>
-SET PATH=%PATH% %HPATH%
+SET PATH=%PATH%;%HPATH%
 SET HPATH=
 ECHO "Hinotori environment variables set"
 ```
