@@ -67,7 +67,7 @@ begin
 
   szPattern[nPos] := #0;
 
-  FillChar( regs, SizeOf( regs ), 0 );
+  FillChar( regs, sizeof( regs ), 0 );
   regs.C  := ctFindFirstEntry;
   regs.B  := nAttrMask;
   regs.DE := Addr( szPattern );
@@ -90,7 +90,7 @@ var
       regs : TRegs;
 
 begin
-  FillChar( regs, SizeOf( regs ), 0 );
+  FillChar( regs, sizeof( regs ), 0 );
   regs.C  := ctFindNextEntry;
   regs.IX := Addr( info );
 
