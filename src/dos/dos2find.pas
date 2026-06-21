@@ -30,8 +30,8 @@ const   ctFindAnyAttr   : byte = $3F; { Match entries of any attribute }
   * @see https://map.grauw.nl/resources/dos2_environment.php (section 3.4,
   * "File Info Blocks")
   *)
-type PMSXFileInfo = ^TMSXFileInfo;
-     TMSXFileInfo = record
+type PFileInfoBlock = ^TFileInfoBlock;
+     TFileInfoBlock = record
   nMarker   : byte;
   aName     : array[0..12] of char;
   nAttr     : byte;
@@ -57,7 +57,7 @@ end;
   *)
 function MSXFindFirst( strPattern : TFileName;
                        nAttrMask : byte;
-                       var info : TMSXFileInfo ) : boolean;
+                       var info : TFileInfoBlock ) : boolean;
 var
       szPattern : array[0..ctMaxPath] of char;
       regs      : TRegs;
@@ -87,7 +87,7 @@ end;
   * The function returns true on a match, false otherwise (including no
   * more matches).
   *)
-function MSXFindNext( var info : TMSXFileInfo ) : boolean;
+function MSXFindNext( var info : TFileInfoBlock ) : boolean;
 var
       regs : TRegs;
 
@@ -106,7 +106,7 @@ end;
   * @param info The fileinfo block previously filled by MSXFindFirst or
   * MSXFindNext;
   *)
-function MSXFindInfoName( var info : TMSXFileInfo ) : TFileName;
+function MSXFindInfoName( var info : TFileInfoBlock ) : TFileName;
 var
       strName : TFileName;
       nPos    : byte;
@@ -133,7 +133,7 @@ end;
   * @param info1 The fileinfo block to check if it's newer;
   * @param info2 The fileinfo block to compare against;
   *)
-function MSXTimeStampNewer( var info1, info2 : TMSXFileInfo ) : boolean;
+function MSXTimeStampNewer( var info1, info2 : TFileInfoBlock ) : boolean;
 begin
   if( info1.aDate[1] <> info2.aDate[1] )  then
     MSXTimeStampNewer := ( info1.aDate[1] > info2.aDate[1] )

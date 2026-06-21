@@ -62,8 +62,8 @@ end;
 function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
 var
       bRet   : boolean;
-      target : TMSXFileInfo;
-      preReq : TMSXFileInfo;
+      target : TFileInfoBlock;
+      preReq : TFileInfoBlock;
 
 begin
   (* bRet = true  → target is up-to-date; skip execution.
@@ -98,7 +98,7 @@ end;
 function MkWildcard( var strPattern : TIdentifierValue;
                      var strResult  : TIdentifierValue ) : boolean;
 var
-      info    : TMSXFileInfo;
+      info    : TFileInfoBlock;
       strDir  : TIdentifierValue;
       strAcc  : TIdentifierValue;
       strName : TFileName;
