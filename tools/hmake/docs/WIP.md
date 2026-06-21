@@ -15,11 +15,13 @@
     - Execution logic - When execute or not (based on makefile rules); (WIP)
         - Check target processing; (WIP)
             - FPC implementation; (OK)
-            - MSX-DOS; (TODO)
+            - MSX-DOS; (OK)
+                - Implemented via src/dos/dos2find.pas (MSXFindFirst/Next
+                  wrapper around BDOS 40h/41h); (OK)
             - Add support to multiple prerequisites processing; (OK)
                 - Add support to chain requisites execution; (OK)
                 - Check errors return messages for error processing cases; (OK)
-            - Add support to multiples targets on the same line 
+            - Add support to multiples targets on the same line
                 (separated by spaces). (eg. target_1 target2 : prerequisite); (OK)
             - PHONY target support (OK);
             - Target-pattern rules implementation (%.o: %.c %.h); (OK)
@@ -29,13 +31,19 @@
                     - Add file part processing ($@F, $<F, $^F, $+F, $*F); (OK)
                     - $%D, $%F, $?D, $?F stubbed to empty (depends on $%/$?); (TODO)
                 - Implement wildcard processing (eg. $(wildcard *.c)); (OK)
-    - OS Specific command calls; (WIP)
+    - OS Specific command calls (MkExecCommand); (WIP)
         - FPC implementation; (OK)
         - MSX-DOS implementation; (TODO)
+            - MSX-DOS2 has no MS-DOS-style EXEC call; running an external
+              program means resolving it via PATH, loading it at 0100h, and
+              CALLing it directly (FORK/JOIN only isolate file handles
+              around that). Needs hardware validation before writing it;
+              (TODO)
 5. Operating system environment variables access by makefile; (WIP)
     - Runtime variable availability checking (when executing a command); (OK)
     - FPC implementation; (OK)
-    - MSX-DOS implementation; (TODO)
+    - MSX-DOS implementation; (OK)
+        - Implemented via src/dos/envvars.pas (existing GetEnv); (OK)
     - All environment variables are inherited by makefile scripts; (OK)
     <https://www.gnu.org/software/make/manual/html_node/Environment.html#:~:text=Variables%20in%20make%20can%20come,command%20argument%2C%20overrides%20the%20environment>.
 6. Final tests

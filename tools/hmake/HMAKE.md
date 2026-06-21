@@ -304,11 +304,12 @@ automatic variables receive concrete names rather than raw `%`-patterns.
 - `$(wildcard <glob>)` expansion — zero matches = empty string
 - Variable override — last assignment wins (GNU make semantics)
 - Duplicate target detection with descriptive error
+- MSX-DOS OS layer — `MkGetEnv` (`src/dos/envvars.pas`), `MkCheckTarget` and `MkWildcard` (`src/dos/dos2find.pas`, wrapping BDOS `_FFIRST`/`_FNEXT`)
 
 ### Not yet implemented
 
 - `$%` and `$?` — stubbed to empty string
-- MSX-DOS OS layer (`MkExecCommand`, `MkGetEnv`, `MkCheckTarget`, `MkWildcard`) — stubs only; intentional: FPC engine must be complete first
+- MSX-DOS `MkExecCommand` — stub only. MSX-DOS2 has no MS-DOS-style EXEC call; running an external program means resolving it via PATH, loading it at 0100h, and `CALL`ing it directly (`_FORK`/`_JOIN` only isolate file handles around that). Needs real-hardware validation before implementing
 
 ### Wish list
 

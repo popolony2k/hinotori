@@ -11,6 +11,10 @@
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
  * - /memory/{platform}/pointer.pas;  (depends on architecture)
+ * - /dos/msxdos.pas;
+ * - /dos/msxdos2.pas;
+ * - /dos/envvars.pas;
+ * - /dos/dos2find.pas;
  * - /dos/dosutil.pas;
  * - /util/helpstr.pas;
  * - ../../make/mktypes.pas;
@@ -27,6 +31,10 @@ program hmake;
 {$i ..\..\..\..\..\src\system\types.pas}
 {$i ..\..\..\..\..\src\collectn\lnkdlist.pas}
 {$i ..\..\..\..\..\src\memory\msx\pointer.pas}
+{$i ..\..\..\..\..\src\dos\msxdos.pas}
+{$i ..\..\..\..\..\src\dos\msxdos2.pas}
+{$i ..\..\..\..\..\src\dos\envvars.pas}
+{$i ..\..\..\..\..\src\dos\dos2find.pas}
 {$i ..\..\..\..\..\src\dos\dosutil.pas}
 {$i ..\..\..\..\..\src\util\helpstr.pas}
 {$i ..\..\make\mktypes.pas}

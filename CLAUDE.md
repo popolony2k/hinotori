@@ -17,7 +17,7 @@ src/               MSX Pascal library (TP3.3f compatible)
   collectn/        Linked list (lnkdlist.pas)
   comm/            RS232 and OptoNet drivers
   console/         CONIO and direct VRAM text I/O
-  dos/             MSX-DOS 1/2, Nextor, error codes, file I/O, env vars
+  dos/             MSX-DOS 1/2, Nextor, error codes, file I/O, file search, env vars
   dynlib/          Loadable dynamic library support
   flash/           Flash ROM driver (Mega Flash ROM SCC+)
   mapper/          MSX memory mapper allocation and paging
@@ -48,7 +48,7 @@ tools/hmake/       Custom GNU-make-like build tool (Pascal)
     mkhelper.pas   Identifier lookup, type detection, variable replacement
     mkexec.pas     Target executor (MkExecute)
   src/make/fpc/    FPC-specific OS calls (MkExecCommand, MkGetEnv, MkCheckTarget, MkWildcard)
-  src/make/msx/    MSX-DOS stubs (not yet implemented)
+  src/make/msx/    MSX-DOS OS calls (MkGetEnv/MkCheckTarget/MkWildcard implemented; MkExecCommand stub — needs FORK+loader design)
   bootstrap/       Host-side bootstrap scripts to build hmake before hmake exists
     build.sh           Unix shell script (run from repo root)
     build.bat          Windows batch script (run from repo root)
@@ -192,11 +192,12 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - **Duplicate target detection** — proper error message when a target is defined twice
 - `lnkdlist.pas` — fixed O(n²) insertion (`pLastItem` tail pointer), fixed cursor-mutation side effects
 - **Bootstrap scripts** — `tools/hmake/bootstrap/`: `build.sh`, `build.bat`, `GNUmakefile`, `build_hmake.pas`, `fpmake.pp` (reference)
+- **MSX-DOS `MkGetEnv`/`MkCheckTarget`/`MkWildcard`** (`msx/mkoscall.pas`) — implemented; logic ported 1:1 from the FPC versions, backed by a new `src/dos/dos2find.pas` (`MSXFindFirst`/`MSXFindNext`/`MSXFindInfoName`/`MSXTimeStampNewer`) wrapping BDOS `_FFIRST`/`_FNEXT` ($40/$41); fileinfo block layout sourced from the MSX-DOS2 Program Interface Specification, section 3.4. Timestamp comparison uses byte-pair comparison, not `integer`, since `TWord` is a signed 16-bit type on this platform
 
 ### Not yet implemented
 
 - `$%`, `$?` — replaced with empty string; logic not written
-- **MSX-DOS** `MkExecCommand`, `MkGetEnv`, `MkCheckTarget`, `MkWildcard` — stubs only (intentional: FPC engine must be complete first)
+- **MSX-DOS `MkExecCommand`** — stub only. MSX-DOS2 has no MS-DOS-style EXEC call; running an external program means resolving it via PATH, loading it at 0100h, and `CALL`ing it directly (`_FORK`/`_JOIN` only isolate file handles around that). Needs real-hardware validation before implementing
 
 ### Wish list (future)
 
@@ -223,6 +224,7 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 ## Coding Conventions
 
+- Reserved keywords (`function`, `procedure`, `var`, `const`, `type`, `begin`, `end`, `if`, `then`, `else`, `while`, `do`, `for`, `array`, `of`, `record`, `case`) and built-in type names (`byte`, `integer`, `boolean`, `char`) are lowercase. Standard library routine names keep their natural PascalCase (`Move`, `ReadLn`, `WriteLn`, `Length`, `Copy`, `Pos`, `Succ`, `FillChar`, `Addr`, `SizeOf`, `High`) — only the language keywords and built-in type names get the lowercase treatment, not the whole standard library
 - Procedures and functions use Pascal-style result assignment (`FunctionName := value`)
 - Nested procedures/functions are used extensively for logical grouping (prefixed `__`)
 - All pointer manipulation uses `Move` for type-unsafe copies

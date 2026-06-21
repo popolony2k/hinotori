@@ -10,6 +10,10 @@
  * This module depends on folowing include files (respect the order):
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - /dos/msxdos.pas;
+ * - /dos/msxdos2.pas;
+ * - /dos/envvars.pas;
+ * - /dos/dos2find.pas;
  * - ../mktypes.pas;
  *)
 
@@ -38,7 +42,9 @@ end;
 function MkGetEnv( strEnvVarName : TIdentifierName;
                    var strEnvValue : TFileName ) : boolean;
 begin
-  MkGetEnv := false;
+  strEnvValue := GetEnv( strEnvVarName );
+
+  MkGetEnv := ( strEnvValue <> '' );
 end;
 
 (**
@@ -54,20 +60,81 @@ end;
   *    than target;
   *)
 function MkCheckTarget( var pair : TIdentifierPair ) : boolean;
+var
+      bRet   : boolean;
+      target : TMSXFileInfo;
+      preReq : TMSXFileInfo;
+
 begin
-  MkCheckTarget := false;
+  (* bRet = true  → target is up-to-date; skip execution.
+     bRet = false → target needs rebuilding; execute commands. *)
+  bRet := MSXFindFirst( pair.strName, ctFindAnyAttr, target );
+
+  (* Directories must never be treated as up-to-date target files. *)
+  if( bRet )  then
+    bRet := ( ( target.nAttr and ctAttrDirectory ) = 0 );
+
+  (* Target file exists; check whether a prerequisite file is newer. *)
+  if( bRet and ( pair.strValue <> '' ) )  then
+  begin
+    if( MSXFindFirst( pair.strValue, ctFindAnyAttr, preReq ) )  then
+    begin
+      if( ( preReq.nAttr and ctAttrDirectory ) = 0 )  then
+        if( MSXTimeStampNewer( preReq, target ) )  then
+          bRet := false;
+    end;
+  end;
+
+  MkCheckTarget := bRet;
 end;
 
 (**
   * Expand a glob pattern and return a space-separated list of matching files.
-  * MSX-DOS stub — always returns empty result.
-  * @param strPattern The glob pattern to expand;
-  * @param strResult  Receives empty string (not implemented on MSX-DOS);
+  * Zero matches produces an empty result string — this is NOT an error.
+  * @param strPattern The glob pattern to expand (e.g. "*.c" or "src/*.c");
+  * @param strResult  Receives the space-separated list of matching filenames;
   * The function always returns true.
   *)
 function MkWildcard( var strPattern : TIdentifierValue;
                      var strResult  : TIdentifierValue ) : boolean;
+var
+      info    : TMSXFileInfo;
+      strDir  : TIdentifierValue;
+      strAcc  : TIdentifierValue;
+      strName : TFileName;
+      nIdx    : integer;
+      bFound  : boolean;
+
 begin
-  strResult  := '';
+  strResult := '';
+  strDir    := '';
+  strAcc    := '';
+
+  for nIdx := Length( strPattern ) downto 1 do
+  begin
+    if( ( strPattern[nIdx] = '/' ) or ( strPattern[nIdx] = '\' ) )  then
+    begin
+      strDir := Copy( strPattern, 1, nIdx );
+      break;
+    end;
+  end;
+
+  bFound := MSXFindFirst( strPattern, ctFindAnyAttr, info );
+
+  while( bFound )  do
+  begin
+    if( ( info.nAttr and ctAttrDirectory ) = 0 )  then
+    begin
+      strName := MSXFindInfoName( info );
+
+      if( strAcc <> '' )  then
+        strAcc := strAcc + ' ';
+      strAcc := strAcc + strDir + strName;
+    end;
+
+    bFound := MSXFindNext( info );
+  end;
+
+  strResult  := strAcc;
   MkWildcard := true;
 end;
