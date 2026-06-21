@@ -15,7 +15,7 @@
   * @param x The base number;
   * @param y The power number;
   *)
-Function Pow( x, y : Real ) : Real;
-Begin
+function Pow( x, y : real ) : real;
+begin
   Pow := Exp( y * Ln( x ) );
-End;
+end;

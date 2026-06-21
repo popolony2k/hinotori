@@ -13,8 +13,8 @@
 (*
  * Internal module definitions.
  *)
-Const
-        ctHexaVals : Array[$0..$F] Of Char = '0123456789ABCDEF';
+const
+        ctHexaVals : array[$0..$F] of char = '0123456789ABCDEF';
 
 
 (**
@@ -22,7 +22,7 @@ Const
   * representation of the decimal number.
   * @param nValue The value to convert;
   *)
-Function ByteToHexa( nValue : Integer ) : THexadecimal;
-Begin
-  ByteToHexa := ctHexaVals[nValue ShR 4] + ctHexaVals[nValue And $F];
-End;
+function ByteToHexa( nValue : integer ) : THexadecimal;
+begin
+  ByteToHexa := ctHexaVals[nValue shr 4] + ctHexaVals[nValue and $F];
+end;

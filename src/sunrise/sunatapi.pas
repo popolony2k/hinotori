@@ -14,30 +14,30 @@
 
 (* Sunrise-like IDE BIOS calls *)
 
-Const     ctBIOSSelectATAPIDevice = $7FB9; { Select master or slave device }
+const     ctBIOSSelectATAPIDevice = $7FB9; { Select master or slave device }
           ctBIOSSendATAPIPacket   = $7FBC; { Send ATAPI to selected device }
 
 (* Library internal constants *)
 
-Const     ctATAPIPacketSize       = 11;    { ATAPI packet size }
+const     ctATAPIPacketSize       = 11;    { ATAPI packet size }
 
 
 (**
   * ATAPI device type required by @see SelectATAPIDevice function.
   *)
-Type TATAPIDeviceType = ( ATAPIMaster, ATAPISlave );
+type TATAPIDeviceType = ( ATAPIMaster, ATAPISlave );
 
 (**
   * Return codes for ATAPI BIOS call operations.
   *)
-Type TATAPIOperationCode = ( ATAPIControllerTimeout,
+type TATAPIOperationCode = ( ATAPIControllerTimeout,
                              ATAPIError,
                              ATAPISuccess );
 
 (**
   * ATAPI command data transmission buffer.
   *)
-Type TATAPIPacket = Array[0..ctATAPIPacketSize] Of Byte;
+type TATAPIPacket = array[0..ctATAPIPacketSize] of byte;
      PATAPIPacket = ^TATAPIPacket;
 
 
@@ -49,16 +49,16 @@ Type TATAPIPacket = Array[0..ctATAPIPacketSize] Of Byte;
   * @param nSlotNumber The slot number which IDE is connected;
   * @param devType The @see TATAPIDeviceType parameter to select;
   *)
-Function SelectATAPIDevice( nSlotNumber : TSlotNumber;
+function SelectATAPIDevice( nSlotNumber : TSlotNumber;
                             devType : TATAPIDeviceType ) : TATAPIOperationCode;
-Var
+var
       regs  : TRegs;
 
-Begin
-  Case devType Of
+begin
+  case devType of
     ATAPIMaster : regs.A := 0;
     ATAPISlave  : regs.A := 1;
-  End;
+  end;
 
   regs.IX := ctBIOSSelectATAPIDevice;
   regs.IY := nSlotNumber;
@@ -66,11 +66,11 @@ Begin
   CALSLT( regs );
 
   { Check carry for controller timeout }
-  If( ( regs.F And $1 ) = 0 )  Then
+  if( ( regs.F and $1 ) = 0 )  then
     SelectATAPIDevice := ATAPISuccess
-  Else
+  else
     SelectATAPIDevice := ATAPIControllerTimeout;
-End;
+end;
 
 (**
   * Send a packet for the selected device throught @see SelectATAPIDevice;
@@ -82,15 +82,15 @@ End;
   * referenced by this parameter will be filled with the content of error
   * register from controller;
   *)
-Function SendATAPIPacket( nSlotNumber : TSlotNumber;
-                          Var packet : TATAPIPacket;
-                          nRetBufferAddr : Integer;
-                          Var nErrorRegister : Byte ) : TATAPIOperationCode;
-Var
+function SendATAPIPacket( nSlotNumber : TSlotNumber;
+                          var packet : TATAPIPacket;
+                          nRetBufferAddr : integer;
+                          var nErrorRegister : byte ) : TATAPIOperationCode;
+var
       regs     : TRegs;
-      bCarryOn : Boolean;
+      bCarryOn : boolean;
 
-Begin
+begin
   regs.HL := Addr( packet );
   regs.DE := nRetBufferAddr;
   regs.IX := ctBIOSSendATAPIPacket;
@@ -99,16 +99,16 @@ Begin
   CALSLT( regs );
 
   { Check for all ATAPI controller errors }
-  bCarryOn := ( ( regs.F And $1 ) = 1 );
+  bCarryOn := ( ( regs.F and $1 ) = 1 );
 
-  If( Not bCarryOn )  Then
+  if( not bCarryOn )  then
     SendATAPIPacket := ATAPISuccess
-  Else
-    If( bCarryOn And ( ( regs.F And $40 ) = 1 ) )  Then
-    Begin
+  else
+    if( bCarryOn and ( ( regs.F and $40 ) = 1 ) )  then
+    begin
       nErrorRegister  := regs.A;
       SendATAPIPacket := ATAPIError;
-    End
-    Else
+    end
+    else
       SendATAPIPacket := ATAPIControllerTimeout;
-End;
+end;

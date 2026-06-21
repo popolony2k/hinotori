@@ -18,11 +18,11 @@
   * The sector read was stored on DMA address;
   * The function return the operation status return code;
   *)
-Function AbsoluteRead( nDrv : Byte; nInitSec : Integer; nNumSec : Byte ) : Byte;
-Var
+function AbsoluteRead( nDrv : byte; nInitSec : integer; nNumSec : byte ) : byte;
+var
      regs     : TRegs;
 
-Begin
+begin
   regs.C  := ctAbsRead;
   regs.H  := nNumSec;
   regs.L  := nDrv;
@@ -32,7 +32,7 @@ Begin
   MSXBDOS( regs );
 
   AbsoluteRead := regs.A;
-End;
+end;
 
 (**
   * Write sectors to disk.
@@ -42,11 +42,11 @@ End;
   * The sector writen is stored on DMA address;
   * The function return the operation status return code;
   *)
-Function AbsoluteWrite( nDrv : Byte; nInitSec : Integer; nNumSec : Byte ) : Byte;
-Var
+function AbsoluteWrite( nDrv : byte; nInitSec : integer; nNumSec : byte ) : byte;
+var
      regs     : TRegs;
 
-Begin
+begin
   regs.C  := ctAbsWrit;
   regs.H  := nNumSec;
   regs.L  := nDrv;
@@ -56,4 +56,4 @@ Begin
   MSXBDOS( regs );
 
   AbsoluteWrite := regs.A;
-End;
+end;

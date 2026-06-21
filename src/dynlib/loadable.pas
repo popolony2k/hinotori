@@ -13,7 +13,7 @@
 (**
   * Constants and definitions.
   *)
-Const
+const
         ctLibraryMajorVrs = 0;          { Library major version  }
         ctLibraryMinorVrs = 0;          { Library minor version  }
         ctLibMaxSignature = 6;          { Maximum signature size }
@@ -23,7 +23,7 @@ Const
 (**
   * Loadable module return type.
   *)
-Type TLibraryResult = ( LibSuccess,
+type TLibraryResult = ( LibSuccess,
                         LibIOError,
                         LibInvalidFormat,
                         LibIncompatibleVersion );
@@ -31,41 +31,41 @@ Type TLibraryResult = ( LibSuccess,
 (**
   * The loadable module file open mode.
   *)
-Type TLibraryOpenMode = ( LibraryModeOpen,
+type TLibraryOpenMode = ( LibraryModeOpen,
                           LibraryModeCreate );
 (**
   * Module entry name definition.
   *)
-Type TLibraryEntryName = String[50];    { Entry name maximum string }
+type TLibraryEntryName = string[50];    { Entry name maximum string }
 
 (**
   * Loadable module file header specification (128 bytes record).
   *)
-Type TLibraryHdr = Record
-  aSignature  : Array[0..ctLibMaxSignature] Of Char;   { Signature  7 bytes   }
-  nMinorVrs   : Byte;                   { Module file minor version 1 byte    }
-  nMajorVrs   : Byte;                   { Module file major version 1 byte    }
-  nNumEntries : Byte;                   { Routines entries on file  1 byte    }
-  aFiller     : Array[0..117] Of Byte;  { Filler                    118 bytes }
-End;
+type TLibraryHdr = record
+  aSignature  : array[0..ctLibMaxSignature] of char;   { Signature  7 bytes   }
+  nMinorVrs   : byte;                   { Module file minor version 1 byte    }
+  nMajorVrs   : byte;                   { Module file major version 1 byte    }
+  nNumEntries : byte;                   { Routines entries on file  1 byte    }
+  aFiller     : array[0..117] of byte;  { Filler                    118 bytes }
+end;
 
 (**
   * Loadable module file entry specification (128 bytes record).
   *)
-Type TLibraryEntry = Record
+type TLibraryEntry = record
   strEntryName  : TLibraryEntryName;    { Entry name - Routine name 51 bytes }
-  nEntryAddress : Integer;              { Entry default address     2  bytes }
-  nEntrySize    : Integer;              { Entry size - Routine size 2  bytes }
-  aFiller       : Array[0..72] Of Byte; { Filler                    73 bytes }
-End;
+  nEntryAddress : integer;              { Entry default address     2  bytes }
+  nEntrySize    : integer;              { Entry size - Routine size 2  bytes }
+  aFiller       : array[0..72] of byte; { Filler                    73 bytes }
+end;
 
 (**
   *  The loadable module structure handle.
   *)
-Type TLibraryHandle = Record
+type TLibraryHandle = record
   hdr           : TLibraryHdr;          { File module header        }
-  fpFile        : File;                 { File descriptor           }
-End;
+  fpFile        : file;                 { File descriptor           }
+end;
 
 
 (* Internal helper functions *)
@@ -75,46 +75,46 @@ End;
   * @param handle The @see TLibraryHandle returned handle to
   * perform future loadable module I/O operations;
   *)
-Function __CheckLibraryFormat( handle : TLibraryHandle ) : TLibraryResult;
-Var
+function __CheckLibraryFormat( handle : TLibraryHandle ) : TLibraryResult;
+var
      ret          : TLibraryResult;
-     strSignature : String[ctLibMaxSignature];
+     strSignature : string[ctLibMaxSignature];
      hdr          : TLibraryHdr;
 
-Begin
+begin
   {$i-}
   Seek( handle.fpFile, 0 );
   BlockRead( handle.fpFile, hdr, 1 );
   {$i+}
 
-  If( IOResult = 0 )  Then
-  Begin
+  if( IOResult = 0 )  then
+  begin
     (* Check library file signature *)
-    strSignature[0] := Char( ctLibMaxSignature );
+    strSignature[0] := char( ctLibMaxSignature );
     Move( hdr.aSignature, strSignature[1], ctLibMaxSignature );
 
-    If( strSignature = ctLibSignature )  Then
-    Begin
+    if( strSignature = ctLibSignature )  then
+    begin
       (*
        * The major version is mandatory to be the same between
        * file module and the used library.
        *)
-      If( hdr.nMajorVrs = ctLibraryMajorVrs )  Then
-      Begin
-        Move( hdr, handle.hdr, SizeOf( hdr ) );
+      if( hdr.nMajorVrs = ctLibraryMajorVrs )  then
+      begin
+        Move( hdr, handle.hdr, sizeof( hdr ) );
         ret := LibSuccess;
-      End
-      Else
+      end
+      else
         ret := LibIncompatibleVersion;
-    End
-    Else
+    end
+    else
       ret := LibInvalidFormat;
-  End
-  Else
+  end
+  else
     ret := LibIOError;
 
   __CheckLibraryFormat := ret;
-End;
+end;
 
 (**
   * Open a loadable module file for reading and writing.
@@ -123,94 +123,94 @@ End;
   * @param handle The @see TLibraryHandle returned handle to
   * perform future loadable module I/O operations;
   *)
-Function OpenLibrary( strFileName : TFileName;
+function OpenLibrary( strFileName : TFileName;
                       mode : TLibraryOpenMode;
-                      Var handle : TLibraryHandle ) : TLibraryResult;
+                      var handle : TLibraryHandle ) : TLibraryResult;
 
   (**
     * Write the file module format to file.
     *)
-  Function __WriteLibraryFormat : TLibraryResult;
-  Var
+  function __WriteLibraryFormat : TLibraryResult;
+  var
        ret          : TLibraryResult;
-       strSignature : String[ctLibMaxSignature];
+       strSignature : string[ctLibMaxSignature];
 
-  Begin
+  begin
     strSignature := ctLibSignature;
 
-    FillChar( handle.hdr, SizeOf( handle.hdr ), 0 );
+    FillChar( handle.hdr, sizeof( handle.hdr ), 0 );
 
-    With handle.hdr Do
-    Begin
+    with handle.hdr do
+    begin
       Move( strSignature[1], aSignature, ctLibMaxSignature );
       nNumEntries := 0;
       nMinorVrs   := ctLibraryMinorVrs;
       nMajorVrs   := ctLibraryMajorVrs;
-    End;
+    end;
 
     {$i-}
     Seek( handle.fpFile, 0 );
     BlockWrite( handle.fpFile, handle.hdr, 1 );
     {$i+}
 
-    If( IOResult <> 0 )  Then
+    if( IOResult <> 0 )  then
       ret := LibIOError
-    Else
+    else
       ret := LibSuccess;
 
     __WriteLibraryFormat := ret;
-  End;
+  end;
 
 
 (*
  * Main procedure entry point.
  *)
-Var
+var
        res   : TLibraryResult;
 
-Begin
+begin
   {$i-}
   Assign( handle.fpFile, strFileName );
 
-  If( mode = LibraryModeOpen )  Then
+  if( mode = LibraryModeOpen )  then
     Reset( handle.fpFile )
-  Else
+  else
     Rewrite( handle.fpFile );
   {$i+}
 
-  If( IOResult <> 0 )  Then
+  if( IOResult <> 0 )  then
     res := LibIOError
-  Else
-  Begin
-    If( mode = LibraryModeOpen )  Then
+  else
+  begin
+    if( mode = LibraryModeOpen )  then
       res := __CheckLibraryFormat( handle )
-    Else
+    else
       res := __WriteLibraryFormat;
-  End;
+  end;
 
   OpenLibrary := res;
-End;
+end;
 
 (**
   * Close the previosly opened handle by @see OpenLibrary function;
   * @param handle The library handle to close;
   *)
-Function CloseLibrary( Var handle : TLibraryHandle ) : TLibraryResult;
-Var
+function CloseLibrary( var handle : TLibraryHandle ) : TLibraryResult;
+var
       res : TLibraryResult;
 
-Begin
+begin
   {$i-}
   Close( handle.fpFile );
   {$i+}
 
-  If( IOResult <> 0 )  Then
+  if( IOResult <> 0 )  then
     res := LibIOError
-  Else
+  else
     res := LibSuccess;
 
   CloseLibrary := res;
-End;
+end;
 
 (**
   * Write a routine to the end of module file.
@@ -218,55 +218,55 @@ End;
   * @param entry The library entry structure containing information
   * about entry to save in library;
   *)
-Function WriteLibraryEntry( Var handle : TLibraryHandle;
-                            Var entry  : TLibraryEntry ) : TLibraryResult;
-Var
+function WriteLibraryEntry( var handle : TLibraryHandle;
+                            var entry  : TLibraryEntry ) : TLibraryResult;
+var
        ret         : TLibraryResult;
-       nBlockCount : Integer;
+       nBlockCount : integer;
 
-Begin
+begin
   {$i-}
-  With handle Do
-  Begin
+  with handle do
+  begin
     hdr.nNumEntries := Succ( hdr.nNumEntries );
 
     (* Write the header *)
     Seek( fpFile, 0 );
     BlockWrite( fpFile, hdr, 1 );
 
-    If( IOResult = 0 )  Then
-    Begin
+    if( IOResult = 0 )  then
+    begin
       (* Write the routine at the end of file *)
       Seek( fpFile, FileSize( fpFile ) );
 
       (* Write the entry *)
       BlockWrite( fpFile, entry, 1 );
 
-      If( IOResult = 0 )  Then
-      Begin
-        nBlockCount := Round( entry.nEntrySize / SizeOf( entry ) );
+      if( IOResult = 0 )  then
+      begin
+        nBlockCount := Round( entry.nEntrySize / sizeof( entry ) );
 
-        If( nBlockCount = 0 )  Then
+        if( nBlockCount = 0 )  then
           nBlockCount := 1;
 
         (* Write the routine content *)
         BlockWrite( fpFile, Mem[entry.nEntryAddress], nBlockCount );
 
-        If( IOResult = 0 )  Then
+        if( IOResult = 0 )  then
           ret := LibSuccess
-        Else
+        else
           ret := LibIOError;
-      End
-      Else
+      end
+      else
         ret := LibIOError;
-    End
-    Else
+    end
+    else
       ret := LibIOError;
-  End;
+  end;
   {$i+}
 
   WriteLibraryEntry := ret;
-End;
+end;
 
 (**
   * Read a routine entry on module file.
@@ -276,99 +276,99 @@ End;
   * on file will be used to load the routine on memory, if false, the
   * @see TLibraryEntry.nEntryAddress will be used instead;
   *)
-Function LoadLibraryEntry( Var handle : TLibraryHandle;
-                           Var entry : TLibraryEntry;
-                           bUseDefaultAddress : Boolean ) : TLibraryResult;
-Var
+function LoadLibraryEntry( var handle : TLibraryHandle;
+                           var entry : TLibraryEntry;
+                           bUseDefaultAddress : boolean ) : TLibraryResult;
+var
       nRes,
       nMaxBlocks,
       nBlockCount,
-      nEntryAddress : Integer;
+      nEntryAddress : integer;
       ret           : TLibraryResult;
       fileEntry     : TLibraryEntry;
-      aDiskBlock    : Array[0..ctDiskBlockSize] Of Byte;
+      aDiskBlock    : array[0..ctDiskBlockSize] of byte;
 
-Begin
-  With handle Do
-  Begin
+begin
+  with handle do
+  begin
     ret := __CheckLibraryFormat( handle );
 
-    If( ret = LibSuccess )  Then
-    Begin
+    if( ret = LibSuccess )  then
+    begin
       {$i-}
       Seek( fpFile, 1 );
 
       (* Searching by the right entry *)
-      Repeat
-        If( IOResult = 0 )  Then
-        Begin
+      repeat
+        if( IOResult = 0 )  then
+        begin
           BlockRead( fpFile, fileEntry, 1, nRes );
 
-          If( ( IOResult = 0 ) And ( nRes = 1 ) )  Then
-          Begin
-            If( entry.strEntryName = fileEntry.strEntryName )  Then
-            Begin
+          if( ( IOResult = 0 ) and ( nRes = 1 ) )  then
+          begin
+            if( entry.strEntryName = fileEntry.strEntryName )  then
+            begin
               ret := LibSuccess;
 
-              If( bUseDefaultAddress )  Then
+              if( bUseDefaultAddress )  then
                 nEntryAddress := fileEntry.nEntryAddress
-              Else
+              else
                 nEntryAddress := entry.nEntryAddress;
 
               nMaxBlocks := Round( fileEntry.nEntrySize /
-                                   SizeOf( aDiskBlock ) );
+                                   sizeof( aDiskBlock ) );
 
-              If( nMaxBlocks = 0 )  Then
+              if( nMaxBlocks = 0 )  then
                 nMaxBlocks := 1;
 
               nBlockCount := 0;
 
               (* Load the routine to the specified memory address *)
-              While( nBlockCount < nMaxBlocks ) Do
-              Begin
+              while( nBlockCount < nMaxBlocks ) do
+              begin
                 BlockRead( fpFile, aDiskBlock, 1, nRes );
 
-                If( ( IOResult = 0 ) And ( nRes = 1 ) ) Then
-                Begin
-                  Move( aDiskBlock, Mem[nEntryAddress], SizeOf( aDiskBlock ) );
+                if( ( IOResult = 0 ) and ( nRes = 1 ) ) then
+                begin
+                  Move( aDiskBlock, Mem[nEntryAddress], sizeof( aDiskBlock ) );
                   nBlockCount := Succ( nBlockCount );
-                  nEntryAddress := nEntryAddress + SizeOf( aDiskBlock );
-                End
-                Else
-                Begin
+                  nEntryAddress := nEntryAddress + sizeof( aDiskBlock );
+                end
+                else
+                begin
                   ret := LibIOError;
                   nBlockCount := nMaxBlocks;
-                End
-              End;
+                end
+              end;
 
               nRes := 0;
-            End
-            Else  { Move the file pointer to the next library entry }
-            Begin
+            end
+            else  { Move the file pointer to the next library entry }
+            begin
               nMaxBlocks := Round( fileEntry.nEntrySize /
-                                   SizeOf( aDiskBlock ) );
+                                   sizeof( aDiskBlock ) );
 
-              If( nMaxBlocks = 0 )  Then
+              if( nMaxBlocks = 0 )  then
                 nMaxBlocks := 1;
 
               Seek( fpFile, FilePos( fpFile ) + nMaxBlocks );
-            End;
-          End
-          Else
-          Begin
+            end;
+          end
+          else
+          begin
             nRes := 0;
             ret  := LibIOError;
-          End;
-        End
-        Else
-        Begin
+          end;
+        end
+        else
+        begin
           nRes := 0;
           ret  := LibIOError;
-        End;
-      Until( nRes < 1 );
+        end;
+      until( nRes < 1 );
       {$i+}
-    End;
-  End;
+    end;
+  end;
 
   LoadLibraryEntry := ret;
-End;
+end;

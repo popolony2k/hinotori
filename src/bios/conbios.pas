@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctCHSNS   = $009C;      { Check status of keyboard buffer          }
+const     ctCHSNS   = $009C;      { Check status of keyboard buffer          }
           ctCHGET   = $009F;      { Wait for input character and return      }
           ctCHPUT   = $00A2;      { Output a character to the console        }
           ctLPTOUT  = $00A5;      { Output a character to the line printer   }

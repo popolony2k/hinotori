@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctGTSTCK  = $00D5;      { Return the joystick status               }
+const     ctGTSTCK  = $00D5;      { Return the joystick status               }
           ctGTTRIG  = $00D8;      { Return current trigger status            }
           ctGTPAD   = $00DB;      { Return current touch pad status          }
           ctGTPDL   = $00DE;      { Return current value of paddle           }

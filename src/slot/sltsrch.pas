@@ -19,45 +19,45 @@
   * @param nAddress The starting address where the signature will be
   * searched;
   *)
-Function FindSignature( Var strSignature : TTinyString;
-                        nAddress : Integer ) : TSlotNumber;
-Var
+function FindSignature( var strSignature : TTinyString;
+                        nAddress : integer ) : TSlotNumber;
+var
         nSlotNumber     : TSlotNumber;
-        bResult         : Boolean;
+        bResult         : boolean;
         strTmp          : TTinyString;
         nCount,
         nPrimarySlot,
         nSecondarySlot,
-        nSignatureSize  : Byte;
+        nSignatureSize  : byte;
 
-Begin
+begin
   nPrimarySlot   := 0;
-  nSignatureSize := Byte( strSignature[0] ) - 1;
+  nSignatureSize := byte( strSignature[0] ) - 1;
   strTmp[0]      := strSignature[0];
-  bResult        := False;
+  bResult        := false;
 
   (* Search by the signature's  slot *)
-  Repeat
+  repeat
     nSecondarySlot := 0;
 
-    Repeat
+    repeat
       nSlotNumber := MakeSlotNumber( nPrimarySlot, nSecondarySlot );
 
-      For nCount := 0 To nSignatureSize Do
-        strTmp[nCount+1] := Char( RDSLT( nSlotNumber,
+      for nCount := 0 to nSignatureSize do
+        strTmp[nCount+1] := char( RDSLT( nSlotNumber,
                                          ( nAddress + nCount ) ) );
       bResult := ( strTmp = strSignature );
 
-      If( Not bResult )  Then
+      if( not bResult )  then
         nSecondarySlot := nSecondarySlot + 1;
-    Until( bResult Or ( nSecondarySlot = ctMaxSecSlots ) );
+    until( bResult or ( nSecondarySlot = ctMaxSecSlots ) );
 
-    If( Not bResult )  Then
+    if( not bResult )  then
       nPrimarySlot := nPrimarySlot + 1;
-  Until( bResult Or ( nPrimarySlot = ctMaxSlots ) );
+  until( bResult or ( nPrimarySlot = ctMaxSlots ) );
 
-  If( Not bResult )  Then
+  if( not bResult )  then
     FindSignature := ctUnitializedSlot
-  Else
+  else
     FindSignature := nSlotNumber;
-End;
+end;

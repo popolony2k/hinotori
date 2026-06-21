@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctCHKRAM  = $0000;      { Check RAM and set slot for command area  }
+const     ctCHKRAM  = $0000;      { Check RAM and set slot for command area  }
           ctSYNCHR  = $0008;      { Check if current token                   }
           ctRDSLT   = $000C;      { Load memory position of any slot         }
           ctCHRGTB  = $0010;      { Check next BASIC token                   }

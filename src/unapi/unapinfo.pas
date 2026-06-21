@@ -16,24 +16,24 @@
  * - /unapi/unapi.pas;
  *)
 
-Const   ctNameStringSize = 63;    { Name string max size }
+const   ctNameStringSize = 63;    { Name string max size }
 
 (**
   * UNAPI Version structure.
   *)
-Type TUNAPIVersion = Record
+type TUNAPIVersion = record
   nMinor,
-  nMajor   : Byte;
-End;
+  nMajor   : byte;
+end;
 
 (**
   * UNAPI information.
   *)
-Type TUNAPIInfo = Record
-  strImplName     : String[ctNameStringSize];   { Implementation name }
+type TUNAPIInfo = record
+  strImplName     : string[ctNameStringSize];   { Implementation name }
   apiSpecVersion,                               { API spec. supported }
   apiImplVersion  : TUNAPIVersion;              { API impl. version   }
-End;
+end;
 
 
 (**
@@ -43,16 +43,16 @@ End;
   * @param info Reference to the @see TUNAPIInfo structure to receive
   * the UNAPI information;
   *)
-Procedure UNAPIGetInfo( Var impl : TUNAPIImplPointer; Var info : TUNAPIInfo );
-Var
+procedure UNAPIGetInfo( var impl : TUNAPIImplPointer; var info : TUNAPIInfo );
+var
      nPri,
      nSec,
      nValue,
-     nCount  : Byte;
+     nCount  : byte;
      regs    : TRegs;
 
-Begin
-  FillChar( regs, SizeOf( regs ), 0 );
+begin
+  FillChar( regs, sizeof( regs ), 0 );
   nCount := 0;
   regs.A := 0;      { UNAPI_GET_INFO }
 
@@ -63,15 +63,15 @@ Begin
   (*
    * Retrieve the implementation name.
    *)
-  While( ( nValue <> 0 ) And ( nCount < ctNameStringSize ) ) Do
-  Begin
-    info.strImplName[nCount+1] := Char( nValue );
+  while( ( nValue <> 0 ) and ( nCount < ctNameStringSize ) ) do
+  begin
+    info.strImplName[nCount+1] := char( nValue );
     nCount  := nCount + 1;
     nValue  := RDSLT( impl.nSlotNumber, regs.HL + nCount );
-  End;
+  end;
 
-  If( nCount > 0 )  Then
-    info.strImplName[0] := Char( nCount );
+  if( nCount > 0 )  then
+    info.strImplName[0] := char( nCount );
 
   (*
    * Get the specification and implementation
@@ -81,4 +81,4 @@ Begin
   info.apiSpecVersion.nMajor := regs.D;
   info.apiImplVersion.nMinor := regs.C;
   info.apiImplVersion.nMajor := regs.B;
-End;
+end;

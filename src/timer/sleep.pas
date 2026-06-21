@@ -11,29 +11,29 @@
  * - /system/systypes.pas;
  *)
 
-Var
-       __nSleepInterval     : Integer;
+var
+       __nSleepInterval     : integer;
 
 (**
   * Implements a new accurate Sleep routine (16bit resolution);
   * @param __nSleepInterval The specified time in 1/60 (or 1/50)
   * intervals;
   *)
-Procedure SleepDirect{( __nSleepInterval : Integer )};
-Begin
+procedure SleepDirect{( __nSleepInterval : Integer )};
+begin
   JIFFY := 0;
 
   {%W+}
-  While( __nSleepInterval > JIFFY ) Do;
+  while( __nSleepInterval > JIFFY ) do;
   {%W-}
-End;
+end;
 
 (**
   * Implements a new accurate Sleep routine (16bit resolution);
   * @param nInterval The specified time in 1/60 (or 1/50) intervals;
   *)
-Procedure Sleep( nInterval : Integer );
-Begin
+procedure Sleep( nInterval : integer );
+begin
   __nSleepInterval := nInterval;
   SleepDirect{( __nSleepInterval )};
-End;
+end;

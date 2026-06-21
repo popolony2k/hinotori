@@ -13,12 +13,12 @@
 (**
   * All valid text modes.
   *)
-Type TTextMode = ( TextMode4080, TextMode32 );
+type TTextMode = ( TextMode4080, TextMode32 );
 
 (**
   * All valid cursor status.
   *)
-Type TCursorStatus = ( CursorEnabled,
+type TCursorStatus = ( CursorEnabled,
                        CursorDisabled,
                        CursorBlock,
                        CursorUnderscore );
@@ -27,14 +27,14 @@ Type TCursorStatus = ( CursorEnabled,
   * Screen status struct used to save the visual status of
   * text screen.
   *)
-Type TScreenStatus = Record
+type TScreenStatus = record
   nWidth,
   nBkColor,
   nFgColor,
-  nBdrColor   : Byte;
-  bFnKeyOn    : Boolean;
+  nBdrColor   : byte;
+  bFnKeyOn    : boolean;
   TextMode    : TTextMode;
-End;
+end;
 
 
 (* High level routines to control position, size and colors of screen *)
@@ -44,15 +44,15 @@ End;
   * @param nPosX The new position in X-Axis;
   * @param nPosY The new position in Y-Axis;
   *)
-Procedure _GotoXY( nPosX, nPosY : Byte );
-Var
-       CSRY : Byte Absolute $F3DC; { Current row-position of the cursor    }
-       CSRX : Byte Absolute $F3DD; { Current column-position of the cursor }
+procedure _GotoXY( nPosX, nPosY : byte );
+var
+       CSRY : byte absolute $F3DC; { Current row-position of the cursor    }
+       CSRX : byte absolute $F3DD; { Current column-position of the cursor }
 
-Begin
+begin
   CSRX := nPosX;
   CSRY := nPosY;
-End;
+end;
 
 (**
   * Fill a specified screen area with a specified character.
@@ -61,105 +61,105 @@ End;
   * @param nX2 End X coordinate of area to fill;
   * @param nY2 End Y coordinate of ares to fill;
   *)
-Procedure FillArea( nX1, nY1, nX2, nY2 : Byte; chChar : Char );
-Var
+procedure FillArea( nX1, nY1, nX2, nY2 : byte; chChar : char );
+var
            nXCounter,
-           nYCounter  : Byte;
+           nYCounter  : byte;
 
-Begin
-  For nYCounter := nY1 To nY2 Do
-    For nXCounter := nX1 To nX2 Do
-    Begin
+begin
+  for nYCounter := nY1 to nY2 do
+    for nXCounter := nX1 to nX2 do
+    begin
       _GotoXY( nXCounter, nYCounter );
       Write( chChar );
-    End;
-End;
+    end;
+end;
 
 (**
   * Clear the screen;
   *)
-Procedure _ClrScr;
-Const
+procedure _ClrScr;
+const
         ctCLS     = $00C3;  { Clear screen, including graphic modes }
-Var
+var
         regs   : TRegs;
-        CSRY   : Byte Absolute $F3DC; { Current row-position of the cursor    }
-        CSRX   : Byte Absolute $F3DD; { Current column-position of the cursor }
-        EXPTBL : Byte Absolute $FCC1; { Slot 0 }
+        CSRY   : byte absolute $F3DC; { Current row-position of the cursor    }
+        CSRX   : byte absolute $F3DD; { Current column-position of the cursor }
+        EXPTBL : byte absolute $FCC1; { Slot 0 }
 
-Begin
+begin
   regs.IX := ctCLS;
   regs.IY := EXPTBL;
   (*
    * The Z80 zero flag must be set before calling the CLS BIOS function.
    * Check the MSX BIOS specification
    *)
-  Inline( $AF );            { XOR A    }
+  inline( $AF );            { XOR A    }
 
   CALSLT( regs );
   CSRX := 1;
   CSRY := 1;
-End;
+end;
 
 (**
   * CHPUT MSXBIOS call implementation.
   * This function print a character to the text screen output;
   * @param chChar The character to output to screen;
   *)
-Procedure CHPUT( chChar : Char );
-Const
+procedure CHPUT( chChar : char );
+const
         ctCHPUT   = $00A2;   { Output a character to the console }
 
-Var
+var
         regs    : TRegs;
-        EXPTBL  : Byte Absolute $FCC1; { Slot 0 }
+        EXPTBL  : byte absolute $FCC1; { Slot 0 }
 
-Begin
+begin
   regs.IX := ctCHPUT;
   regs.IY := EXPTBL;
-  regs.A  := Byte( chChar );
+  regs.A  := byte( chChar );
   CALSLT( regs );
-End;
+end;
 
 (**
   * CHGET MSXBIOS call implementation.
   * This function retrieve the user typed key character;
   *)
-Function CHGET : Char;
-Const
+function CHGET : char;
+const
         ctCHGET   = $009F;   { One character console input (waiting) }
 
-Var
+var
         regs    : TRegs;
-        EXPTBL  : Byte Absolute $FCC1; { Slot 0 }
+        EXPTBL  : byte absolute $FCC1; { Slot 0 }
 
-Begin
+begin
   regs.IX := ctCHGET;
   regs.IY := EXPTBL;
   CALSLT( regs );
 
-  CHGET := Char ( regs.A );
-End;
+  CHGET := char ( regs.A );
+end;
 
 (**
   * Set the new width for the text screen.
   * @param nWidth The new width to set;
   *)
-Procedure Width( nWidth : Byte );
-Const
+procedure Width( nWidth : byte );
+const
        ctINITXT  = $006C; { Initialize screen for text mode (40x24) }
 
-Var
+var
        regs    : TRegs;
-       EXPTBL  : Byte Absolute $FCC1; { Slot 0 }
-       LINL40  : Byte Absolute $F3AE; { Width for SCREEN 0 }
+       EXPTBL  : byte absolute $FCC1; { Slot 0 }
+       LINL40  : byte absolute $F3AE; { Width for SCREEN 0 }
 
-Begin
+begin
   LINL40  := nWidth;
   regs.IX := ctINITXT;
   regs.IY := EXPTBL;
   CALSLT( regs );
-End;
+end;
 
 (**
   * Change the screen color (Foreground, background and Border);
@@ -167,124 +167,124 @@ End;
   * @param nBkColor The backgound color to change;
   * @param nBdrColor The border color to change;
   *)
-Procedure Color( nFgColor, nBkColor, nBdrColor : Byte );
-Const
+procedure Color( nFgColor, nBkColor, nBdrColor : byte );
+const
         ctCHGCLR  = $0062;    { Changes the color of the screen }
 
-Var
+var
         regs    : TRegs;
-        EXPTBL  : Byte Absolute $FCC1; { Slot 0 }
-        FORCLR  : Byte Absolute $F3E9; { Foreground color  }
-        BAKCLR  : Byte Absolute $F3EA; { Background color  }
-        BDRCLR  : Byte Absolute $F3EB; { Border color      }
+        EXPTBL  : byte absolute $FCC1; { Slot 0 }
+        FORCLR  : byte absolute $F3E9; { Foreground color  }
+        BAKCLR  : byte absolute $F3EA; { Background color  }
+        BDRCLR  : byte absolute $F3EB; { Border color      }
 
-Begin
+begin
   FORCLR  := nFgColor ;
   BAKCLR  := nBkColor;
   BDRCLR  := nBdrColor ;
   regs.IX := ctCHGCLR;
   regs.IY := EXPTBL;
   CALSLT( regs );
-End;
+end;
 
 (**
   * Set the new text mode;
   * @param mode The new @see TTextMode to set;
   *)
-Procedure SetTextMode( mode : TTextMode );
-Const
+procedure SetTextMode( mode : TTextMode );
+const
         ctINITXT  = $006C;    { Initialize screen for text mode (40x24) }
         ctINIT32  = $006F;    { Initialize screen mode for text (32x24) }
 
-Var
+var
         regs    : TRegs;
-        EXPTBL  : Byte Absolute $FCC1; { Slot 0 }
+        EXPTBL  : byte absolute $FCC1; { Slot 0 }
 
-Begin
-  If( mode = TextMode4080 )  Then
+begin
+  if( mode = TextMode4080 )  then
     regs.IX := ctINITXT
-  Else
+  else
     regs.IX := ctINIT32;
 
   regs.IY := EXPTBL;
   CALSLT( regs );
-End;
+end;
 
 (**
   * Enable/ disable the function keys.
   * @param nFnKeyStatus The new status for the function keys;
   *)
-Procedure SetFnKeyStatus( bFnKeyStatus : Boolean );
-Const
+procedure SetFnKeyStatus( bFnKeyStatus : boolean );
+const
           ctERAFNK  = $00CC;    { Erase the function key display   }
           ctDSPFNK  = $00CF;    { Display the function key display }
 
-Var
+var
         regs    : TRegs;
-        EXPTBL  : Byte Absolute $FCC1; { Slot 0 }
+        EXPTBL  : byte absolute $FCC1; { Slot 0 }
 
-Begin
-  If( bFnKeyStatus )  Then
+begin
+  if( bFnKeyStatus )  then
     regs.IX := ctDSPFNK
-  Else
+  else
     regs.IX := ctERAFNK;
 
   regs.IY := EXPTBL;
   CALSLT( regs );
-End;
+end;
 
 (**
   * Set the cursor status based on valid @see TCursorStatus value;
   * @param cursor The new cursor status (@see TCursorStatus);
   *)
-Procedure SetCursorStatus( cursor : TCursorStatus );
-Var
-     nCount      : Byte;
-     strCtrlCode : String[3];
+procedure SetCursorStatus( cursor : TCursorStatus );
+var
+     nCount      : byte;
+     strCtrlCode : string[3];
 
-Begin   { Procedure entry point }
-  Case( cursor ) Of
+begin   { Procedure entry point }
+  case( cursor ) of
     CursorEnabled    : strCtrlCode := 'x5';
     CursorDisabled   : strCtrlCode := 'y5';
     CursorBlock      : strCtrlCode := 'x4';
     CursorUnderscore : strCtrlCode := 'y4';
-  End;
+  end;
 
   strCtrlCode := #27 + strCtrlCode;
 
-  For nCount := 1 To Length( strCtrlCode ) Do
+  for nCount := 1 to Length( strCtrlCode ) do
     CHPUT( strCtrlCode[nCount] );
-End;
+end;
 
 (**
   * Get the current screen status.
   * @param The reference to receive the current screen
   * status;
   *)
-Procedure GetScreenStatus( Var scrStatus : TScreenStatus );
-Var
-      LINLEN : Byte Absolute $F3B0; { Width for the current text mode         }
-      CNSDFG : Byte Absolute $F3DE; { =0 when function keys are not displayed }
-      SCRMOD : Byte Absolute $FCAF; { Current screen number }
-      FORCLR : Byte Absolute $F3E9; { Foreground color }
-      BAKCLR : Byte Absolute $F3EA; { Background color }
-      BDRCLR : Byte Absolute $F3EB; { Border color     }
+procedure GetScreenStatus( var scrStatus : TScreenStatus );
+var
+      LINLEN : byte absolute $F3B0; { Width for the current text mode         }
+      CNSDFG : byte absolute $F3DE; { =0 when function keys are not displayed }
+      SCRMOD : byte absolute $FCAF; { Current screen number }
+      FORCLR : byte absolute $F3E9; { Foreground color }
+      BAKCLR : byte absolute $F3EA; { Background color }
+      BDRCLR : byte absolute $F3EB; { Border color     }
 
-Begin
-  With scrStatus Do
-  Begin
+begin
+  with scrStatus do
+  begin
     nWidth    := LINLEN;
     nBkColor  := BAKCLR;
     nBdrColor := BDRCLR;
     nFgColor  := FORCLR;
     bFnKeyOn  := ( CNSDFG <> 0 );
 
-    If( SCRMOD = 0 )  Then
+    if( SCRMOD = 0 )  then
       TextMode := TextMode4080
-    Else
+    else
       TextMode := TextMode32;
-  End;
-End;
+  end;
+end;
 
 (**
   * Set the new screen status, retrieving the old screen
@@ -293,9 +293,9 @@ End;
   * screen colors and dimension;
   * @param scrRet The old @see TScreenStatus;
   *)
-Procedure SetScreenStatus( scrStatus  : TScreenStatus;
-                           Var scrRet : TScreenStatus );
-Begin
+procedure SetScreenStatus( scrStatus  : TScreenStatus;
+                           var scrRet : TScreenStatus );
+begin
   GetScreenStatus( scrRet );
 
   Width( scrStatus.nWidth );
@@ -304,4 +304,4 @@ Begin
   Color( scrStatus.nFgColor,
          scrStatus.nBkColor,
          scrStatus.nBdrColor );
-End;
+end;

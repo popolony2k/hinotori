@@ -15,7 +15,7 @@
 (**
   * Module constants and definitions.
   *)
-Const
+const
             ctInitialCharE5 = $05;       { The first entry's char is $E5 }
 
 
@@ -29,7 +29,7 @@ var
       nDirPos,
       nPathLen : byte;
       dirName  : TDirectoryName;
-      pDirName : Pointer;
+      pDirName : pointer;
 
 begin
   nPathLen := Length( strPath );
@@ -82,7 +82,7 @@ begin
   if( Length( strEntry ) > 1 ) then
     IsDriveName := ( Pos( ':', strEntry ) = 2 )
   else
-    IsDriveName := False;
+    IsDriveName := false;
 end;
 
 (**
@@ -100,7 +100,7 @@ var
        bMatch  : boolean;
 
 begin
-  bMatch := True;
+  bMatch := true;
   nCount := 0;
 
   (*
@@ -111,22 +111,22 @@ begin
          ( nCount < nMaxCount ) and
          bMatch ) do
   begin
-    case pWildCard^[nCount] Of
-      '*' : bExit := True;
+    case pWildCard^[nCount] of
+      '*' : bExit := true;
       '?' : (* do nothing *)
         begin
         end;
       else
       begin
         (* Check FAT spec for this feature *)
-        if( pArray^[nCount] = Char( ctInitialCharE5 ) ) then
+        if( pArray^[nCount] = char( ctInitialCharE5 ) ) then
         begin
-          if( pWildCard^[nCount] <> Char( $E5 ) ) then
-            bMatch := False;
+          if( pWildCard^[nCount] <> char( $E5 ) ) then
+            bMatch := false;
         end
         else
           if( pArray^[nCount] <> pWildCard^[nCount] )  then
-            bMatch := False;
+            bMatch := false;
       end;
     end;
 

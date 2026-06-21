@@ -16,35 +16,35 @@
   * Internal MSXDOS & CP/M80 definitions
   *)
 
-Const   ctMaxDskDevices : Byte = $8;    { Maximum disk drives devices }
+const   ctMaxDskDevices : byte = $8;    { Maximum disk drives devices }
 
 (**
   * Return codes
   *)
 
-Const   ctOK            : Byte = $0;    { Success }
-        ctError         : Byte = $1;    { Error }
-        ctBDOSErr       : Byte = $FF;   { BDOS error value }
+const   ctOK            : byte = $0;    { Success }
+        ctError         : byte = $1;    { Error }
+        ctBDOSErr       : byte = $FF;   { BDOS error value }
 
 (**
   * Disk formats
   *)
 
-Const   ctSingleSided31_2 : Byte = $F8; { 31/2 Single Sided floppy }
-        ctDoubleSided31_2 : Byte = $F9; { 31/2 Double Sided floppy }
-        ctSingleSided51_4 : Byte = $FC; { 51/4 Single Sided floppy }
-        ctDoubleSided51_4 : Byte = $FD; { 51/4 Double Sided floppy }
+const   ctSingleSided31_2 : byte = $F8; { 31/2 Single Sided floppy }
+        ctDoubleSided31_2 : byte = $F9; { 31/2 Double Sided floppy }
+        ctSingleSided51_4 : byte = $FC; { 51/4 Single Sided floppy }
+        ctDoubleSided51_4 : byte = $FD; { 51/4 Double Sided floppy }
 
 (**
   * Disk side
   *)
-Const   ctSingleSided     : Byte = $0;  { Single Sided }
-        ctDoubleSided     : Byte = $1;  { Double Sided }
+const   ctSingleSided     : byte = $0;  { Single Sided }
+        ctDoubleSided     : byte = $1;  { Double Sided }
 
 (**
   * MSXDOS addresses
   *)
-Const   ctMaxPhysicalDrv  = $F1C8;      { Maximum Physical drives }
+const   ctMaxPhysicalDrv  = $F1C8;      { Maximum Physical drives }
         ctDefaultDrive    = $F247;      { Default drive }
         ctMSXDOSBoot      = $F346;      { Boot with or without MSXDOS }
         ctMaxLogicalDrv   = $F347;      { Maximum logical drives }
@@ -60,61 +60,61 @@ Const   ctMaxPhysicalDrv  = $F1C8;      { Maximum Physical drives }
 (**
   * File control block (FCB) data structure
   *)
-Type  PFCB = ^TFCB;
-      TFCB = Record
-  nDriveCode    : Byte;                  { Drive 0=Current, A=1, B=2, ... }
-  aName         : Array [0..7] Of Char;  { File Name }
-  aExt          : Array [0..2] Of Char;  { File Name Extension }
-  nCurrentBlock : Integer;               { Num. blocks from begining of file }
-  nRecSize      : Integer;               { Record Size Used by Block I/O }
-  aFileSize     : Array[0..1] Of Integer;{ File Size in Bytes }
-  nFCBDate      : Integer;               { File/Directory Date }
-  nFCBTime      : Integer;               { File/Directory Time }
-  nDeviceId     : Byte;                  { Device Id }
-  nDirLocation  : Byte;                  { Directory Location }
-  nTopCluster   : Integer;               { Top cluster of the file/dir }
-  nLastCluster  : Integer;               { Last cluster of the file/dir }
-  nRelativeRec  : Integer;               { RelPos from 1st to last cluster }
-  nCurrentRec   : Byte;                  { Current record }
-  aRndRec       : Array[0..1] Of Integer;{ Random Record from the top of file }
-End;
+type  PFCB = ^TFCB;
+      TFCB = record
+  nDriveCode    : byte;                  { Drive 0=Current, A=1, B=2, ... }
+  aName         : array [0..7] of char;  { File Name }
+  aExt          : array [0..2] of char;  { File Name Extension }
+  nCurrentBlock : integer;               { Num. blocks from begining of file }
+  nRecSize      : integer;               { Record Size Used by Block I/O }
+  aFileSize     : array[0..1] of integer;{ File Size in Bytes }
+  nFCBDate      : integer;               { File/Directory Date }
+  nFCBTime      : integer;               { File/Directory Time }
+  nDeviceId     : byte;                  { Device Id }
+  nDirLocation  : byte;                  { Directory Location }
+  nTopCluster   : integer;               { Top cluster of the file/dir }
+  nLastCluster  : integer;               { Last cluster of the file/dir }
+  nRelativeRec  : integer;               { RelPos from 1st to last cluster }
+  nCurrentRec   : byte;                  { Current record }
+  aRndRec       : array[0..1] of integer;{ Random Record from the top of file }
+end;
 
 (**
   * Allocation information retrieved by 1Bh BDOS function.
   *)
-Type TAllocInfo = Record
-  nSectorsPerCluster   : Byte;           { Number of sectors per cluster }
-  nSectorSize          : Integer;        { Sector size in bytes }
-  nTotalClustersOnDisk : Integer;        { Total clusters on disk }
-  nFreeClustersOnDisk  : Integer;        { Free clusters on disk }
-End;
+type TAllocInfo = record
+  nSectorsPerCluster   : byte;           { Number of sectors per cluster }
+  nSectorSize          : integer;        { Sector size in bytes }
+  nTotalClustersOnDisk : integer;        { Total clusters on disk }
+  nFreeClustersOnDisk  : integer;        { Free clusters on disk }
+end;
 
 (**
   * Disk Parameter Block (DPB) structure definition
   *)
-Type PDPB = ^TDPB;
-     TDPB = Record
-  nDrvNum               : Byte;         { Drive number ( A=0, B=1,... }
-  nDiskFormat           : Byte;         { Disk Format F8/F9/FA/FB/FC/FD/FE/FF }
-  nBytesPerSector       : Integer;      { Bytes per sector }
-  nDirectoryMask        : Byte;         { Directory Mask }
-  nDirectoryShift       : Byte;         { Directory shift }
-  nClusterMask          : Byte;         { Cluster mask }
-  nClusterShift         : Byte;         { Cluster shift - Sectors by cluster }
-  nTopOfFATSector       : Integer;      { Top os sector FAT }
-  nFATCount             : Byte;         { Number of FAT's }
-  nDirectoryEntries     : Byte;         { Directory entries }
-  nDataEntrySector      : Integer;      { Initial data sector - After FAT }
-  nDiskClusters         : Integer;      { Disk clusters }
-  nSectorsByFAT         : Byte;         { Sectors by FAT }
-  nDirectoryEntrySector : Integer;      { Start of Directory entry (Sector) }
-  nFatAreaMemoryAddress : Integer;      { FAT Memory Address (RAM) }
+type PDPB = ^TDPB;
+     TDPB = record
+  nDrvNum               : byte;         { Drive number ( A=0, B=1,... }
+  nDiskFormat           : byte;         { Disk Format F8/F9/FA/FB/FC/FD/FE/FF }
+  nBytesPerSector       : integer;      { Bytes per sector }
+  nDirectoryMask        : byte;         { Directory Mask }
+  nDirectoryShift       : byte;         { Directory shift }
+  nClusterMask          : byte;         { Cluster mask }
+  nClusterShift         : byte;         { Cluster shift - Sectors by cluster }
+  nTopOfFATSector       : integer;      { Top os sector FAT }
+  nFATCount             : byte;         { Number of FAT's }
+  nDirectoryEntries     : byte;         { Directory entries }
+  nDataEntrySector      : integer;      { Initial data sector - After FAT }
+  nDiskClusters         : integer;      { Disk clusters }
+  nSectorsByFAT         : byte;         { Sectors by FAT }
+  nDirectoryEntrySector : integer;      { Start of Directory entry (Sector) }
+  nFatAreaMemoryAddress : integer;      { FAT Memory Address (RAM) }
   (*
    * The allocation info below is not part
    * of the official CPM80-MSXDOS specification.
    *)
   allocationInfo        : TAllocInfo;   { Allocation info - Not part of DPB }
-End;
+end;
 
 
 (**
@@ -125,22 +125,22 @@ End;
   * ctError - Operation failed;
   * ctOk - Operation success;
   *)
-Function GetDPB( nDrive : Byte; Var DPB : TDPB ) : Byte;
-Var
+function GetDPB( nDrive : byte; var DPB : TDPB ) : byte;
+var
       nDPBAddr,
       nTotalClusters,
       nFreeClusters,
-      nSecSize        : Integer;
+      nSecSize        : integer;
       nErrorFlag,
-      nSecByCluster   : Byte;
+      nSecByCluster   : byte;
 
-Begin
+begin
   nErrorFlag := ctOK;
 
-  If( nDrive > ctMaxDskDevices )  Then
+  if( nDrive > ctMaxDskDevices )  then
     nErrorFlag  := ctError               { Error - Max drives limit reached }
-  Else
-  Begin
+  else
+  begin
     (*
      * Call the GetAlloc (1Bh) BDOS function to retrieve the pointer to the
      * requested DPB.
@@ -152,34 +152,34 @@ Begin
      * for details about the registers returned after calling the 1Bh BDOS
      * function call.
      *)
-    Inline( $DD/$22/nDPBAddr/         { LD (nDPBAddr), IX      }
+    inline( $DD/$22/nDPBAddr/         { LD (nDPBAddr), IX      }
             $32/nSecByCluster/        { LD (nSecByCluster), A  }
             $ED/$53/nTotalClusters/   { LD (nTotalClusters, DE }
             $22/nFreeClusters/        { LD (nFreeClusters, HL  }
             $ED/$43/nSecSize          { LD (nSecSize), BC      } );
 
-    With DPB.allocationInfo Do
-    Begin
+    with DPB.allocationInfo do
+    begin
       nSectorsPerCluster   := nSecByCluster;
       nSectorSize          := nSecSize;
       nTotalClustersOnDisk := nTotalClusters;
       nFreeClustersOnDisk  := nFreeClusters;
-    End;
-  End;
+    end;
+  end;
 
-  If( nErrorFlag = ctOK ) Then
-    Move( Mem[nDPBAddr], DPB, ( SizeOf( DPB ) - SizeOf( TAllocInfo ) ) );
+  if( nErrorFlag = ctOK ) then
+    Move( Mem[nDPBAddr], DPB, ( sizeof( DPB ) - sizeof( TAllocInfo ) ) );
 
   GetDPB := nErrorFlag;
-End;
+end;
 
 (**
   * Get the default Data Transfer Address.
   *)
-Function GetDefaultDTA : Integer;
-Var
-       nDefaultDTA  : Integer;
-Begin
-  Move( Mem[ctDefaultDTA], nDefaultDTA, SizeOf( nDefaultDTA ) );
+function GetDefaultDTA : integer;
+var
+       nDefaultDTA  : integer;
+begin
+  Move( Mem[ctDefaultDTA], nDefaultDTA, sizeof( nDefaultDTA ) );
   GetDefaultDTA := nDefaultDTA;
-End;
+end;

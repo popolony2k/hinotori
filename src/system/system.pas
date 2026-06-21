@@ -75,7 +75,7 @@ type TProcessorMode = ( ModeZ80,
   *)
 procedure DI;
 begin
-  InLine( $F3 );
+  inline( $F3 );
 end;
 
 (**
@@ -83,7 +83,7 @@ end;
   *)
 procedure EI;
 begin
-  InLine( $FB );
+  inline( $FB );
 end;
 
 (**

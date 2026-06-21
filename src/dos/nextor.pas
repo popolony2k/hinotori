@@ -152,8 +152,8 @@ procedure GetRALLOCStatus (var DriveRalloc: TDriveStatus );
 	end;
 
 begin
-	FillChar ( regs, SizeOf( regs ), 0 );
-	FillChar ( DriveRalloc, SizeOf ( DriveRalloc ), 0 );
+	FillChar ( regs, sizeof( regs ), 0 );
+	FillChar ( DriveRalloc, sizeof ( DriveRalloc ), 0 );
 	
 	regs.A := ctGetRallocStatus;
 	regs.C := ctRALLOC;
@@ -187,7 +187,7 @@ procedure SetRALLOCStatus ( var DriveRalloc: TDriveStatus );
 	end;
 
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 	 
 	regs.A := ctSetRallocStatus;
 	regs.C := ctRALLOC;
@@ -201,9 +201,9 @@ var
 	temp1, temp2: real;
 
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
-	FillChar( temp1, SizeOf( temp1 ), 0 );
-	FillChar( temp2, SizeOf( temp2 ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
+	FillChar( temp1, sizeof( temp1 ), 0 );
+	FillChar( temp2, sizeof( temp2 ), 0 );
 
 	(* Nextor routine. *)
 	regs.C := ctDSPACE;
@@ -233,7 +233,7 @@ end;
 
 function GetLockStatus ( DriveLetter: char): byte;
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 
 	(* Nextor routine. *)
 	regs.C := ctLOCK;
@@ -253,7 +253,7 @@ end;
 
 function SetLockStatus ( DriveLetter: char; LockOrUnlock: boolean): byte;
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 
 	(* Nextor routine. *)
 	regs.C := ctLOCK;
@@ -283,7 +283,7 @@ var
 	i: byte;
 	
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 
 	(* Nextor routine. *)
 	regs.C := ctGDRVR;
@@ -331,7 +331,7 @@ var
 	i: byte;
 	
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 
 	(* Nextor routine. *)
 	regs.C := ctGDLI;
@@ -364,7 +364,7 @@ end;
 procedure GetInfoDevicePartition (DevicePartition: TDevicePartition; 
 								 var PartitionResult: TPartitionResult);
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 	
 	(* ctGPART. *)
 	regs.C := ctGPART;
@@ -432,8 +432,8 @@ var
 	Params: TParams;
 
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
-	FillChar( Params, SizeOf( Params ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
+	FillChar( Params, sizeof( Params ), 0 );
 
 	with MapDrive do
 	begin
@@ -474,7 +474,7 @@ end;
 
 function GetZ80AccessMode (DriverSlot: byte): byte;
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 	
 	(*ctZ80MODE. *)
 	regs.C := ctZ80MODE;
@@ -492,7 +492,7 @@ end;
 
 function SetZ80AccessMode ( DriverSlot: byte; AccessMode: boolean ): byte;
 begin
-	FillChar( regs, SizeOf( regs ), 0 );
+	FillChar( regs, sizeof( regs ), 0 );
 	
 	(*ctZ80MODE. *)
 	regs.C := ctZ80MODE;

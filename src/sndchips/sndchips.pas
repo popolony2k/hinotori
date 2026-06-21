@@ -13,13 +13,13 @@
 (**
   * Sound chips common constants.
   *)
-Const
-       ctSndChipResetDelay     : Integer = $05; { Chip reset delay time }
+const
+       ctSndChipResetDelay     : integer = $05; { Chip reset delay time }
 
 (**
   * Sound chips common parameter data.
   *)
-Var
-       __pSndChipArrayParms : Pointer;          { Sound chip buffer pointer   }
+var
+       __pSndChipArrayParms : pointer;          { Sound chip buffer pointer   }
 
 

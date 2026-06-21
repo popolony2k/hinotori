@@ -15,27 +15,27 @@
   * Trace procedure to print a string to test standard output.
   * @param strValue The string value to print;
   *)
-Procedure TRACE( strValue : TShortString );
-Begin
+procedure TRACE( strValue : TShortString );
+begin
   WriteLn( strValue );
-End;
+end;
 
 (**
   * Trace procedure to print a string pointer to test standard output.
   * @param strValue The string value to print;
   *)
-Procedure PTRACE( pstrValue : PShortString );
-Begin
+procedure PTRACE( pstrValue : PShortString );
+begin
   WriteLn( pstrValue^ );
-End;
+end;
 
 (**
   * Skip a line in standard output;
   *)
-Procedure TRACELN;
-Begin
+procedure TRACELN;
+begin
   WriteLn;
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -46,18 +46,18 @@ End;
   * operation;
   * The function return true if bRetValue is equal bExpected;
   *)
-Function TEST_BOOL( strTestName : TTinyString;
-                    bRetValue, bExpected : Boolean ) : Boolean;
-Begin
+function TEST_BOOL( strTestName : TTinyString;
+                    bRetValue, bExpected : boolean ) : boolean;
+begin
   Write( '[', strTestName, '] ===> ' );
 
-  If( bRetValue <> bExpected )  Then
+  if( bRetValue <> bExpected )  then
     WriteLn( '[ERROR] - Value ', bRetValue, ' expected ', bExpected )
-  Else
+  else
     WriteLn( '[SUCCESS]' );
 
   TEST_BOOL := ( bRetValue = bExpected );
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -68,20 +68,20 @@ End;
   * operation;
   * The function return true if bRetValue is equal bExpected;
   *)
-Function TEST_STR( strTestName : TTinyString;
-                   strRetValue, strExpected : TString ) : Boolean;
-Begin
+function TEST_STR( strTestName : TTinyString;
+                   strRetValue, strExpected : TString ) : boolean;
+begin
   Write( '[', strTestName, '] ===> ' );
 
-  If( strRetValue <> strExpected )  Then
-    Begin
+  if( strRetValue <> strExpected )  then
+    begin
       WriteLn( '[ERROR] - Value ',  strRetValue, ' expected ', strExpected );
-    End
-  Else
+    end
+  else
     WriteLn( '[SUCCESS]' );
 
   TEST_STR := ( strRetValue = strExpected );
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -92,18 +92,18 @@ End;
   * operation;
   * The function return true if fRetValue is equal fExpected;
   *)
-Function TEST_FLOAT( strTestName : TTinyString;
-                     fRetValue, fExpected : Real ) : Boolean;
-Begin
+function TEST_FLOAT( strTestName : TTinyString;
+                     fRetValue, fExpected : real ) : boolean;
+begin
   Write( '[', strTestName, '] ===> ' );
 
-  If( fRetValue <> fExpected )  Then
+  if( fRetValue <> fExpected )  then
     WriteLn( '[ERROR] - Value ', fRetValue, ' expected ', fExpected )
-  Else
+  else
     WriteLn( '[SUCCESS]' );
 
   TEST_FLOAT := ( fRetValue = fExpected );
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -114,15 +114,15 @@ End;
   * operation;
   * The function return true if nRetValue is equal nExpected;
   *)
-Function TEST_INT( strTestName : TTinyString;
-                   nRetValue, nExpected : Integer ) : Boolean;
-Begin
+function TEST_INT( strTestName : TTinyString;
+                   nRetValue, nExpected : integer ) : boolean;
+begin
   Write( '[', strTestName, '] ===> ' );
 
-  If( nRetValue <> nExpected )  Then
+  if( nRetValue <> nExpected )  then
     WriteLn( '[ERROR] - Value ', nRetValue, ' expected ', nExpected )
-  Else
+  else
     WriteLn( '[SUCCESS]' );
 
   TEST_INT := ( nRetValue = nExpected );
-End;
+end;

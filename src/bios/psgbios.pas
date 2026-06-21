@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctGICINI  = $0090;      { Initialize PSG and static data for PLAY  }
+const     ctGICINI  = $0090;      { Initialize PSG and static data for PLAY  }
           ctWRTPSG  = $0093;      { Write data to the PSG register           }
           ctRDPSG   = $0096;      { Read data from PSG register              }
           ctSTRTMS  = $0099;      { Check/start background tasks for PLAY    }

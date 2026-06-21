@@ -11,7 +11,7 @@
 
 (* MSX BIOS address functions *)
 
-Const     ctTAPION  = $00E1;      { Read the header block after turn tape on }
+const     ctTAPION  = $00E1;      { Read the header block after turn tape on }
           ctTAPIN   = $00E4;      { Read data from the tape                  }
           ctTAPIOF  = $00E7;      { Stop reading from the tape               }
           ctTAPOON  = $00EA;      { Turn on the cassete motor & write header }

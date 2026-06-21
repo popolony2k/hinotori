@@ -17,7 +17,7 @@
 
 (* Constants, Types and strucutres of MSX IDE library *)
 
-Const    ctDefaultWrkspcPage        = 3;      { Default workspace slot page }
+const    ctDefaultWrkspcPage        = 3;      { Default workspace slot page }
          ctBIOSMajorVerAddr         = $7FB6;  { BIOS major version address }
          ctBIOSMinorVerAddr         = $7FB7;  { BIOS minor version address }
          ctBIOSRevisionAddr         = $7FB8;  { BIOS revision version address }
@@ -76,24 +76,24 @@ Const    ctDefaultWrkspcPage        = 3;      { Default workspace slot page }
   * @param info Reference to info struct to receive the IDE
   * information.
   *)
-Procedure GetIDEInfo( Var info : TIDEInfo );
-Var
-        strSignature : String[3];
-Begin
-  With info Do
-  Begin
+procedure GetIDEInfo( var info : TIDEInfo );
+var
+        strSignature : string[3];
+begin
+  with info do
+  begin
     strSignature := 'ID#';
     nSlotNumber  := FindSignature( strSignature, ctIDESignatureAddr );
 
     (* Get the BIOS Version *)
-    If( nSlotNumber <> ctUnitializedSlot )  Then
-    Begin
+    if( nSlotNumber <> ctUnitializedSlot )  then
+    begin
        nMajor    := RDSLT( nSlotNumber, ctBIOSMajorVerAddr );
        nMinor    := RDSLT( nSlotNumber, ctBIOSMinorVerAddr );
        nRevision := RDSLT( nSlotNumber, ctBIOSRevisionAddr );
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
 (**
   * Retrieve the device code struct for a given
@@ -103,21 +103,21 @@ End;
   * @param dev The reference to device struct
   * that will receive the information;
   *)
-Procedure GetDeviceInfo( nDeviceCodeByte : Byte; Var dev : TDeviceInfo );
-Begin
-  With dev Do
-  Begin
-    bPartitionIsMaster := Not BitCmp( ctPartitionSlaveDevice,
+procedure GetDeviceInfo( nDeviceCodeByte : byte; var dev : TDeviceInfo );
+begin
+  with dev do
+  begin
+    bPartitionIsMaster := not BitCmp( ctPartitionSlaveDevice,
                                       nDeviceCodeByte );
-    bMediumChanged     := Not BitCmp( ctPartitionMediaNotChanged,
+    bMediumChanged     := not BitCmp( ctPartitionMediaNotChanged,
                                       nDeviceCodeByte );
-    bPartitionInUse    := Not BitCmp( ctPartitionNotInUse,
+    bPartitionInUse    := not BitCmp( ctPartitionNotInUse,
                                       nDeviceCodeByte );
     bDriveLocked       := BitCmp( ctDriveLockedByProgram,
                                   nDeviceCodeByte );
-    nPartitionLocation := ( nDeviceCodeByte And ctPartitionATAPICDROM );
-  End;
-End;
+    nPartitionLocation := ( nDeviceCodeByte and ctPartitionATAPICDROM );
+  end;
+end;
 
 (**
   * Retrieve the additional partition information for a
@@ -127,19 +127,19 @@ End;
   * @param part The reference to additional partition
   * info struct that will receive the information;
   *)
-Procedure GetAdditionalPartitionInfo( nDeviceCodeByte : Byte;
-                                      Var part : TAdditionalPartitionInfo );
-Begin
-  With part Do
-  Begin
+procedure GetAdditionalPartitionInfo( nDeviceCodeByte : byte;
+                                      var part : TAdditionalPartitionInfo );
+begin
+  with part do
+  begin
     bEnabledDuringBoot       := BitCmp( ctPartEnabledDuringBoot,
                                         nDeviceCodeByte );
-    bIsBootable              := Not BitCmp( ctNotBootablePartition,
+    bIsBootable              := not BitCmp( ctNotBootablePartition,
                                             nDeviceCodeByte );
-    bLogicallyWriteProtected := Not BitCmp( ctLogicallyNotWrProtected,
+    bLogicallyWriteProtected := not BitCmp( ctLogicallyNotWrProtected,
                                             nDeviceCodeByte );
-  End;
-End;
+  end;
+end;
 
 (**
   * Retrieve the device type information for a given
@@ -148,37 +148,37 @@ End;
   * @param devType The reference to Device type struct
   * that will receive the information;
   *)
-Procedure GetDeviceType( nDeviceCodeByte : Byte; Var devType : TDeviceType );
-Begin
-  With devType Do
-  Begin
+procedure GetDeviceType( nDeviceCodeByte : byte; var devType : TDeviceType );
+begin
+  with devType do
+  begin
     bIsATA   := BitCmp( ctATADevice, nDeviceCodeByte );
     bIsATAPI := BitCmp( ctATAPIDevice, nDeviceCodeByte );
 
-    If( BitCmp( ctSupportLBAAddressing, nDeviceCodeByte ) )  Then
-    Begin
-      bSupportAlsoLBAAddressing := True;
-      bUsesOnlyCHSAddressing    := False;
-    End
-    Else
-    Begin
-      bSupportAlsoLBAAddressing := False;
-      bUsesOnlyCHSAddressing    := True;
-    End;
+    if( BitCmp( ctSupportLBAAddressing, nDeviceCodeByte ) )  then
+    begin
+      bSupportAlsoLBAAddressing := true;
+      bUsesOnlyCHSAddressing    := false;
+    end
+    else
+    begin
+      bSupportAlsoLBAAddressing := false;
+      bUsesOnlyCHSAddressing    := true;
+    end;
 
     (* Get the bits 43 *)
-    Case( nDeviceCodeByte And ctGetDeviceBits ) Of
-      ctDirectAccessDevice : Begin
-                               bDirectAccess := True;
-                               bIsCDROM      := False;
-                             End;
-      ctDeviceIsCDROM      : Begin
-                               bDirectAccess := False;
-                               bIsCDROM      := True;
-                             End;
-    End;
-  End;
-End;
+    case( nDeviceCodeByte and ctGetDeviceBits ) of
+      ctDirectAccessDevice : begin
+                               bDirectAccess := true;
+                               bIsCDROM      := false;
+                             end;
+      ctDeviceIsCDROM      : begin
+                               bDirectAccess := false;
+                               bIsCDROM      := true;
+                             end;
+    end;
+  end;
+end;
 
 (* BIOS calls implementation *)
 
@@ -198,18 +198,18 @@ End;
   * previosly "automagically" allocated by the Sunrise IDE or
   * Nil if the drive field was not retrieved;
   *)
-Function GetDriveField( nDrvFldId : Byte;
+function GetDriveField( nDrvFldId : byte;
                         info  : TIDEInfo ) : PDriveField;
-Var
+var
       regs          : TRegs;
       ptrDriveField : PDriveField;
 
-Begin
-  ptrDriveField := Nil;
+begin
+  ptrDriveField := nil;
 
-  If( ( info.nSlotNumber <> ctUnitializedSlot ) And
-      ( nDrvFldId <= ctDriveFieldSize ) )  Then
-  Begin
+  if( ( info.nSlotNumber <> ctUnitializedSlot ) and
+      ( nDrvFldId <= ctDriveFieldSize ) )  then
+  begin
     regs.A  := nDrvFldId;
     regs.IX := ctBIOSGetDriveFieldAddr;
     regs.IY := info.nSlotNumber;
@@ -220,10 +220,10 @@ Begin
      * pointer struct;
      *)
     ptrDriveField := Ptr( regs.HL );
-  End;
+  end;
 
   GetDriveField := ptrDriveField;
-End;
+end;
 
 (* IDE Workspace functions *)
 
@@ -234,29 +234,29 @@ End;
   * @param wrkspc Reference to structure to receive the
   * workspace data;
   *)
-Function GetIDEWorkspace( info : TIDEInfo;
-                          Var wrkspc : TIDEWorkspace ) : Boolean;
-Var
-         nCount         : Byte;
-         bResult        : Boolean;
+function GetIDEWorkspace( info : TIDEInfo;
+                          var wrkspc : TIDEWorkspace ) : boolean;
+var
+         nCount         : byte;
+         bResult        : boolean;
          regs           : TRegs;
 
-Begin
-  bResult := False;
+begin
+  bResult := false;
 
-  If( info.nSlotNumber <> ctUnitializedSlot )  Then
-  Begin
-    bResult := True;
+  if( info.nSlotNumber <> ctUnitializedSlot )  then
+  begin
+    bResult := true;
 
     (* Return all drive fields *)
-    For nCount := 0 To ctDriveFieldSize Do
-    Begin
+    for nCount := 0 to ctDriveFieldSize do
+    begin
       wrkspc.ptrDriveField[nCount] := GetDriveField( nCount, info );
-      bResult := bResult And ( wrkspc.ptrDriveField[nCount] <> Nil );
-    End;
+      bResult := bResult and ( wrkspc.ptrDriveField[nCount] <> nil );
+    end;
 
-    If( bResult )  Then
-    Begin
+    if( bResult )  then
+    begin
       (* Get the device info bytes *)
       regs.A  := 6;
       regs.IX := ctBIOSGetDriveFieldAddr;
@@ -270,8 +270,8 @@ Begin
       regs.IY := info.nSlotNumber;
       CALSLT( regs );
       wrkspc.ptrFreeSpace := Ptr( regs.HL );
-    End;
-  End;
+    end;
+  end;
 
   GetIDEWorkspace := bResult;
-End;
+end;

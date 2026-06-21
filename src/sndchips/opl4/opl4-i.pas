@@ -9,19 +9,19 @@
  * -
  *)
 
-Const
+const
        { OPL4 related constants }
-       ctPortYMF278BStatus        : Byte = $C4;   { YMF278B Status }
+       ctPortYMF278BStatus        : byte = $C4;   { YMF278B Status }
 
 
 (**
   * Find if a OPL4 soundchip is connected or not and initializes
   * internal driver data, if installed.
   *)
-Function FindOPL4 : Boolean;
-Var
-         nStatus : Byte;
-Begin
+function FindOPL4 : boolean;
+var
+         nStatus : byte;
+begin
   nStatus  := Succ( Port[ctPortYMF278BStatus] );
   FindOPL4 := ( nStatus <> $00 );
-End;
+end;

@@ -18,7 +18,7 @@
 (**
   * BigInt operation return codes.
   *)
-Type TOperationCode = ( Success,
+type TOperationCode = ( Success,
                         Overflow,
                         Underflow,
                         InvalidNumber,
@@ -29,16 +29,16 @@ Type TOperationCode = ( Success,
 (**
   * Comparision return codes.
   *)
-Type TCompareCode = ( Equals, GreaterThan, LessThan, CompareError );
+type TCompareCode = ( Equals, GreaterThan, LessThan, CompareError );
 
 (**
   * Big integer type definition for new extended
   * math operations.
   *)
-Type TBigInt = Record
-  nSize    : Byte;
-  pValue   : ^Byte;
-End;
+type TBigInt = record
+  nSize    : byte;
+  pValue   : ^byte;
+end;
 
 (* Large integer extended math functions *)
 
@@ -52,20 +52,20 @@ End;
   * If the operation fails, the function return a @see TOperationCode
   * enumeration return code.
   *)
-Function AddBigInt( Var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
-Var
+function AddBigInt( var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
+var
         nCount,
-        nMaxOpSize : Byte;
+        nMaxOpSize : byte;
         RetCode    : TOperationCode;
         nOp1Addr,
         nOp2Addr,
         nRetAddr,
-        nRes       : Integer;
+        nRes       : integer;
 
-Begin
+begin
   RetCode    := Success;
-  nMaxOpSize := Byte( Max( op1.nSize, op2.nSize ) );
-  nMaxOpSize := Byte( Max( nMaxOpSize, ret.nSize ) );
+  nMaxOpSize := byte( Max( op1.nSize, op2.nSize ) );
+  nMaxOpSize := byte( Max( nMaxOpSize, ret.nSize ) );
   nRetAddr   := ( Ord( ret.pValue ) + ret.nSize - 1 );
   nOp1Addr   := ( Ord( op1.pValue ) + op1.nSize - 1 );
   nOp2Addr   := ( Ord( op2.pValue ) + op2.nSize - 1 );
@@ -75,37 +75,37 @@ Begin
   { Clear the result variable }
   FillChar( ret.pValue^, ret.nSize, 0 );
 
-  While( nCount < nMaxOpSize ) Do
-  Begin
-    If( nCount < op1.nSize )  Then  { First operand }
+  while( nCount < nMaxOpSize ) do
+  begin
+    if( nCount < op1.nSize )  then  { First operand }
       nRes := nRes + Mem[nOp1Addr-nCount];
 
-    If( nCount < op2.nSize ) Then   { Second operand }
+    if( nCount < op2.nSize ) then   { Second operand }
       nRes := nRes + Mem[nOp2Addr-nCount];
 
     { Get the result and apply carry to next byte operation }
-    If( nCount < ret.nSize )  Then
-    Begin
+    if( nCount < ret.nSize )  then
+    begin
       Mem[nRetAddr-nCount] := Lo( nRes );
       nRes := Hi( nres );
-    End
-    Else
-      If( Hi( nRes ) > 0 ) Then  { Check overflow }
+    end
+    else
+      if( Hi( nRes ) > 0 ) then  { Check overflow }
         nCount := nMaxOpSize; { Exit condition }
 
     nCount := nCount + 1;
-  End;
+  end;
 
   { Check overflow }
-  If( nRes > 0 )  Then
-  Begin
+  if( nRes > 0 )  then
+  begin
     { For overflow, fill all return bytes with FF value }
     FillChar( ret.pValue^, ret.nSize, $FF );
     RetCode := Overflow;
-  End;
+  end;
 
   AddBigInt := RetCode;
-End;
+end;
 
 (**
   * Performs binary subtraction operation between two
@@ -117,19 +117,19 @@ End;
   * If the operation fails, the function return a @see TOperationCode
   * enumeration return code.
   *)
-Function SubBigInt( Var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
-Var
+function SubBigInt( var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
+var
         nCount,
-        nMaxOpSize : Byte;
+        nMaxOpSize : byte;
         RetCode    : TOperationCode;
         nOp1Addr,
         nOp2Addr,
         nRetAddr,
-        nRes       : Integer;
-Begin
+        nRes       : integer;
+begin
   RetCode    := Success;
-  nMaxOpSize := Byte( Max( op1.nSize, op2.nSize ) );
-  nMaxOpSize := Byte( Max( nMaxOpSize, ret.nSize ) );
+  nMaxOpSize := byte( Max( op1.nSize, op2.nSize ) );
+  nMaxOpSize := byte( Max( nMaxOpSize, ret.nSize ) );
   nRetAddr   := ( Ord( ret.pValue ) + ret.nSize - 1 );
   nOp1Addr   := ( Ord( op1.pValue ) + op1.nSize - 1 );
   nOp2Addr   := ( Ord( op2.pValue ) + op2.nSize - 1 );
@@ -139,42 +139,42 @@ Begin
   { Clear the result variable }
   FillChar( ret.pValue^, ret.nSize, 0 );
 
-  While( nCount < nMaxOpSize ) Do
-  Begin
-    If( nCount < op1.nSize )  Then  { First operand }
+  while( nCount < nMaxOpSize ) do
+  begin
+    if( nCount < op1.nSize )  then  { First operand }
       nRes := Mem[nOp1Addr-nCount] - nRes
-    Else
+    else
       nRes := -nRes;
 
-    If( nCount < op2.nSize ) Then   { Second operand }
+    if( nCount < op2.nSize ) then   { Second operand }
       nRes := nRes - Mem[nOp2Addr-nCount];
 
     { Get the result and apply borrow to next byte operation }
-    If( nCount < ret.nSize )  Then
-    Begin
+    if( nCount < ret.nSize )  then
+    begin
       Mem[nRetAddr-nCount] := Lo( nRes );
-    End
-    Else
+    end
+    else
       nCount := nMaxOpSize;   { Exit condition }
 
-    If( Hi( nRes ) > 0 )  Then
+    if( Hi( nRes ) > 0 )  then
       nRes := 1
-    Else
+    else
       nRes := 0;
 
     nCount := nCount + 1;
-  End;
+  end;
 
   { Check underflow }
-  If( nRes = 1 )  Then
-  Begin
+  if( nRes = 1 )  then
+  begin
     { For underflow, fill all return bytes with FE value }
     FillChar( ret.pValue^, ret.nSize, $FE );
     RetCode := Underflow;
-  End;
+  end;
 
   SubBigInt := RetCode;
-End;
+end;
 
 (**
   * Performs binary multiplication operation between two
@@ -186,16 +186,16 @@ End;
   * If the operation fails, the function return a @see TOperationCode
   * enumeration return code.
   *)
-Function MulBigInt( Var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
-Var
+function MulBigInt( var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
+var
        nOp1Addr,
        nOp2Addr,
        nRetAddr,
-       nRes        : Integer;
+       nRes        : integer;
        nMaxOpSize,
-       i, j        : Byte;
+       i, j        : byte;
        RetCode     : TOperationCode;
-Begin
+begin
   (*
    * This is a very grade school (elementary) method.
    * In future, for performance reasons, I'm planning change this method by
@@ -204,8 +204,8 @@ Begin
    * method's detail.
    *)
   RetCode    := Success;
-  nMaxOpSize := Byte( Max( op1.nSize, op2.nSize ) );
-  nMaxOpSize := Byte( Max( nMaxOpSize, ret.nSize ) );
+  nMaxOpSize := byte( Max( op1.nSize, op2.nSize ) );
+  nMaxOpSize := byte( Max( nMaxOpSize, ret.nSize ) );
   nRetAddr   := ( Ord( ret.pValue ) + ret.nSize - 1 );
   nOp1Addr   := ( Ord( op1.pValue ) + op1.nSize - 1 );
   nOp2Addr   := ( Ord( op2.pValue ) + op2.nSize - 1 );
@@ -216,47 +216,47 @@ Begin
 
   i := 0;
 
-  While( i < nMaxOpSize ) Do
-  Begin
+  while( i < nMaxOpSize ) do
+  begin
     j := 0;
-    While( j < nMaxOpSize ) Do
-    Begin
-      If( ( i+j ) < ret.nSize  )  Then
+    while( j < nMaxOpSize ) do
+    begin
+      if( ( i+j ) < ret.nSize  )  then
         nRes := nRes + Mem[nRetAddr-(i+j)];
 
-      If( ( i < op1.nSize ) And ( j < op2.nSize ) )  Then
+      if( ( i < op1.nSize ) and ( j < op2.nSize ) )  then
         nRes := ( nRes + ( Mem[nOp1Addr-i] * Mem[nOp2Addr-j] ) );
 
       { Check overflow  }
-      If( ( Hi( nRes ) > 0 ) And ( ( i+j ) = ( ret.nSize - 1 ) ) )  Then
+      if( ( Hi( nRes ) > 0 ) and ( ( i+j ) = ( ret.nSize - 1 ) ) )  then
         RetCode := Overflow;
 
-      If( ( ( i+j ) < ret.nSize ) And ( RetCode <> Overflow ) )  Then
+      if( ( ( i+j ) < ret.nSize ) and ( RetCode <> Overflow ) )  then
         Mem[nRetAddr-(i+j)] := Lo( nRes )
-      Else
-        If( ( RetCode = Overflow ) Or
-            ( ( ( i+j ) >= ret.nSize ) And ( Hi( nRes ) > 0 ) ) ) Then
-        Begin
+      else
+        if( ( RetCode = Overflow ) or
+            ( ( ( i+j ) >= ret.nSize ) and ( Hi( nRes ) > 0 ) ) ) then
+        begin
           i := nMaxOpSize;    { Exit condition for i }
           j := nMaxOpSize;    { Exit condition for j }
           RetCode := Overflow;
-        End;
+        end;
 
       nRes := Hi( nRes );
       j := j + 1;
-    End;
+    end;
     i := i + 1;
-  End;
+  end;
 
   { Check overflow }
-  If( RetCode = Overflow )  Then
-  Begin
+  if( RetCode = Overflow )  then
+  begin
     { For overflow, fill all return bytes with FF value }
     FillChar( ret.pValue^, ret.nSize, $FF );
-  End;
+  end;
 
   MulBigInt := RetCode;
-End;
+end;
 
 (**
   * Performs binary division operation between two
@@ -268,15 +268,15 @@ End;
   * If the operation fails, the function return a @see TOperationCode
   * enumeration return code.
   *)
-Function DivBigInt( Var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
-Var
+function DivBigInt( var ret : TBigInt; op1, op2 : TBigInt ) : TOperationCode;
+var
        RetCode : TOperationCode;
-Begin
+begin
   { TODO: Finish Him !!!!!!!! Not implemented yet. }
   RetCode := NotImplemented;
 
   DivBigInt := RetCode;
-End;
+end;
 
 (**
   * Convert a Big integer value to builtin Real representation.
@@ -286,35 +286,35 @@ End;
   * If the operation fails, the function return a @see TOperationCode
   * enumeration return code.
   *)
-Function BigIntToReal( Var rRet : Real; value : TBigInt ) : TOperationCode;
-Var
+function BigIntToReal( var rRet : real; value : TBigInt ) : TOperationCode;
+var
         RetCode  : TOperationCode;
         nTmp,
         nVal,
         nCount,
         nByte,
-        nBits    : Byte;
-        nValAddr : Integer;
-Begin
+        nBits    : byte;
+        nValAddr : integer;
+begin
   RetCode  := Success;
   nValAddr := Ord( value.pValue );
   rRet     := 0.0;
   nCount   := 0;
 
-  For nByte := ( value.nSize - 1 ) DownTo 0 Do
-  Begin
+  for nByte := ( value.nSize - 1 ) downto 0 do
+  begin
     nVal := Mem[nValAddr+nByte];
 
-    For nBits := 0 To 7 Do
-    Begin
-      nTmp := ( nVal ShR nBits ) And 1;
+    for nBits := 0 to 7 do
+    begin
+      nTmp := ( nVal shr nBits ) and 1;
       rRet := rRet + ( nTmp * Pow( 2, nCount ) );
       nCount := nCount + 1;
-    End;
-  End;
+    end;
+  end;
 
   BigIntToReal := RetCode;
-End;
+end;
 
 (**
   * Convert a string value to Big Integer representation.
@@ -325,80 +325,80 @@ End;
   * If the operation fails, the function return a @see TOperationCode
   * enumeration return code.
   *)
-Function StrToBigInt( Var ret : TBigInt; strValue : TString ) : TOperationCode;
-Var
+function StrToBigInt( var ret : TBigInt; strValue : TString ) : TOperationCode;
+var
         RetCode   : TOperationCode;
         nCte10,
         nLen,
         nTmp,
-        nCount    : Byte;
+        nCount    : byte;
         nDigit,
-        nRet      : Integer;
-        bError    : Boolean;
+        nRet      : integer;
+        bError    : boolean;
         tmpVal    : TBigInt;
         cte10     : TBigInt;
         digit     : TBigInt;
-Begin
+begin
   RetCode := InvalidNumber;
   nLen    := Length( strValue );
 
-  If( nLen > 0 )  Then
-    If( Abs( MaxAvail ) >= ret.nSize )  Then
-    Begin
+  if( nLen > 0 )  then
+    if( Abs( MaxAvail ) >= ret.nSize )  then
+    begin
       GetMem( tmpVal.pValue, ret.nSize );
-      bError       := False;
+      bError       := false;
       nCount       := 1;
       nCte10       := 10;     { Constant used to big int mult. operation }
-      cte10.nSize  := SizeOf( nCte10 );
+      cte10.nSize  := sizeof( nCte10 );
       cte10.pValue := Ptr( Addr( nCte10 ) );
       tmpVal.nSize := ret.nSize;
-      digit.nSize  := SizeOf( nDigit );
+      digit.nSize  := sizeof( nDigit );
       digit.pValue := Ptr( Addr( nDigit ) );
 
       FillChar( ret.pValue^, ret.nSize, 0 );
       FillChar( tmpVal.pValue^, tmpVal.nSize, 0 );
 
       { Skip white spaces and Tab chars }
-      While( ( ( strValue[nCount] = ' ' ) Or
-               ( Byte( strValue[nCount] ) = $09 ) ) And
-             ( nCount <= nLen ) ) Do
+      while( ( ( strValue[nCount] = ' ' ) or
+               ( byte( strValue[nCount] ) = $09 ) ) and
+             ( nCount <= nLen ) ) do
         nCount := nCount + 1;
 
-      While( ( nCount <= nLen ) And Not bError ) Do  { Start conversion }
-      Begin
+      while( ( nCount <= nLen ) and not bError ) do  { Start conversion }
+      begin
         Val( strValue[nCount], nDigit, nRet );
         nDigit := Swap( nDigit );
 
-        If( nRet = 0 )  Then
-        Begin
+        if( nRet = 0 )  then
+        begin
           RetCode := MulBigInt( tmpVal, ret, cte10 );
 
-          If( RetCode = Success )  Then
-          Begin
+          if( RetCode = Success )  then
+          begin
             RetCode := AddBigInt( ret, tmpVal, digit );
 
-            If( RetCode <> Success )  Then
-              bError := True;  { Exit number processing }
-          End
-          Else
-            bError := True;  { Exit number processing }
-        End
-        Else
-          bError := True;   { Exit number processing }
+            if( RetCode <> Success )  then
+              bError := true;  { Exit number processing }
+          end
+          else
+            bError := true;  { Exit number processing }
+        end
+        else
+          bError := true;   { Exit number processing }
 
         nCount := nCount + 1;
-      End;
+      end;
 
       FreeMem( tmpVal.pValue, tmpVal.nSize );
 
-      If( Not bError )  Then
+      if( not bError )  then
         RetCode := Success;
-    End
-    Else
+    end
+    else
       RetCode := NoMemoryAvailable;
 
   StrToBigInt := RetCode;
-End;
+end;
 
 (**
   * Convert a Big integer value to string representation.
@@ -410,54 +410,54 @@ End;
   * Unfortunatelly this method is based on builtin types aritmethic, in future
   * this should be rewritten to a full TBigInt compliant method;
   *)
-Function BigIntToStr( Var strRet : TString; value : TBigInt ) : TOperationCode;
-Var
+function BigIntToStr( var strRet : TString; value : TBigInt ) : TOperationCode;
+var
         RetCode  : TOperationCode;
-        rRes     : Real;
+        rRes     : real;
         nLen,
-        nPos     : Byte;
-Begin
+        nPos     : byte;
+begin
   strRet := '';
   rRes   := 0.0;
   nPos   := 0;
 
   RetCode := BigIntToReal( rRes, value );
 
-  If( RetCode = Success )  Then
-    Begin
+  if( RetCode = Success )  then
+    begin
       Str( rRes:11:0, strRet );
       nLen := Length( strRet );
 
       { Perform a string trimming }
-      While( ( nPos < nLen ) And ( strRet[nPos+1] = ' ' ) ) Do
+      while( ( nPos < nLen ) and ( strRet[nPos+1] = ' ' ) ) do
         nPos := nPos + 1;
 
-      If( nPos > 0 ) Then
+      if( nPos > 0 ) then
         Delete( strRet, 1, nPos );
-    End;
+    end;
 
   BigIntToStr := RetCode;
-End;
+end;
 
 (**
   * Reset a big int value filling with zeroes;
   * @param op The operand to reset;
   * The function return a @see TCompareCode return code;
   *)
-Function ResetBigInt( Var op : TBigInt ) : TOperationCode;
-Var
+function ResetBigInt( var op : TBigInt ) : TOperationCode;
+var
         retCode : TOperationCode;
-Begin
-  If( op.pValue <> Nil )  Then
-  Begin
+begin
+  if( op.pValue <> nil )  then
+  begin
     FillChar( op.pValue^, op.nSize, 0 );
     retCode := Success;
-  End
-  Else
+  end
+  else
     retCode := InvalidNumber;
 
   ResetBigInt := retCode;
-End;
+end;
 
 (**
   * Assign a big int to another big int;
@@ -465,49 +465,49 @@ End;
   * @param opSrc The source operand;
   * The function return a @see TCompareCode return code;
   *)
-Function AssignBigInt( Var opDest : TBigInt; opSrc : TBigInt ) : TOperationCode;
-Var
+function AssignBigInt( var opDest : TBigInt; opSrc : TBigInt ) : TOperationCode;
+var
         nCount,
-        nMaxOpSize   : Byte;
+        nMaxOpSize   : byte;
         RetCode      : TOperationCode;
         nOpSrcAddr,
         nOpDestAddr,
-        nValue       : Integer;
-Begin
-  If( ( opDest.pValue <> Nil ) And ( opSrc.pValue <> Nil ) )  Then
-  Begin
+        nValue       : integer;
+begin
+  if( ( opDest.pValue <> nil ) and ( opSrc.pValue <> nil ) )  then
+  begin
     RetCode     := Success;
-    nMaxOpSize  := Byte( Max( opSrc.nSize, opDest.nSize ) );
+    nMaxOpSize  := byte( Max( opSrc.nSize, opDest.nSize ) );
     nOpSrcAddr  := ( Ord( opSrc.pValue ) + opSrc.nSize - 1 );
     nOpDestAddr := ( Ord( opDest.pValue ) + opDest.nSize - 1 );
     nCount      := 0;
 
-    While( nCount < nMaxOpSize ) Do
-    Begin
+    while( nCount < nMaxOpSize ) do
+    begin
       nValue := 0;
 
-      If( nCount < opSrc.nSize )  Then  { Source operand }
+      if( nCount < opSrc.nSize )  then  { Source operand }
         nValue := Mem[nOpSrcAddr-nCount];
 
-      If( nCount < opDest.nSize )  Then  { Destination operand }
+      if( nCount < opDest.nSize )  then  { Destination operand }
         Mem[nOpDestAddr-nCount] := nValue
-      Else
-        If( nValue <> 0 )  Then   { Check overflow }
-        Begin
+      else
+        if( nValue <> 0 )  then   { Check overflow }
+        begin
           nCount  := nMaxOpSize; { Exit condition }
           RetCode := Overflow;
           { For overflow, fill all return bytes with FF value }
           FillChar( opDest.pValue^, opDest.nSize, $FF );
-        End;
+        end;
 
       nCount := nCount + 1;
-    End;
-  End
-  Else
+    end;
+  end
+  else
     RetCode := InvalidNumber;
 
   AssignBigInt := RetCode;
-End;
+end;
 
 (**
   * Compare two BigInt operands.
@@ -515,78 +515,78 @@ End;
   * @param op2 The second operand to compare;
   * The function return a @see TCompareCode return code;
   *)
-Function CompareBigInt( op1, op2 : TBigInt ) : TCompareCode;
-Var
+function CompareBigInt( op1, op2 : TBigInt ) : TCompareCode;
+var
       RetCode     : TCompareCode;
       nOp1Value,
       nOp2Value,
       nMaxOpSize,
-      nCount      : Byte;
+      nCount      : byte;
       nOp1Addr,
-      nOp2Addr    : Integer;
+      nOp2Addr    : integer;
 
-Begin
-  If( ( op1.pValue <> Nil ) And ( op2.pValue <> Nil ) )  Then
-  Begin
+begin
+  if( ( op1.pValue <> nil ) and ( op2.pValue <> nil ) )  then
+  begin
     RetCode    := Equals;
-    nMaxOpSize := Byte( Max( op1.nSize, op2.nSize ) );
+    nMaxOpSize := byte( Max( op1.nSize, op2.nSize ) );
     nOp1Addr   := ( Ord( op1.pValue ) + op1.nSize - 1 );
     nOp2Addr   := ( Ord( op2.pValue ) + op2.nSize - 1 );
     nCount     := 0;
 
-    While( nCount < nMaxOpSize ) Do
-    Begin
-      If( nCount < op1.nSize )  Then  { Source operand }
+    while( nCount < nMaxOpSize ) do
+    begin
+      if( nCount < op1.nSize )  then  { Source operand }
         nOp1Value := Mem[nOp1Addr-nCount]
-      Else
+      else
         nOp1Value := 0;
 
-      If( nCount < op2.nSize )  Then  { Destination operand }
+      if( nCount < op2.nSize )  then  { Destination operand }
         nOp2Value := Mem[nOp2Addr-nCount]
-      Else
+      else
         nOp2Value := 0;
 
-      If( nOp1Value > nOp2Value )  Then
+      if( nOp1Value > nOp2Value )  then
         RetCode := GreaterThan
-      Else
-        If( nOp1Value < nOp2Value )  Then
+      else
+        if( nOp1Value < nOp2Value )  then
           RetCode := LessThan;
 
       nCount := nCount + 1;
-    End;
-  End
-  Else
+    end;
+  end
+  else
     RetCode := CompareError;
 
   CompareBigInt := RetCode;
-End;
+end;
 
 (**
   * Perform a BigInt operand byte order swap.
   * @param op The big int to be swapped;
   * The function return a @see TOperationCode return code;
   *)
-Function SwapBigInt( op : TBigInt ) : TOperationCode;
-Var
+function SwapBigInt( op : TBigInt ) : TOperationCode;
+var
        nOpStartAddr,
-       nOpEndAddr    : Integer;
+       nOpEndAddr    : integer;
        nTmp,
        nMaxCount,
-       nCount        : Byte;
+       nCount        : byte;
        RetCode       : TOperationCode;
 
-Begin
+begin
   RetCode := Success;
   nOpStartAddr := ( Ord( op.pValue ) + op.nSize - 1 );
   nOpEndAddr   := Ord( op.pValue );
-  nMaxCount    := ( ( op.nSize Div 2 ) - 1 );
+  nMaxCount    := ( ( op.nSize div 2 ) - 1 );
 
-  For nCount := 0 To nMaxCount Do
-  Begin
+  for nCount := 0 to nMaxCount do
+  begin
     nTmp := Mem[nOpStartAddr-nCount];
     Mem[nOpStartAddr-nCount] := Mem[nOpEndAddr+nCount];
     Mem[nOpEndAddr+nCount] := nTmp;
-  End;
+  end;
 
   SwapBigInt := RetCode;
-End;
+end;

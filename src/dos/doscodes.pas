@@ -11,70 +11,70 @@
 
 (* MSXDOS and CP/M80 DISKIO return codes *)
 
-Const
-    ctDISKIOWriteProtected   : Byte = $0;   { Device is write protected }
-    ctDISKIONotReady         : Byte = $2;   { Device is not ready }
-    ctDISKIODataCRCError     : Byte = $4;   { Device data CRC error }
-    ctDISKIOSeekError        : Byte = $6;   { Device seek positioning }
+const
+    ctDISKIOWriteProtected   : byte = $0;   { Device is write protected }
+    ctDISKIONotReady         : byte = $2;   { Device is not ready }
+    ctDISKIODataCRCError     : byte = $4;   { Device data CRC error }
+    ctDISKIOSeekError        : byte = $6;   { Device seek positioning }
                                             { error }
-    ctDISKIORecordNotFound   : Byte = $8;   { Device record/sector not }
+    ctDISKIORecordNotFound   : byte = $8;   { Device record/sector not }
                                             { found }
-    ctDISKIOWriteFault       : Byte = $10;  { Device write operation }
+    ctDISKIOWriteFault       : byte = $10;  { Device write operation }
                                             { fault }
-    ctDISKIOOtherErrors      : Byte = $12;  { Other unspecified error }
-    ctDISKIOSuccess          : Byte = $FF;  { Success operation  }
+    ctDISKIOOtherErrors      : byte = $12;  { Other unspecified error }
+    ctDISKIOSuccess          : byte = $FF;  { Success operation  }
                                             { not official }
 
 (* MSXDOS (1 & 2) file return codes *)
 
-    ctDOSSuccess             : Byte = $00; { DOS Success }
-    ctDOSIncompatibleDisk    : Byte = $FF; { DOS2 Incompatible disk }
-    ctDOSInternalError       : Byte = $DF; { Internal error }
-    ctDOSNotEnoughMemory     : Byte = $DE; { Not enough memory }
-    ctDOSInvalidMSXDOSCall   : Byte = $DC; { Invalid CPM/MSXDOS function call }
-    ctDOSInvalidDrive        : Byte = $DB; { Inavlid drive number/letter }
-    ctDOSInvalidFileName     : Byte = $DA; { Invalid file name }
-    ctDOSInvalidPathName     : Byte = $D9; { Invalid path }
-    ctDOSPathNameTooLong     : Byte = $D8; { Path name too long }
-    ctDOSFileNotFound        : Byte = $D7; { File not found }
-    ctDOSDirectoryNotFound   : Byte = $D6; { Directory not found }
-    ctDOSDirectoryFull       : Byte = $D5; { Directory full }
-    ctDOSDiskFull            : Byte = $D4; { Disk full }
-    ctDOSDuplicateFileName   : Byte = $D3; { Duplicated file name }
-    ctDOSInvalidDirMove      : Byte = $D2; { Invalid attempt to move the dir. }
-    ctDOSReadOnlyFile        : Byte = $D1; { Read only file }
-    ctDOSDirectoryNotEmpty   : Byte = $D0; { Directory not empty to remove }
-    ctDOSInvalidAttributes   : Byte = $CF; { Invalid attributes }
-    ctDOSInvalidDotOperation : Byte = $CE; { Invalid operation on }
+    ctDOSSuccess             : byte = $00; { DOS Success }
+    ctDOSIncompatibleDisk    : byte = $FF; { DOS2 Incompatible disk }
+    ctDOSInternalError       : byte = $DF; { Internal error }
+    ctDOSNotEnoughMemory     : byte = $DE; { Not enough memory }
+    ctDOSInvalidMSXDOSCall   : byte = $DC; { Invalid CPM/MSXDOS function call }
+    ctDOSInvalidDrive        : byte = $DB; { Inavlid drive number/letter }
+    ctDOSInvalidFileName     : byte = $DA; { Invalid file name }
+    ctDOSInvalidPathName     : byte = $D9; { Invalid path }
+    ctDOSPathNameTooLong     : byte = $D8; { Path name too long }
+    ctDOSFileNotFound        : byte = $D7; { File not found }
+    ctDOSDirectoryNotFound   : byte = $D6; { Directory not found }
+    ctDOSDirectoryFull       : byte = $D5; { Directory full }
+    ctDOSDiskFull            : byte = $D4; { Disk full }
+    ctDOSDuplicateFileName   : byte = $D3; { Duplicated file name }
+    ctDOSInvalidDirMove      : byte = $D2; { Invalid attempt to move the dir. }
+    ctDOSReadOnlyFile        : byte = $D1; { Read only file }
+    ctDOSDirectoryNotEmpty   : byte = $D0; { Directory not empty to remove }
+    ctDOSInvalidAttributes   : byte = $CF; { Invalid attributes }
+    ctDOSInvalidDotOperation : byte = $CE; { Invalid operation on }
                                            { (.) or (..) entries }
-    ctDOSSystemFileExists    : Byte = $CD; { Attempt to create an }
+    ctDOSSystemFileExists    : byte = $CD; { Attempt to create an }
                                            { existing system file }
-    ctDOSDirectoryExists     : Byte = $CC; { Attempt to create an }
+    ctDOSDirectoryExists     : byte = $CC; { Attempt to create an }
                                            { existing directory }
-    ctDOSFileExists          : Byte = $CB; { Attempt to create an }
+    ctDOSFileExists          : byte = $CB; { Attempt to create an }
                                            { existing file }
-    ctDOSFileAlreadyInUse    : Byte = $CA; { Attempt to change a file }
+    ctDOSFileAlreadyInUse    : byte = $CA; { Attempt to change a file }
                                            { in use }
-    ctDOSCannotTransfer64K   : Byte = $C9; { Disk transfer area would }
+    ctDOSCannotTransfer64K   : byte = $C9; { Disk transfer area would }
                                            { have extended 64Kb }
-    ctDOSFileAllocationError : Byte = $C8; { Cluster chain for file is }
+    ctDOSFileAllocationError : byte = $C8; { Cluster chain for file is }
                                            { corrupt }
-    ctDOSEndOfFile           : Byte = $C7; { Attempt to read beyond EOF }
-    ctDOSFileAccessViolation : Byte = $C6; { File access violation }
-    ctDOSInvalidPID          : Byte = $C5; { Invalid process Id }
-    ctDOSNoSpareFileHandles  : Byte = $C4; { No more file handles }
-    ctDOSInvalidFileHandle   : Byte = $C3; { Invalid file handle }
-    ctDOSFileHandleNotOpen   : Byte = $C2; { The file handle is not open }
-    ctDOSInvalidDeviceOper   : Byte = $C1; { Invalid device operation }
-    ctDOSInvalidEnvString    : Byte = $C0; { Invalid environment string }
-    ctDOSEnvStringTooLong    : Byte = $BF; { Environment string too long }
-    ctDOSInvalidDate         : Byte = $BE; { Invalid date }
-    ctDOSInvalidTime         : Byte = $BD; { Invalid time }
-    ctDOSRAMDISKAlreadExist  : Byte = $BC; { RAMDISK already exist }
-    ctDOSRAMDISKDoesNotExist : Byte = $BB; { RAMDISK does not exist }
-    ctDOSFileHandleDeleted   : Byte = $BA; { The file assigned to the  }
+    ctDOSEndOfFile           : byte = $C7; { Attempt to read beyond EOF }
+    ctDOSFileAccessViolation : byte = $C6; { File access violation }
+    ctDOSInvalidPID          : byte = $C5; { Invalid process Id }
+    ctDOSNoSpareFileHandles  : byte = $C4; { No more file handles }
+    ctDOSInvalidFileHandle   : byte = $C3; { Invalid file handle }
+    ctDOSFileHandleNotOpen   : byte = $C2; { The file handle is not open }
+    ctDOSInvalidDeviceOper   : byte = $C1; { Invalid device operation }
+    ctDOSInvalidEnvString    : byte = $C0; { Invalid environment string }
+    ctDOSEnvStringTooLong    : byte = $BF; { Environment string too long }
+    ctDOSInvalidDate         : byte = $BE; { Invalid date }
+    ctDOSInvalidTime         : byte = $BD; { Invalid time }
+    ctDOSRAMDISKAlreadExist  : byte = $BC; { RAMDISK already exist }
+    ctDOSRAMDISKDoesNotExist : byte = $BB; { RAMDISK does not exist }
+    ctDOSFileHandleDeleted   : byte = $BA; { The file assigned to the  }
                                            { handle was deleted }
-    ctDOSEndOfLine           : Byte = $B9; { End of line }
-    ctInvalidSubFnNumber     : Byte = $B8; { Invalid sub-function number }
+    ctDOSEndOfLine           : byte = $B9; { End of line }
+    ctInvalidSubFnNumber     : byte = $B8; { Invalid sub-function number }
                                            { passed to the IOCTL (4B) }
                                            { function }

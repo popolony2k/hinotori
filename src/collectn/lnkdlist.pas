@@ -15,7 +15,7 @@
   *)
 type PLinkedListItem = ^TLinkedListItem;
      TLinkedListItem = record
-  pValue      :  Pointer;                 { Pointer to the item value }
+  pValue      :  pointer;                 { Pointer to the item value }
   pNextItem   :  PLinkedListItem;         { Pointer to the next item  }
 end;
 
@@ -70,7 +70,7 @@ end;
   * The function return the pointer of added item;
   *)
 function AddLinkedListItem( var list : TLinkedList;
-                            pValue : Pointer ) : PLinkedListItem;
+                            pValue : pointer ) : PLinkedListItem;
 var
        pNewItem : PLinkedListItem;
 

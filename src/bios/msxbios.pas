@@ -12,7 +12,7 @@
 (**
   * MSXBIOS struct and data definitions
   *)
-Const     ctMaxSlots        = 4;    { Max. MSX slots           }
+const     ctMaxSlots        = 4;    { Max. MSX slots           }
           ctMaxSecSlots     = 4;    { Max. MSX secondary slots }
 
 
@@ -33,10 +33,10 @@ Const     ctMaxSlots        = 4;    { Max. MSX slots           }
   * @param nSecondarySlot The secondary slot number to compose the
   * @see TSlotNumber;
   *)
-Function MakeSlotNumber( nPrimarySlot, nSecondarySlot : Byte ) : TSlotNumber;
-Begin
-  MakeSlotNumber := ( nPrimarySlot + 128 ) Or ( nSecondarySlot ShL 2 );
-End;
+function MakeSlotNumber( nPrimarySlot, nSecondarySlot : byte ) : TSlotNumber;
+begin
+  MakeSlotNumber := ( nPrimarySlot + 128 ) or ( nSecondarySlot shl 2 );
+end;
 
 (**
   * Retrieve the slot number splited in Primary and secondary slot
@@ -45,12 +45,12 @@ End;
   * @param nPrimarySlot The primary slot number retrieved;
   * @param nSecondarySlot The secondary slot number retrieved;
   *)
-Procedure SplitSlotNumber( nSlotNumber : TSlotNumber;
-                           Var nPrimarySlot, nSecondarySlot : Byte );
-Begin
-  nPrimarySlot   := nSlotNumber And 3;
-  nSecondarySlot := ( nSlotNumber And 12 ) ShR 2;
-End;
+procedure SplitSlotNumber( nSlotNumber : TSlotNumber;
+                           var nPrimarySlot, nSecondarySlot : byte );
+begin
+  nPrimarySlot   := nSlotNumber and 3;
+  nSecondarySlot := ( nSlotNumber and 12 ) shr 2;
+end;
 
 (* MSXBIOS Routines to support slots management *)
 
@@ -60,24 +60,24 @@ End;
   * @param nAddr Memory address;
   * @param nData Data to write;
   *)
-Procedure WRSLT( nSlotNumber : TSlotNumber; nAddr : Integer; nData : Byte );
-Begin
-  InLine( $ED/$5B/nData/          { LD DE, (nData)      }
+procedure WRSLT( nSlotNumber : TSlotNumber; nAddr : integer; nData : byte );
+begin
+  inline( $ED/$5B/nData/          { LD DE, (nData)      }
           $3A/nSlotNumber/        { LD A, (nSlotNumber) }
           $2A/nAddr/              { LD HL, (nAddr)      }
           $CD/$14/$00/            { CALL WRSLT          }
           $FB                     { EI                  }
         );
-End;
+end;
 
 (**
   * Retrieve a data from specified Slot/Address;
   * @param nSlotNumber The @see TSlotNumber containing the slot information;
   * @param nAddr Address to retrieve data;
   *)
-Function RDSLT( nSlotNumber : TSlotNumber; nAddr : Integer ) : Byte;
-Begin
-  InLine( $3A/nSlotNumber/        { LD A, (nSlotNumber) }
+function RDSLT( nSlotNumber : TSlotNumber; nAddr : integer ) : byte;
+begin
+  inline( $3A/nSlotNumber/        { LD A, (nSlotNumber) }
           $2A/nAddr/              { LD HL,(nAddr)       }
           $CD/$0C/$00/            { CALL RDSLT          }
           $32/nSlotNumber/        { LD (nSlotNumber), A }
@@ -85,22 +85,22 @@ Begin
         );
 
   RDSLT := nSlotNumber;
-End;
+end;
 
 (**
   * Switches to indicated slot at indicated page.
   * @param nSlotNumber The @see TSlotNumber containing the slot information;
   * @param nPage The Page to enable;
   *)
-Procedure ENASLT( nSlotNumber : TSlotNumber; nPage : Byte );
-Begin
-  nPage := nPage ShL 6;
-  InLine( $3A/nPage/              { LD A, (nPage)       }
+procedure ENASLT( nSlotNumber : TSlotNumber; nPage : byte );
+begin
+  nPage := nPage shl 6;
+  inline( $3A/nPage/              { LD A, (nPage)       }
           $67/                    { LD H, A             }
           $3A/nSlotNumber/        { LD A, (nSlotNumber) }
           $CD/$24/$00/            { CALL ENASLT         }
           $FB                     { EI                  } );
-End;
+end;
 
 (**
   * Perform an inter-slot call through CALSLT MSX-BIOS
@@ -108,12 +108,12 @@ End;
   * @param regs The register struct to pass and receive
   * data to/from call;
   *)
-Procedure CALSLT( Var regs : TRegs );
-Var
-        nA, nF         : Byte;
-        nHL, nDE, nBC  : Integer;
-        nIX, nIY       : Integer;
-Begin
+procedure CALSLT( var regs : TRegs );
+var
+        nA, nF         : byte;
+        nHL, nDE, nBC  : integer;
+        nIX, nIY       : integer;
+begin
   nA  := regs.A;
   nHL := regs.HL;
   nDE := regs.DE;
@@ -121,7 +121,7 @@ Begin
   nIX := regs.IX;
   nIY := Swap( regs.IY );
 
-  InLine( $F5/                  { PUSH AF      ; Push all registers  }
+  inline( $F5/                  { PUSH AF      ; Push all registers  }
           $C5/                  { PUSH BC                            }
           $D5/                  { PUSH DE                            }
           $E5/                  { PUSH HL                            }
@@ -160,4 +160,4 @@ Begin
   regs.HL := nHL;
   regs.IY := nIY;
   regs.IX := nIX;
-End;
+end;

@@ -19,8 +19,8 @@
 (**
   * UNAPI TCP capabilities structure.
   *)
-Type PTCPCapabilities = ^TTCPCapabilities;     { Capabilities pointer }
-     TTCPCapabilities = Record
+type PTCPCapabilities = ^TTCPCapabilities;     { Capabilities pointer }
+     TTCPCapabilities = record
   SendRcvICMP               : 0..1; { Send and receive ICMP echo messages }
                                     { (PING) }
   LocalResolvHostName       : 0..1; { Resolv host names querying local }
@@ -47,14 +47,14 @@ Type PTCPCapabilities = ^TTCPCapabilities;     { Capabilities pointer }
   AutomaticIPAddressSetup   : 0..1; { Automatically obtain the IP addresses, }
                                     { by using DHCP or an equivalent protocol }
   Unused                    : 0..1; { Unused }
-End;
+end;
 
 (**
   * Additional information about the internal working
   * parameters of the implementation.
   *)
-Type PTCPFeatures = ^TTCPFeatures;              { Features pointer }
-     TTCPFeatures = Record
+type PTCPFeatures = ^TTCPFeatures;              { Features pointer }
+     TTCPFeatures = record
   LinkPointToPoint          : 0..1; { Physical link is point to point }
   LinkWireless              : 0..1; { Physical link is wireless }
   SharedConnectionPool      : 0..1; { Connection pool is shared by TCP, UDP }
@@ -72,12 +72,12 @@ Type PTCPFeatures = ^TTCPFeatures;              { Features pointer }
   UserTimeoutConnection     : 0..1; { User timeout suggested when opening a }
                                     { TCP connection is actually applied }
   Unused                    : 0..6; { Unused }
-End;
+end;
 
 (**
   * Link level protocol.
   *)
-Type TLinkLevelProtocol = ( OtherUnspecified,
+type TLinkLevelProtocol = ( OtherUnspecified,
                             SLIP,
                             PPP,
                             Ethernet );
@@ -85,33 +85,33 @@ Type TLinkLevelProtocol = ( OtherUnspecified,
 (**
   * Connection pool size and status.
   *)
-Type TConnectionPoolStatus = Record
-  nMaxTCPSimConnSupported   : Byte; { Max. simultaneous TCP conn. supported }
-  nMaxUDPSimConnSupported   : Byte; { Max. simultaneous UDP conn. supported }
-  nFreeTCPConnAvailable     : Byte; { Free TCP conn. currently available }
-  nFreeUDPConnAvailable     : Byte; { Free UDP conn. currently available }
-  nMaxRAWSimIPConnAvailable : Byte; { Max. simultaneous RAW conn. available }
-  nFreeRAWConnAvailable     : Byte; { Free RAW conn. currently available }
-End;
+type TConnectionPoolStatus = record
+  nMaxTCPSimConnSupported   : byte; { Max. simultaneous TCP conn. supported }
+  nMaxUDPSimConnSupported   : byte; { Max. simultaneous UDP conn. supported }
+  nFreeTCPConnAvailable     : byte; { Free TCP conn. currently available }
+  nFreeUDPConnAvailable     : byte; { Free UDP conn. currently available }
+  nMaxRAWSimIPConnAvailable : byte; { Max. simultaneous RAW conn. available }
+  nFreeRAWConnAvailable     : byte; { Free RAW conn. currently available }
+end;
 
 (**
   * Maximum datagram size allowed.
   *)
-Type TDatagramSize = Record
-  nMaxIncomingSize          : Integer; { Maximum incoming datagram size }
-  nMaxOutgoingSize          : Integer; { Maximum outgoing datagram size }
-End;
+type TDatagramSize = record
+  nMaxIncomingSize          : integer; { Maximum incoming datagram size }
+  nMaxOutgoingSize          : integer; { Maximum outgoing datagram size }
+end;
 
 (**
   * Capabilities structure with all other grouped structures.
   *)
-Type TUNAPITCPCapabilities = Record
+type TUNAPITCPCapabilities = record
   TCPCapabilities      : TTCPCapabilities;
   TCPFeatures          : TTCPFeatures;
   LinkLevelProtocol    : TLinkLevelProtocol;
   ConnectionPoolStatus : TConnectionPoolStatus;
   DatagramSize         : TDatagramSize;
-End;
+end;
 
 
 
@@ -121,20 +121,20 @@ End;
   * @param impl The pointer to the UNAPI implementation functions;
   * @param cap The structure containing the requested capabilities;
   *)
-Function UNAPIGetTCPCapabilities( Var impl : TUNAPIImplPointer;
-                                  Var cap : TUNAPITCPCapabilities ) : Boolean;
-Var
+function UNAPIGetTCPCapabilities( var impl : TUNAPIImplPointer;
+                                  var cap : TUNAPITCPCapabilities ) : boolean;
+var
      nCount,
-     nValue    : Byte;
+     nValue    : byte;
      regs      : TRegs;
      pCap      : PTCPCapabilities;
      pFeatures : PTCPFeatures;
 
-Begin
-  FillChar( regs, SizeOf( regs ), 0 );
+begin
+  FillChar( regs, sizeof( regs ), 0 );
   nCount := 1;
 
-  Repeat
+  repeat
     regs.A := 1;      { TCPIP_GET_CAPAB }
 
     UNAPICallFn( impl, regs );
@@ -143,46 +143,46 @@ Begin
     (*
      * Fill the complete capabilities structure.
      *)
-    Case nCount Of
-      1 : Begin     { TCP Capabilities/Features/Link level protocol }
+    case nCount of
+      1 : begin     { TCP Capabilities/Features/Link level protocol }
             pCap := Ptr( regs.HL );
-            Move( pCap^, cap.TCPCapabilities, SizeOf( TTCPCapabilities ) );
+            Move( pCap^, cap.TCPCapabilities, sizeof( TTCPCapabilities ) );
 
             { Features }
             pFeatures := Ptr( regs.DE );
-            Move( pFeatures^, cap.TCPFeatures, SizeOf( TTCPFeatures ) );
+            Move( pFeatures^, cap.TCPFeatures, sizeof( TTCPFeatures ) );
 
             { Link level protocol }
-            Case regs.B Of
+            case regs.B of
               0 : cap.LinkLevelProtocol := OtherUnspecified;
               1 : cap.LinkLevelProtocol := SLIP;
               2 : cap.LinkLevelProtocol := PPP;
               3 : cap.LinkLevelProtocol := Ethernet;
-            End;
-          End;
-      2 : Begin     { Connection pool size and status }
-            With cap.ConnectionPoolStatus Do
-            Begin
+            end;
+          end;
+      2 : begin     { Connection pool size and status }
+            with cap.ConnectionPoolStatus do
+            begin
               nMaxTCPSimConnSupported   := regs.B;
               nMaxUDPSimConnSupported   := regs.C;
               nFreeTCPConnAvailable     := regs.D;
               nFreeUDPConnAvailable     := regs.E;
               nMaxRAWSimIPConnAvailable := regs.H;
               nFreeRAWConnAvailable     := regs.L;
-            End;
-          End;
-      3 : Begin     { Maximum datagram size allowed }
-            With cap.DatagramSize Do
-            Begin
+            end;
+          end;
+      3 : begin     { Maximum datagram size allowed }
+            with cap.DatagramSize do
+            begin
               nMaxIncomingSize := regs.HL;
               nMaxOutgoingSize := regs.DE;
-            End;
-          End;
-    End;
+            end;
+          end;
+    end;
 
     nCount := nCount + 1;
 
-  Until( ( nCount > 3 ) Or ( regs.A <> ctErr_Ok ) );
+  until( ( nCount > 3 ) or ( regs.A <> ctErr_Ok ) );
 
   UNAPIGetTCPCapabilities := ( regs.A = ctErr_OK );
-End;
+end;

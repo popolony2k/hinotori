@@ -16,9 +16,9 @@
 (*
  * Internal module variables.
  *)
-Var
-      __aCursorIcons  : Array[0..3] Of Char;
-      __nCursorIdx    : Byte;
+var
+      __aCursorIcons  : array[0..3] of char;
+      __nCursorIdx    : byte;
 
 
 (**
@@ -30,39 +30,39 @@ Var
   * @param bReset Reset the widget status. When is reseted (True), the
   * caption is redrawn and the progress bar icon goes to initial state;
   *)
-Procedure ProgressCycle( strText : TTinyString;
-                         nX, nY : Byte;
-                         bReset : Boolean );
-Var
-       CSRX : Byte Absolute $F3DD; { Current column-position of the cursor }
+procedure ProgressCycle( strText : TTinyString;
+                         nX, nY : byte;
+                         bReset : boolean );
+var
+       CSRX : byte absolute $F3DD; { Current column-position of the cursor }
 
-Begin
-  If( bReset )  Then
-  Begin
+begin
+  if( bReset )  then
+  begin
     _GotoXY( nX, nY );
     Write( strText, ' ( )' );
     CSRX := CSRX - 2;
     __nCursorIdx := 0;
-  End
-  Else
-    _GotoXY( nX + Byte( strText[0] ) + 2, nY );
+  end
+  else
+    _GotoXY( nX + byte( strText[0] ) + 2, nY );
 
   CHPUT( __aCursorIcons[__nCursorIdx] );
 
-  If( __nCursorIdx = 3 )  Then
+  if( __nCursorIdx = 3 )  then
     __nCursorIdx := 0
-  Else
+  else
     __nCursorIdx := Succ( __nCursorIdx );
-End;
+end;
 
 (**
   * Init the Progress bar TUI engine.
   *)
-Procedure InitProgressTUI;
-Begin
+procedure InitProgressTUI;
+begin
   __nCursorIdx := 0;
   __aCursorIcons[0] := '|';
   __aCursorIcons[1] := '/';
   __aCursorIcons[2] := '-';
   __aCursorIcons[3] := '\';
-End;
+end;

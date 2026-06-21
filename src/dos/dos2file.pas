@@ -11,19 +11,19 @@
  * - /dos/msxdos2.pas;
  *)
 
-Const   ctInvalidFileHandle        = $FF; { Invalid file handle operation }
+const   ctInvalidFileHandle        = $FF; { Invalid file handle operation }
         ctInvalidOpenMode          = $FE; { Invalid file open mode }
         ctReadWriteError           = -1;  { Read/Write error operation }
 
         { @see FileSeek operation }
-        ctSeekSet           : Byte = 0;   { Relative Beginning of the file }
-        ctSeekCur           : Byte = 1;   { Relative current pointer position }
-        ctSeekEnd           : Byte = 2;   { Relative end of file }
+        ctSeekSet           : byte = 0;   { Relative Beginning of the file }
+        ctSeekCur           : byte = 1;   { Relative current pointer position }
+        ctSeekEnd           : byte = 2;   { Relative end of file }
 
 (**
   * The file mode type for @see FileOpen function call;
   *)
-Type TFileMode = String[3];
+type TFileMode = string[3];
 
 
 (**
@@ -39,81 +39,81 @@ Type TFileMode = String[3];
   * The function return the file handle for opened file or ctInvalidFileHandle
   * value;
   *)
-Function FileOpen( Var strFileName : TFileName; strMode : TFileMode ) : Byte;
-Var
+function FileOpen( var strFileName : TFileName; strMode : TFileMode ) : byte;
+var
         nRet,
-        nOpenMode  : Byte;
-        szFileName : Array[0..ctMaxPath] Of Char;
+        nOpenMode  : byte;
+        szFileName : array[0..ctMaxPath] of char;
         regs       : TRegs;
 
   (**
     * Internal function to check if the file mode is valid;
     * @param strMode The mode to check;
     *)
-  Function _IsValidMode( strMode : TFileMode ) : Boolean;
-  Begin
-    _IsValidMode := ( ( strMode = 'r' )  Or
-                      ( strMode = 'w' )  Or
-                      ( strMode = 'rw' ) Or
-                      ( strMode = 'w+' ) Or
+  function _IsValidMode( strMode : TFileMode ) : boolean;
+  begin
+    _IsValidMode := ( ( strMode = 'r' )  or
+                      ( strMode = 'w' )  or
+                      ( strMode = 'rw' ) or
+                      ( strMode = 'w+' ) or
                       ( strMode = 'rw+' ) );
-  End;
+  end;
 
-Begin      { Main function entry point }
+begin      { Main function entry point }
   nRet := ctInvalidOpenMode;
 
-  If( _IsValidMode( strMode ) )  Then
-  Begin
+  if( _IsValidMode( strMode ) )  then
+  begin
     nRet := Length( strFileName );
 
-    If( ( nRet > 0 ) And ( Length( strMode ) > 0 ) )  Then
-    Begin
+    if( ( nRet > 0 ) and ( Length( strMode ) > 0 ) )  then
+    begin
       Move( strFileName[1], szFileName, nRet );
-      FillChar( regs, SizeOf( regs ), 0 );
+      FillChar( regs, sizeof( regs ), 0 );
       szFileName[nRet] := #0;
       nOpenMode := 0;
 
       { Check the open mode }
-      If( strMode = 'r' )  Then
+      if( strMode = 'r' )  then
         nOpenMode := 1
-      Else
-        If( strMode[1] = 'w' )  Then
+      else
+        if( strMode[1] = 'w' )  then
           nOpenMode := 2;
 
       nRet := Length( strMode );
 
-      If( strMode[nRet] = '+' )  Then
+      if( strMode[nRet] = '+' )  then
         regs.C := ctCreateFileHandle
-      Else
+      else
         regs.C := ctOpenFileHandle;
 
       regs.A  := nOpenMode;
       regs.DE := Addr( szFileName );
       MSXBDOS( regs );
 
-      If( regs.A = 0 )  Then
+      if( regs.A = 0 )  then
         nRet := regs.B
-      Else
+      else
         nRet := ctInvalidFileHandle;
-    End
-    Else
+    end
+    else
       nRet := ctInvalidFileHandle;
-  End;
+  end;
 
   FileOpen := nRet;
-End;
+end;
 
 (**
   * Close a file handle previously opened by the @see FileOpen function.
   * @param nFileHandle The file handle to close;
   * The function return False for error or True for success;
   *)
-Function FileClose( nFileHandle : Byte ) : Boolean;
-Var
+function FileClose( nFileHandle : byte ) : boolean;
+var
         regs : TRegs;
-        bRet : Boolean;
+        bRet : boolean;
 
-Begin
+begin
   regs.C := ctCloseFileHandle;
   regs.B := nFileHandle;
   MSXBDOS( regs );
@@ -121,19 +121,19 @@ Begin
   bRet := ( regs.A = 0 );
 
   FileClose := bRet;
-End;
+end;
 
 (**
   * Flush all data of file handle to disk;
   * @param nFileHandle The file handle to flush;
   * The function return False for error or True for success;
   *)
-Function FileFlush( nFileHandle : Byte ) : Boolean;
-Var
+function FileFlush( nFileHandle : byte ) : boolean;
+var
         regs : TRegs;
-        bRet : Boolean;
+        bRet : boolean;
 
-Begin
+begin
   regs.C := ctEnsureFileHandle;
   regs.B := nFileHandle;
   MSXBDOS( regs );
@@ -141,7 +141,7 @@ Begin
   bRet := ( regs.A = 0 );
 
   FileFlush := bRet;
-End;
+end;
 
 (**
   * Duplicate a existing file handle.
@@ -149,22 +149,22 @@ End;
   * The function return the file handle for opened file or ctFileOpenError
   * value;
   *)
-Function FileDuplicate( nFileHandle : Byte ) : Byte;
-Var
+function FileDuplicate( nFileHandle : byte ) : byte;
+var
         regs : TRegs;
-        nRet : Byte;
+        nRet : byte;
 
-Begin
+begin
   nRet   := ctInvalidFileHandle;
   regs.C := ctDuplicateFileHandle;
   regs.B := nFileHandle;
   MSXBDOS( regs );
 
-  If( regs.A = 0 )  Then
+  if( regs.A = 0 )  then
     nRet := regs.B;
 
   FileDuplicate := nRet;
-End;
+end;
 
 (**
   * Move the current pointer of opened file handle, to a new position.
@@ -178,15 +178,15 @@ End;
   * ctSeekEnd - Relative end of file;
   * @param nNewPos The new file pointer position;
   *)
-Function FileSeek( nFileHandle : Byte;
-                   nOffset : Integer;
-                   nOrigin : Byte;
-                   Var nNewPos : Integer ) : Boolean;
-Var
+function FileSeek( nFileHandle : byte;
+                   nOffset : integer;
+                   nOrigin : byte;
+                   var nNewPos : integer ) : boolean;
+var
         regs    : TRegs;
-        bRet    : Boolean;
+        bRet    : boolean;
 
-Begin
+begin
   regs.C  := ctMoveFileHandlePointer;
   regs.A  := nOrigin;
   regs.B  := nFileHandle;
@@ -196,14 +196,14 @@ Begin
 
   bRet := ( regs.A = 0 );
 
-  If( bRet )  Then
-  Begin
+  if( bRet )  then
+  begin
     nNewPos := regs.HL;
     { TODO: Addr DE here if has support for 32Bit seek operations }
-  End;
+  end;
 
   FileSeek := bRet;
-End;
+end;
 
 (**
   * Read a block of data from a file handle.
@@ -212,14 +212,14 @@ End;
   * @param nBytesToRead Number of bytes to read bythe function;
   * The function return the number of bytes really read;
   *)
-Function FileBlockRead( nFileHandle : Byte;
-                        Var aBuffer;
-                        nBytesToRead : Integer ) : Integer;
-Var
+function FileBlockRead( nFileHandle : byte;
+                        var aBuffer;
+                        nBytesToRead : integer ) : integer;
+var
         regs : TRegs;
-        nRet : Integer;
+        nRet : integer;
 
-Begin
+begin
   nRet    := ctReadWriteError;
   regs.C  := ctReadFromFileHandle;
   regs.B  := nFileHandle;
@@ -227,11 +227,11 @@ Begin
   regs.HL := nBytesToRead;
   MSXBDOS( regs );
 
-  If( regs.A = 0 )  Then
+  if( regs.A = 0 )  then
     nRet := regs.HL;
 
   FileBlockRead := nRet;
-End;
+end;
 
 (**
   * Write a block of data to a file handle.
@@ -240,14 +240,14 @@ End;
   * @param nBytesToWrite Number of bytes to write by the function;
   * The function return the number of bytes really written;
   *)
-Function FileBlockWrite( nFileHandle : Byte;
-                         Var aBuffer;
-                         nBytesToWrite : Integer ) : Integer;
-Var
+function FileBlockWrite( nFileHandle : byte;
+                         var aBuffer;
+                         nBytesToWrite : integer ) : integer;
+var
         regs : TRegs;
-        nRet : Integer;
+        nRet : integer;
 
-Begin
+begin
   nRet    := ctReadWriteError;
   regs.C  := ctWriteToFileHandle;
   regs.B  := nFileHandle;
@@ -255,8 +255,8 @@ Begin
   regs.HL := nBytesToWrite;
   MSXBDOS( regs );
 
-  If( regs.A = 0 )  Then
+  if( regs.A = 0 )  then
     nRet := regs.HL;
 
   FileBlockWrite := nRet;
-End;
+end;

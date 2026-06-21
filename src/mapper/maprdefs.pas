@@ -13,42 +13,42 @@
 (**
   * Module constants and definitions.
   *)
-Const
-               ctFreeSegment     : Byte    = $00;     { Unallocated segment  }
-               ctReservedSegment : Byte    = $01;     { Reserved segment     }
-               ctMapperPortPage0 : Byte    = $FC;     { Memory page 0 port   }
-               ctMapperPortPage1 : Byte    = $FD;     { Memory page 1 port   }
-               ctMapperPortPage2 : Byte    = $FE;     { Memory page 2 port   }
-               ctMapperPortPage3 : Byte    = $FF;     { Memory page 3 port   }
+const
+               ctFreeSegment     : byte    = $00;     { Unallocated segment  }
+               ctReservedSegment : byte    = $01;     { Reserved segment     }
+               ctMapperPortPage0 : byte    = $FC;     { Memory page 0 port   }
+               ctMapperPortPage1 : byte    = $FD;     { Memory page 1 port   }
+               ctMapperPortPage2 : byte    = $FE;     { Memory page 2 port   }
+               ctMapperPortPage3 : byte    = $FF;     { Memory page 3 port   }
                ctMapperPageSize            = $4000;   { Mapper page size 16k }
                ctMapperSegsSize            = $FF;     { Max. mapper segments }
 
 (**
   * Segment types.
   *)
-Type TSegmentType = ( UserSegment, SystemSegment );
+type TSegmentType = ( UserSegment, SystemSegment );
 
 (**
   * Mapper table strcuture definition.
   *)
-Type PMapperVarTable = ^TMapperVarTable;
-     TMapperVarTable = Record
+type PMapperVarTable = ^TMapperVarTable;
+     TMapperVarTable = record
   nSlotId         : TSlotNumber;         { Slot address of the mapper slot   }
-  nTotalSegs      : Byte;                { Total number of 16Kb RAM segments }
-  nFreeSegs       : Byte;                { Number of free segments           }
-  nSystemSegs     : Byte;                { Allocated system segments         }
-  nUserSegs       : Byte;                { Allocated user segments           }
-  aFreeSpace      : Array[0..2] Of Byte; { Free space                        }
-End;
+  nTotalSegs      : byte;                { Total number of 16Kb RAM segments }
+  nFreeSegs       : byte;                { Number of free segments           }
+  nSystemSegs     : byte;                { Allocated system segments         }
+  nUserSegs       : byte;                { Allocated user segments           }
+  aFreeSpace      : array[0..2] of byte; { Free space                        }
+end;
 
 (**
   * The mapper handle type for using all other mapper functions.
   *)
-Type PMapperHandle = ^TMapperHandle;
-     TMapperHandle = Record
-  nMapperVarTblAddr  : Integer;          { Start address of mapper var. tabl }
+type PMapperHandle = ^TMapperHandle;
+     TMapperHandle = record
+  nMapperVarTblAddr  : integer;          { Start address of mapper var. tabl }
   nPriMapperSlotId   : TSlotNumber;      { Slot address of primary mapper    }
-  nTotalMapperSegs   : Byte;             { Total segments of primary mapper  }
-  nFreePriMapperSegs : Byte;             { Free segments of primary mapper   }
-  nStartAddrJumpTbl  : Integer;          { Start address of jump table       }
-End;
+  nTotalMapperSegs   : byte;             { Total segments of primary mapper  }
+  nFreePriMapperSegs : byte;             { Free segments of primary mapper   }
+  nStartAddrJumpTbl  : integer;          { Start address of jump table       }
+end;

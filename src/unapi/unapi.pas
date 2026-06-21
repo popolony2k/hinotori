@@ -19,7 +19,7 @@
  * UNAPI error codes. The codes below is according TCP/IP UNAPI specification
  * item 3.
  *)
-Const      ctERR_OK           = 0;    { Operation completed successfully }
+const      ctERR_OK           = 0;    { Operation completed successfully }
            ctERR_NOT_IMP      = 1;    { Capability not implemented }
            ctERR_NO_NETWORK   = 2;    { No network connection available }
            ctERR_NO_DATA      = 3;    { No incoming data available }
@@ -39,23 +39,23 @@ Const      ctERR_OK           = 0;    { Operation completed successfully }
 (**
   * Standard specifications available.
   *)
-Const     ctSpecEthernet      = 'ETHERNET';   { Ethernet specification }
+const     ctSpecEthernet      = 'ETHERNET';   { Ethernet specification }
           ctSpecTCPIP         = 'TCP/IP';     { TCP/IP specification }
 
 (**
   * The specification identifier string name.
   *)
-Type TUNAPISpecName = String[15];  { UNAPI specification identifier }
+type TUNAPISpecName = string[15];  { UNAPI specification identifier }
 
 (**
   * The UNAPI implmementation pointer structure to store the
   * implementation address functions.
   *)
-Type TUNAPIImplPointer = Record
+type TUNAPIImplPointer = record
   nSlotNumber     : TSlotNumber;
-  nRAMSegment     : Byte;
-  nEntryPointAddr : Integer;
-End;
+  nRAMSegment     : byte;
+  nEntryPointAddr : integer;
+end;
 
 
 (**
@@ -63,18 +63,18 @@ End;
   * specification;
   * @param strSpecName The UNAPI specification to search;
   *)
-Function UNAPIDiscovery( strSpecName : TUNAPISpecName ) : Byte;
-Var
+function UNAPIDiscovery( strSpecName : TUNAPISpecName ) : byte;
+var
      nCount,
-     nLen      : Byte;
+     nLen      : byte;
      regs      : TRegs;
-     aARG      : Array[0..15] Of Char Absolute $F847;
+     aARG      : array[0..15] of char absolute $F847;
 
-Begin
+begin
   regs.B := 0;
 
-  If( HasInstalledHook And ( strSpecName <> '' ) )  Then
-  Begin
+  if( HasInstalledHook and ( strSpecName <> '' ) )  then
+  begin
     regs.A := 0;
     regs.D := ctUNAPI;
     regs.E := ctUNAPI;
@@ -85,16 +85,16 @@ Begin
      * function.
      * The ARG parameter is pointed by $F847 (16 byte Math pack buffer).
      *)
-    For nCount := 0 To nLen Do
+    for nCount := 0 to nLen do
       aARG[nCount] := strSpecName[nCount+1];
 
     aARG[nCount+1] := #0;
 
     EXTBIO( regs );
-  End;
+  end;
 
   UNAPIDiscovery := regs.B;
-End;
+end;
 
 (**
   * Retrieve the implementation structure with the address for the required
@@ -103,50 +103,50 @@ End;
   * @param impl The UNAPI @see TUNAPIImplPointer struct with the
   * implementation address routines to be called by user;
   *)
-Function UNAPIGetImplementation( strSpecName : TUNAPISpecName;
-                                 nImplIndex  : Byte;
-                                 Var impl    : TUNAPIImplPointer ) : Boolean;
-Var
+function UNAPIGetImplementation( strSpecName : TUNAPISpecName;
+                                 nImplIndex  : byte;
+                                 var impl    : TUNAPIImplPointer ) : boolean;
+var
      nCount,
-     nLen      : Byte;
+     nLen      : byte;
      regs      : TRegs;
-     bRet      : Boolean;
-     aARG      : Array[0..15] Of Char Absolute $F847;
+     bRet      : boolean;
+     aARG      : array[0..15] of char absolute $F847;
 
-Begin
-  If( HasInstalledHook And ( strSpecName <> '' ) And ( nImplIndex > 0 ) )  Then
-  Begin
+begin
+  if( HasInstalledHook and ( strSpecName <> '' ) and ( nImplIndex > 0 ) )  then
+  begin
     regs.A := nImplIndex;
     regs.D := ctUNAPI;
     regs.E := ctUNAPI;
     nLen   := Length( strSpecName ) - 1;
-    bRet   := True;
+    bRet   := true;
 
     (*
      * Fill the specification parameter to pass to the discovery
      * function.
      * The ARG parameter is pointed by $F847 (16 byte Math pack buffer).
      *)
-    For nCount := 0 To nLen Do
+    for nCount := 0 to nLen do
       aARG[nCount] := strSpecName[nCount+1];
 
     aARG[nCount+1] := #0;
 
     EXTBIO( regs );
 
-    With impl Do
-    Begin
+    with impl do
+    begin
       nSlotNumber := regs.A;
       nRAMSegment := regs.B;
       nEntryPointAddr := regs.HL;
-    End;
-  End
-  Else
-    bRet := False;
+    end;
+  end
+  else
+    bRet := false;
 
   UNAPIGetImplementation := bRet;
 
-End;
+end;
 
 { UNAPI RAM Helper and Caller functions }
 
@@ -156,22 +156,22 @@ End;
   * @param impl The pointer to the UNAPI implementation functions;
   * @param regs The parameters to pass to the UNAPI function called;
   *)
-Procedure UNAPICallFn( Var impl : TUNAPIImplPointer; Var regs : TRegs );
-Begin
+procedure UNAPICallFn( var impl : TUNAPIImplPointer; var regs : TRegs );
+begin
   (*
    * Perform a inter-slot call.
    *)
-  If( impl.nRAMSegment = $FF )  Then
-  Begin
+  if( impl.nRAMSegment = $FF )  then
+  begin
     regs.IY := impl.nSlotNumber;
     regs.IX := impl.nEntryPointAddr;
     CALSLT( regs );
-  End
-  Else
-  Begin
+  end
+  else
+  begin
     WriteLn( '-------------------------------------------' );
     WriteLn( 'RAM Helper segment implementation not ready' );
     WriteLn( '-------------------------------------------' );
     { TODO: RAMHelper call implementation }
-  End;
-End;
+  end;
+end;

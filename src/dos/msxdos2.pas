@@ -16,7 +16,7 @@
  * http://map.grauw.nl/resources/dos2_functioncalls.php
  *)
 
-Const     ctFindFirstEntry                = $40;
+const     ctFindFirstEntry                = $40;
           ctFindNextEntry                 = $41;
           ctFindNewEntry                  = $42;
           ctOpenFileHandle                = $43;
@@ -70,12 +70,12 @@ Const     ctFindFirstEntry                = $40;
 (**
   * The struct representing the MSXDOS version number.
   *)
-Type TMSXDOSVersion = Record
+type TMSXDOSVersion = record
   nKernelMajor,
   nKernelMinor,
   nSystemMajor,
-  nSystemMinor    : Byte;
-End;
+  nSystemMinor    : byte;
+end;
 
 
 (**
@@ -83,20 +83,20 @@ End;
   * @param version The @see TMSXDOSVersion reference to
   * the struct to receive the MSXDOSVersion;
   *)
-Procedure GetMSXDOSVersion( Var version : TMSXDOSVersion );
-Var
+procedure GetMSXDOSVersion( var version : TMSXDOSVersion );
+var
        regs  : TRegs;
-Begin
-  FillChar( regs, SizeOf( regs ), 0 );
+begin
+  FillChar( regs, sizeof( regs ), 0 );
   regs.C:= ctGetMSXDOSVersionNumber;
   MSXBDOS( regs );
 
-  If( regs.A = 0 )  Then
-    With version Do
-    Begin
+  if( regs.A = 0 )  then
+    with version do
+    begin
       nKernelMajor := regs.B;
       nKernelMinor := regs.C;
       nSystemMajor := regs.D;
       nSystemMinor := regs.E;
-    End;
-End;
+    end;
+end;

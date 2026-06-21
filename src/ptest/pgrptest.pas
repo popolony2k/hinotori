@@ -16,37 +16,37 @@
   * Group indentifier structure. Used to perform actions using group
   * test functions.
   *)
-Type TTestGroup = Record
+type TTestGroup = record
   strGrpName     : TTinyString;    { Test group identification }
   nTestCount,                      { Number of tests performed }
   nSuccessCount,                   { Number of succeeded tests }
-  nFailedCount   : Integer;        { Number of failed tests    }
-End;
+  nFailedCount   : integer;        { Number of failed tests    }
+end;
 
 
 (**
   * Test group initialization.
   * @param grp The group data structure to initialize;
   *)
-Procedure ResetGroup( Var grp : TTestGroup );
-Begin
-  With grp  Do
-  Begin
+procedure ResetGroup( var grp : TTestGroup );
+begin
+  with grp  do
+  begin
     strGrpName    := '';
     nTestCount    := 0;
     nSuccessCount := 0;
     nFailedCount  := 0;
-  End;
-End;
+  end;
+end;
 
 (**
   * Show trace information for the specified group.
   * @param grp The group to show information;
   *)
-Procedure TraceGroup( grp : TTestGroup );
-Var
+procedure TraceGroup( grp : TTestGroup );
+var
       strTmp : TTinyString;
-Begin
+begin
   TRACE( 'Group ' + grp.strGrpName + ' results' );
   Str( grp.nTestCount, strTmp );
   TRACE( '  +-----> Number of tests : ' + strTmp );
@@ -54,7 +54,7 @@ Begin
   TRACE( '  +-----> Succeeded tests : ' + strTmp );
   Str( grp.nFailedCount, strTmp );
   TRACE( '  +-----> Failed tests    : ' + strTmp );
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -67,23 +67,23 @@ End;
   * information tests;
   * The function return true if bRetValue is equal bExpected;
   *)
-Function GRP_TEST_BOOL( strTestName : TTinyString;
-                        bRetValue, bExpected : Boolean;
-                        Var grp : TTestGroup ) : Boolean;
-Var
-      bRet : Boolean;
-Begin
+function GRP_TEST_BOOL( strTestName : TTinyString;
+                        bRetValue, bExpected : boolean;
+                        var grp : TTestGroup ) : boolean;
+var
+      bRet : boolean;
+begin
   bRet := TEST_BOOL( strTestName, bRetValue, bExpected );
 
-  If( Not bRet )  Then
+  if( not bRet )  then
     grp.nFailedCount := grp.nFailedCount + 1
-  Else
+  else
     grp.nSuccessCount := grp.nSuccessCount + 1;
 
   grp.nTestCount := grp.nTestCount + 1;
 
   GRP_TEST_BOOL := bRet;
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -96,23 +96,23 @@ End;
   * information tests;
   * The function return true if bRetValue is equal bExpected;
   *)
-Function GRP_TEST_STR( strTestName : TTinyString;
+function GRP_TEST_STR( strTestName : TTinyString;
                        strRetValue, strExpected : TString;
-                       Var grp : TTestGroup ) : Boolean;
-Var
-      bRet : Boolean;
-Begin
+                       var grp : TTestGroup ) : boolean;
+var
+      bRet : boolean;
+begin
   bRet := TEST_STR( strTestName, strRetValue, strExpected );
 
-  If( Not bRet )  Then
+  if( not bRet )  then
     grp.nFailedCount := grp.nFailedCount + 1
-  Else
+  else
     grp.nSuccessCount := grp.nSuccessCount + 1;
 
   grp.nTestCount := grp.nTestCount + 1;
 
   GRP_TEST_STR := bRet;
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -125,23 +125,23 @@ End;
   * information tests;
   * The function return true if fRetValue is equal fExpected;
   *)
-Function GRP_TEST_FLOAT( strTestName : TTinyString;
-                         fRetValue, fExpected : Real;
-                         Var grp : TTestGroup ) : Boolean;
-Var
-      bRet : Boolean;
-Begin
+function GRP_TEST_FLOAT( strTestName : TTinyString;
+                         fRetValue, fExpected : real;
+                         var grp : TTestGroup ) : boolean;
+var
+      bRet : boolean;
+begin
   bRet := TEST_FLOAT( strTestName, fRetValue, fExpected );
 
-  If( Not bRet )  Then
+  if( not bRet )  then
     grp.nFailedCount := grp.nFailedCount + 1
-  Else
+  else
     grp.nSuccessCount := grp.nSuccessCount + 1;
 
   grp.nTestCount := grp.nTestCount + 1;
 
   GRP_TEST_FLOAT := bRet;
-End;
+end;
 
 (**
   * Unit test helper function to check expected value for reported
@@ -154,20 +154,20 @@ End;
   * information tests;
   * The function return true if nRetValue is equal nExpected;
   *)
-Function GRP_TEST_INT( strTestName : TTinyString;
-                       nRetValue, nExpected : Integer;
-                       Var grp : TTestGroup ) : Boolean;
-Var
-      bRet : Boolean;
-Begin
+function GRP_TEST_INT( strTestName : TTinyString;
+                       nRetValue, nExpected : integer;
+                       var grp : TTestGroup ) : boolean;
+var
+      bRet : boolean;
+begin
   bRet := TEST_INT( strTestName, nRetValue, nExpected );
 
-  If( Not bRet )  Then
+  if( not bRet )  then
     grp.nFailedCount := grp.nFailedCount + 1
-  Else
+  else
     grp.nSuccessCount := grp.nSuccessCount + 1;
 
   grp.nTestCount := grp.nTestCount + 1;
 
   GRP_TEST_INT := bRet;
-End;
+end;

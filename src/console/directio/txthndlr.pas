@@ -14,9 +14,9 @@
   * Handle to direct output operations.
   * Used by @see SetTextHandler() and @see RestoreTextHandler();
   *)
-Type TTextHandle = Record
-  nConOutPtr : Integer;
-End;
+type TTextHandle = record
+  nConOutPtr : integer;
+end;
 
 
 (**
@@ -27,11 +27,11 @@ End;
   * @param nHandlerFn The address to a new I/O handler function to provide
   * a new behavior to Write/WriteLn routines;
   *)
-Procedure SetTextHandler( Var handle : TTextHandle; nHandlerFn : Integer );
-Begin
+procedure SetTextHandler( var handle : TTextHandle; nHandlerFn : integer );
+begin
   handle.nConOutPtr := ConOutPtr;
   ConOutPtr := nHandlerFn;
-End;
+end;
 
 (**
   * Restore the previous pascal I/O routine, previously assigned by
@@ -39,8 +39,8 @@ End;
   * @param handle The Reference to struct @see TTextHandle used by
   * @see SetTextHandler routine;
   *)
-Procedure RestoreTextHandler( Var handle : TTextHandle );
-Begin
+procedure RestoreTextHandler( var handle : TTextHandle );
+begin
   ConOutPtr := handle.nConOutPtr;
-  FillChar( handle, SizeOf( handle ), -1 );
-End;
+  FillChar( handle, sizeof( handle ), -1 );
+end;

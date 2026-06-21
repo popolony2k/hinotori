@@ -9,7 +9,7 @@
  * -
  *)
 
-Const    ctTPSuccess          = $0;      { Success }
+const    ctTPSuccess          = $0;      { Success }
          ctTPFileNotFound     = $1;      { File not found }
          ctTPFileNotOpen      = $4;      { File not open }
          ctTPFileDesappeared  = $FF;     { Invalid drive }

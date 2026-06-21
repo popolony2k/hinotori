@@ -73,7 +73,7 @@ end;
   *)
 procedure __FasterInterruptHandler;
 begin
-  inLine( $F3/          { DI          }
+  inline( $F3/          { DI          }
           $E5/          { PUSH HL     }
           $21/$00/$00/  { LD HL, word }
           $E5/          { PUSH HL     }
@@ -133,7 +133,7 @@ const   ctSafeLoUserParm       = 15;   { Safer interrupt parameters }
         ctFastIMIntr3          = 12;
 
 begin
-  Move( aIM1Intr, aOldIntr, SizeOf( aOldIntr ) );
+  Move( aIM1Intr, aOldIntr, sizeof( aOldIntr ) );
 
   if( interruptMode = SaferInterruptMode )  then
   begin
@@ -188,6 +188,6 @@ var
 
 begin
   inline( $F3 );  { DI }
-  Move( aIntr, aIM1Intr, SizeOf( aIntr ) );
+  Move( aIntr, aIM1Intr, sizeof( aIntr ) );
   inline( $FB );  { EI }
 end;
