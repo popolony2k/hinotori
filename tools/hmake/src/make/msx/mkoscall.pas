@@ -17,6 +17,21 @@
  * - ../mktypes.pas;
  *)
 
+(**
+  * Built-in "MACHINE"/"ARCH" values, seeded as default $(MACHINE)/$(ARCH)
+  * makefile variables by MkInit (mkutils.pas). A makefile assignment to
+  * either name overrides these, same as any other variable.
+  *)
+const
+      ctMkMachine = 'MSX';
+
+      (* Hinotori's produced code always targets the MSX Z80 CPU,
+         regardless of which host built it (MSX-DOS/TP3.3f or an FPC host
+         toolchain) — hardcoded until Hinotori grows R800-specific code
+         paths (hand-written asm using R800's extended instruction set on
+         MSX turboR) for a makefile to select between; see
+         tools/hmake/docs/WIP.md. *)
+      ctMkArch = 'Z80';
 
 (**
   * Execute an command on operating system through system call;

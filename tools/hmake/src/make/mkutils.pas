@@ -10,7 +10,10 @@
  *
  * - /system/types.pas;
  * - /collectn/lnkdlist.pas;
+ * - /memory/{platform}/pointer.pas;  (depends on architecture)
  * - ./make/mktypes.pas;
+ * - ./make/{platform}/mkoscall.pas;  (depends on architecture; supplies
+ *   ctMkMachine/ctMkArch, seeded as built-in $(MACHINE)/$(ARCH) variables)
  *)
 
 (**
@@ -27,6 +30,26 @@ const
   * @param handle A @see TMakeHandle that will be initialized;
   *)
 procedure MkInit( var handle : TMakeHandle );
+
+  (**
+    * Seed a built-in default variable (MACHINE, ARCH, ...) into
+    * handle.variableList. A later makefile assignment to the same name
+    * overrides it, since MkFindIdentifier returns the last match.
+    * @param strName Variable name;
+    * @param strValue Default value;
+    *)
+  procedure __SeedBuiltinVariable( strName : TIdentifierName; strValue : TIdentifierValue );
+  var
+      pair : TIdentifierPair;
+
+  begin
+    pair.strName   := strName;
+    pair.strValue  := strValue;
+    pair.identType := TIdentifierType.IDENT_VARIABLE;
+
+    AddLinkedListItem( handle.variableList, ToPointer( pair ) );
+  end;
+
 begin
   with handle do
   begin
@@ -44,6 +67,9 @@ begin
     CreateLinkedList( handle.variableList, sizeof( TIdentifierPair ) );
     CreateLinkedList( handle.targetList, sizeof( TTarget ) );
   end;
+
+  __SeedBuiltinVariable( 'MACHINE', ctMkMachine );
+  __SeedBuiltinVariable( 'ARCH', ctMkArch );
 end;
 
 (**

@@ -195,6 +195,7 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - **Bootstrap scripts** — `tools/hmake/bootstrap/`: `build.sh`, `build.bat`, `GNUmakefile`, `build_hmake.pas`, `fpmake.pp` (reference)
 - **MSX-DOS `MkGetEnv`/`MkCheckTarget`/`MkWildcard`** (`msx/mkoscall.pas`) — implemented; logic ported 1:1 from the FPC versions, backed by a new `src/dos/dos2find.pas` (`MSXFindFirst`/`MSXFindNext`/`MSXFindInfoName`/`MSXTimeStampNewer`) wrapping BDOS `_FFIRST`/`_FNEXT` ($40/$41); fileinfo block layout sourced from the MSX-DOS2 Program Interface Specification, section 3.4 (cited in the code). Timestamp comparison uses byte-pair comparison, not `integer`, since `TWord` is a signed 16-bit type on this platform. **Not yet built or run on real MSX-DOS2 hardware** — needs `HBUILD` + a hardware test before merging to `main` (see verification steps in `tools/hmake/docs/WIP.md`)
 - Pascal keyword/type casing normalized to lowercase across all of `src/` (90 files) — cosmetic only, no behavior change; merged into this branch
+- **Built-in `$(MACHINE)`/`$(ARCH)` variables** — seeded as default entries in `handle.variableList` by `MkInit` (`mkutils.pas`), so a makefile assignment to either name overrides them (same last-write-wins lookup as any other variable). `MACHINE` is platform-specific (`ctMkMachine` in each `mkoscall.pas`): `MSX` on MSX-DOS, `LINUX`/`MACOSX`/`WINDOWS` on FPC hosts via `{$IFDEF DARWIN}`/`{$IFDEF WINDOWS}`. `ARCH` (`ctMkArch`) is hardcoded to `Z80` on **both** platforms — Hinotori's produced code always targets Z80 regardless of which host built it; this is a placeholder for when Hinotori grows R800-specific code paths (hand-written asm using MSX turboR's extended instruction set) for a makefile to select between — not needed today since TP3.3f only ever emits Z80 opcodes and no R800-specific `.asm` modules exist yet in `src/asm/`
 
 ### Not yet implemented
 
@@ -205,7 +206,6 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 - `include` directive
 - `:=` immediate (non-recursive) assignment
-- `__ARCH__` builtin constant
 - `ifeq` / `ifneq` conditionals
 - `${var}` brace-style expansion
 - Tab-only indentation enforcement

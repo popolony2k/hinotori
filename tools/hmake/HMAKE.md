@@ -47,6 +47,7 @@ parser and executor — only the OS-specific layer differs.
 - Automatic variables: `$@`, `$<`, `$^`, `$+`, `$*`, `$?` and their `D`/`F` (directory/file) variants
 - `$(wildcard <glob>)` expansion — zero matches is not an error
 - `$(VAR)` variable expansion with OS environment fallback
+- Built-in `$(MACHINE)`/`$(ARCH)` variables — default host/architecture info, overridable like any other variable
 - Variable override — later assignments win (GNU make semantics)
 - Duplicate target detection with a descriptive error message
 - Debug mode (`-d`) — prints all variables, targets, and execution steps
@@ -104,6 +105,32 @@ SOURCES = $(wildcard *.c)
 
 Variable names may contain spaces before the `=` sign; they are trimmed automatically.
 A later assignment to the same name overrides all earlier ones (last-write-wins).
+
+#### Built-in `MACHINE` / `ARCH`
+
+hmake seeds two variables with default values before parsing a makefile:
+
+| Variable | Meaning | Default |
+| --- | --- | --- |
+| `$(MACHINE)` | Build host | `MSX` on MSX-DOS; `LINUX` / `MACOSX` / `WINDOWS` on an FPC host |
+| `$(ARCH)` | Target CPU | `Z80` — always, on every host |
+
+`$(ARCH)` is hardcoded to `Z80` on both platforms: Hinotori's produced code
+always targets the MSX Z80 CPU regardless of which host built it. It exists
+as a placeholder for MSX turboR's R800 CPU, which is only relevant once
+Hinotori has hand-written R800-specific assembly (using its extended
+instruction set) that a makefile would need to select between — no such
+code exists yet, so there is currently nothing for a second `ARCH` value to
+switch on.
+
+Like any other variable, a makefile assignment overrides these defaults:
+
+```makefile
+MACHINE = CUSTOM
+
+report:
+    echo "building on $(MACHINE) / $(ARCH)"
+```
 
 ### Targets and prerequisites
 
@@ -320,6 +347,7 @@ automatic variables receive concrete names rather than raw `%`-patterns.
 - `$(wildcard <glob>)` expansion — zero matches = empty string
 - Variable override — last assignment wins (GNU make semantics)
 - Duplicate target detection with descriptive error
+- Built-in `$(MACHINE)`/`$(ARCH)` variables — seeded by `MkInit`, overridable like any other variable; `MACHINE` varies per host build, `ARCH` is hardcoded `Z80` on every host (placeholder for future R800-specific code paths)
 - `__ExecTarget` target-execution engine converted from native recursion to an explicit heap-allocated frame stack (`TExecFrame`, `New`/`Dispose`, chained via `pPrev`) — avoids exhausting MSX/TP3.3f's few-KB call stack on deep prerequisite chains; verified behavior-identical to the old recursive version
 - MSX-DOS OS layer — `MkGetEnv` (`src/dos/envvars.pas`), `MkCheckTarget` and `MkWildcard` (`src/dos/dos2find.pas`, wrapping BDOS `_FFIRST`/`_FNEXT`). Implemented on branch `hmake_msx_dos_oscall`, not yet merged to `main` — **not yet built or run on real MSX-DOS2 hardware**
 
@@ -332,7 +360,6 @@ automatic variables receive concrete names rather than raw `%`-patterns.
 
 - `include` directive
 - `:=` immediate (non-recursive) assignment
-- `__ARCH__` builtin constant
 - `ifeq` / `ifneq` conditional statements
 - `${var}` brace-style variable expansion
 - Tab-only indentation enforcement (reject space-indented commands with a hard error)

@@ -62,6 +62,20 @@
           `tools/hmake/samples` makefiles (multi-target, pattern rules,
           auto-vars, errors, wildcard, variable-override) under the FPC
           build. Not yet re-verified on real MSX-DOS2 hardware; (TODO)
+    - Built-in `$(MACHINE)`/`$(ARCH)` variables; (OK)
+        - Seeded by MkInit (mkutils.pas) as default entries in
+          handle.variableList — a makefile assignment to either name
+          overrides them (last-write-wins, same as any other variable);
+          (OK)
+        - MACHINE is platform-specific (ctMkMachine in each mkoscall.pas):
+          MSX on MSX-DOS; LINUX/MACOSX/WINDOWS on FPC hosts via
+          {$IFDEF DARWIN}/{$IFDEF WINDOWS}; (OK)
+        - ARCH (ctMkArch) hardcoded to Z80 on both platforms — Hinotori's
+          produced code always targets Z80 regardless of build host.
+          Placeholder for MSX turboR R800-specific code paths once
+          Hinotori has hand-written asm using R800's extended instruction
+          set to select between (none exist yet in src/asm/); (TODO, low
+          priority — not needed until such R800 code paths exist)
 5. Operating system environment variables access by makefile; (WIP)
     - Runtime variable availability checking (when executing a command); (OK)
     - FPC implementation; (OK)
@@ -81,8 +95,6 @@
 
 1. Implement include on makefiles (check this);
 2. Implement constants (:=);
-    - Add some builtin constants
-        - `__ARCH__` (Default value set depending on architecture - MSX, MACOSX, LINUX, WINDOWS);
 3. Add support to use '#' after concatenation `\` at execution step;
 4. Force indentation by tab instead spaces. If make file is indented by space, force make failure. (OK)
 5. Implement conditional statements (ifeq, ifneq);
