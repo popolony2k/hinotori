@@ -44,7 +44,7 @@ parser and executor — only the OS-specific layer differs.
 - File-timestamp target checking — skips up-to-date targets automatically
 - `.PHONY` target support
 - Pattern rules (`%.o: %.c`) with stem capture
-- Automatic variables: `$@`, `$<`, `$^`, `$+`, `$*` and their `D`/`F` (directory/file) variants
+- Automatic variables: `$@`, `$<`, `$^`, `$+`, `$*`, `$?` and their `D`/`F` (directory/file) variants
 - `$(wildcard <glob>)` expansion — zero matches is not an error
 - `$(VAR)` variable expansion with OS environment fallback
 - Variable override — later assignments win (GNU make semantics)
@@ -155,13 +155,17 @@ prerequisite `%.c` is instantiated to `foo.c`.
 | `$^` | All prerequisites (space-separated, no duplicates) |
 | `$+` | All prerequisites (same as `$^`) |
 | `$*` | Pattern stem (pattern rules only) |
+| `$?` | Prerequisites newer than the target (space-separated subset of `$^`) |
 | `$@D` / `$@F` | Directory / filename part of `$@` |
 | `$<D` / `$<F` | Directory / filename part of `$<` |
 | `$^D` / `$^F` | Directory / filename part of `$^` |
 | `$+D` / `$+F` | Directory / filename part of `$+` |
 | `$*D` / `$*F` | Directory / filename part of `$*` |
+| `$?D` / `$?F` | Directory / filename part of `$?` |
 
-`$%` and `$?` are recognised but expand to an empty string (not yet implemented).
+`$%` (archive-member name) is recognised but expands to an empty string — not
+applicable without archive-member target syntax (`lib(member.o)`), which this
+implementation does not support.
 
 ### PHONY targets
 
@@ -272,11 +276,23 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 1. Resolves the requested targets (or falls back to the default target)
 2. Locates `.PHONY` and builds the PHONY set
-3. Calls `__ExecTarget` recursively — walks prerequisites depth-first
+3. Calls `__ExecTarget`, which walks prerequisites depth-first — via an
+   explicit heap-allocated frame stack rather than native recursion (see
+   below), so a deep prerequisite chain costs heap, not call-stack depth
 4. Checks up-to-date status via `MkCheckTarget` (file timestamps; directories are excluded)
 5. Expands `$(VAR)` via `MkReplaceReferences` (makefile variables → OS env fallback)
-6. Expands automatic variables via `__ReplaceAutoVars` (`$@`, `$<`, `$^`, …)
+6. Expands automatic variables via `__ReplaceAutoVars` (`$@`, `$<`, `$^`, `$?`, …)
 7. Runs each command via `MkExecCommand` (platform-specific)
+
+**Why not native recursion:** each recursive call to `__ExecTarget` used to
+carry a `TIdentifierPair` (81+256 bytes) plus several more short strings on
+the call stack — on MSX/TP3.3f, whose stack is only a few KB, as few as 3-4
+levels of ordinary prerequisite chaining could exhaust it. `__ExecTarget`
+now pushes/pops `TExecFrame` records (`New`/`Dispose`, chained via `pPrev`)
+driven by a `phase` state machine (`xpInit → xpOuterTop → xpInnerTop ⇄
+xpInnerAfterChild → xpAfterInner → xpCleanup`) instead of calling itself.
+Verified behavior-identical to the previous recursive version by diffing
+hmake's output across all `tools/hmake/samples` makefiles.
 
 **Pattern-rule matching** tries an exact target lookup first (`MkFindTarget`); if that
 fails it searches for a matching pattern target (`MkFindPatternTarget`). On a match the
@@ -297,18 +313,19 @@ automatic variables receive concrete names rather than raw `%`-patterns.
 - `$(VAR)` expansion with OS environment fallback
 - Multi-line command joining before execution
 - File-timestamp target checking (`MkCheckTarget`) — excludes directories, correct timestamp ordering
-- Automatic variables `$@`, `$<`, `$^`, `$+`, `$*`
-- Directory/file suffix variants `$@D`/`$@F`, `$<D`/`$<F`, `$^D`/`$^F`, `$+D`/`$+F`, `$*D`/`$*F`
+- Automatic variables `$@`, `$<`, `$^`, `$+`, `$*`, `$?`
+- Directory/file suffix variants `$@D`/`$@F`, `$<D`/`$<F`, `$^D`/`$^F`, `$+D`/`$+F`, `$*D`/`$*F`, `$?D`/`$?F`
 - TAB-indentation enforcement
 - Pattern rules (`%.o: %.c`) — `MkMatchPattern`, `MkFindPatternTarget`, `__InstantiatePreReqList`
 - `$(wildcard <glob>)` expansion — zero matches = empty string
 - Variable override — last assignment wins (GNU make semantics)
 - Duplicate target detection with descriptive error
+- `__ExecTarget` target-execution engine converted from native recursion to an explicit heap-allocated frame stack (`TExecFrame`, `New`/`Dispose`, chained via `pPrev`) — avoids exhausting MSX/TP3.3f's few-KB call stack on deep prerequisite chains; verified behavior-identical to the old recursive version
 - MSX-DOS OS layer — `MkGetEnv` (`src/dos/envvars.pas`), `MkCheckTarget` and `MkWildcard` (`src/dos/dos2find.pas`, wrapping BDOS `_FFIRST`/`_FNEXT`). Implemented on branch `hmake_msx_dos_oscall`, not yet merged to `main` — **not yet built or run on real MSX-DOS2 hardware**
 
 ### Not yet implemented
 
-- `$%` and `$?` — stubbed to empty string
+- `$%` (archive-member name) — stubbed to empty string; not applicable without archive-member target syntax (`lib(member.o)`), which this implementation does not support
 - MSX-DOS `MkExecCommand` — stub only. MSX-DOS2 has no MS-DOS-style EXEC call; running an external program means resolving it via PATH, loading it at 0100h, and `CALL`ing it directly (`_FORK`/`_JOIN` only isolate file handles around that). Needs real-hardware validation before implementing
 
 ### Wish list
