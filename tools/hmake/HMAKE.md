@@ -4,13 +4,16 @@
 **CopyLeft (c) since 2024 by Hinotori Team**
 
 `hmake` is a GNU make-compatible build tool written entirely in Pascal.
-It is designed to run both on **MSX-DOS** (compiled with Turbo Pascal 3.3f) and on
-**modern host systems** (compiled with Free Pascal / FPC), making it possible to drive
-Hinotori builds from within the MSX environment itself, without depending on a
-host-side GNU Make installation.
+Its main goal is to let Hinotori builds run natively on **MSX-DOS** itself
+(compiled with Turbo Pascal 3.3f), without depending on a host-side GNU Make
+installation — but hmake is a general-purpose build tool, not tied to Hinotori
+or to MSX. Compiled with **Free Pascal (FPC)** for a modern host (Linux/macOS/
+Windows), the same parser and executor drive any project's makefiles on that
+host, not only Hinotori's — see the built-in `MACHINE`/`ARCH` [variables](#variables),
+which reflect whatever host hmake was actually compiled for.
 
-The FPC (host) build is the primary implementation. The MSX-DOS port shares the same
-parser and executor — only the OS-specific layer differs.
+The FPC (host) build is the primary implementation for development purposes. The
+MSX-DOS port shares the same parser and executor — only the OS-specific layer differs.
 
 ## Contents
 
