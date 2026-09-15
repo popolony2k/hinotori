@@ -31,13 +31,16 @@ const
   {$ENDIF}
 {$ENDIF}
 
-        (* Hinotori's produced code always targets the MSX Z80 CPU,
-           regardless of which host built it (MSX-DOS/TP3.3f or an FPC
-           host toolchain) — hardcoded until Hinotori grows R800-specific
-           code paths (hand-written asm using R800's extended instruction
-           set on MSX turboR) for a makefile to select between; see
-           tools/hmake/docs/WIP.md. *)
-        ctMkArch = 'Z80';
+        (* hmake is a general-purpose build tool, not exclusively a
+           Hinotori/MSX build driver: on an FPC host it must report the
+           CPU hmake itself was actually compiled for (x86_64, aarch64,
+           i386, ...), so makefiles building other projects on that host
+           get a meaningful value — not the MSX target's CPU. Sourced from
+           FPC's %FPCTARGETCPU% compile-time macro so it can never drift
+           from what was actually built. The MSX-DOS build (msx/mkoscall.pas)
+           hardcodes 'Z80' instead, since TP3.3f only ever targets that one
+           CPU family and has no equivalent compiler intrinsic to query. *)
+        ctMkArch = {$I %FPCTARGETCPU%};
 
 (**
   * Execute an command on operating system through system call;

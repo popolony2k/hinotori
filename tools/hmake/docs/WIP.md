@@ -70,12 +70,17 @@
         - MACHINE is platform-specific (ctMkMachine in each mkoscall.pas):
           MSX on MSX-DOS; LINUX/MACOSX/WINDOWS on FPC hosts via
           {$IFDEF DARWIN}/{$IFDEF WINDOWS}; (OK)
-        - ARCH (ctMkArch) hardcoded to Z80 on both platforms — Hinotori's
-          produced code always targets Z80 regardless of build host.
-          Placeholder for MSX turboR R800-specific code paths once
-          Hinotori has hand-written asm using R800's extended instruction
-          set to select between (none exist yet in src/asm/); (TODO, low
-          priority — not needed until such R800 code paths exist)
+        - ARCH (ctMkArch) is hardcoded to Z80 on MSX-DOS only — TP3.3f
+          always targets that one CPU family. Placeholder for MSX turboR
+          R800-specific code paths once Hinotori has hand-written asm
+          using R800's extended instruction set to select between (none
+          exist yet in src/asm/); (TODO, low priority)
+        - On FPC hosts, ARCH instead reflects the actual host CPU hmake
+          was compiled for (e.g. x86_64, aarch64), via FPC's
+          %FPCTARGETCPU% compile-time macro — hmake is a general-purpose
+          build tool usable on any project on that host, not only
+          Hinotori/MSX ones, so it must report the real host architecture
+          there, not MSX's Z80; (OK)
 5. Operating system environment variables access by makefile; (WIP)
     - Runtime variable availability checking (when executing a command); (OK)
     - FPC implementation; (OK)

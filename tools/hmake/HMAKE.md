@@ -108,20 +108,24 @@ A later assignment to the same name overrides all earlier ones (last-write-wins)
 
 #### Built-in `MACHINE` / `ARCH`
 
-hmake seeds two variables with default values before parsing a makefile:
+hmake seeds two variables with default values before parsing a makefile.
+hmake is a general-purpose build tool, not exclusively a Hinotori/MSX build
+driver, so on an FPC host both values describe *that host*, not MSX:
 
 | Variable | Meaning | Default |
 | --- | --- | --- |
-| `$(MACHINE)` | Build host | `MSX` on MSX-DOS; `LINUX` / `MACOSX` / `WINDOWS` on an FPC host |
-| `$(ARCH)` | Target CPU | `Z80` — always, on every host |
+| `$(MACHINE)` | Build host OS | `MSX` on MSX-DOS; `LINUX` / `MACOSX` / `WINDOWS` on an FPC host |
+| `$(ARCH)` | Build host CPU | `Z80` on MSX-DOS; the actual CPU hmake was compiled for (e.g. `x86_64`, `aarch64`) on an FPC host |
 
-`$(ARCH)` is hardcoded to `Z80` on both platforms: Hinotori's produced code
-always targets the MSX Z80 CPU regardless of which host built it. It exists
-as a placeholder for MSX turboR's R800 CPU, which is only relevant once
-Hinotori has hand-written R800-specific assembly (using its extended
-instruction set) that a makefile would need to select between — no such
-code exists yet, so there is currently nothing for a second `ARCH` value to
-switch on.
+On MSX-DOS, `$(ARCH)` is hardcoded to `Z80`: TP3.3f only ever targets that
+one CPU family, regardless of whether the MSX it runs on has a Z80 or a
+turboR's R800 (R800 runs the same Z80 opcodes TP3.3f emits, just faster).
+It's a placeholder for if Hinotori ever grows hand-written R800-specific
+assembly (using R800's extended instruction set) that a makefile would
+need to select between — no such code exists yet in `src/asm/`, so there
+is currently nothing for a second value to switch on. On an FPC host,
+`$(ARCH)` instead comes from FPC's `%FPCTARGETCPU%` compile-time macro, so
+it always matches whatever hmake itself was actually built for.
 
 Like any other variable, a makefile assignment overrides these defaults:
 
@@ -347,7 +351,7 @@ automatic variables receive concrete names rather than raw `%`-patterns.
 - `$(wildcard <glob>)` expansion — zero matches = empty string
 - Variable override — last assignment wins (GNU make semantics)
 - Duplicate target detection with descriptive error
-- Built-in `$(MACHINE)`/`$(ARCH)` variables — seeded by `MkInit`, overridable like any other variable; `MACHINE` varies per host build, `ARCH` is hardcoded `Z80` on every host (placeholder for future R800-specific code paths)
+- Built-in `$(MACHINE)`/`$(ARCH)` variables — seeded by `MkInit`, overridable like any other variable; both describe the actual build host (`MSX`/`Z80` hardcoded on MSX-DOS; `LINUX`/`MACOSX`/`WINDOWS` and the real host CPU via `%FPCTARGETCPU%` on an FPC host)
 - `__ExecTarget` target-execution engine converted from native recursion to an explicit heap-allocated frame stack (`TExecFrame`, `New`/`Dispose`, chained via `pPrev`) — avoids exhausting MSX/TP3.3f's few-KB call stack on deep prerequisite chains; verified behavior-identical to the old recursive version
 - MSX-DOS OS layer — `MkGetEnv` (`src/dos/envvars.pas`), `MkCheckTarget` and `MkWildcard` (`src/dos/dos2find.pas`, wrapping BDOS `_FFIRST`/`_FNEXT`). Implemented on branch `hmake_msx_dos_oscall`, not yet merged to `main` — **not yet built or run on real MSX-DOS2 hardware**
 
