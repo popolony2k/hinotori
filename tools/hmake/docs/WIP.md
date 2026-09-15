@@ -40,6 +40,19 @@
               CALLing it directly (FORK/JOIN only isolate file handles
               around that). Needs hardware validation before writing it;
               (TODO)
+    - Target execution engine (`__ExecTarget` in mkexec.pas) converted from
+      native recursion to an explicit heap-allocated frame stack; (OK)
+        - Motivation: each recursive call carried a TIdentifierPair (81+256
+          bytes) plus several more short strings on the native call stack —
+          on MSX/TP3.3f (a few KB of stack) as few as 3-4 levels of ordinary
+          prerequisite chaining could exhaust it. Frames are now
+          New/Dispose'd on the heap and chained via pPrev, so recursion
+          depth no longer costs native stack.
+        - Verified behavior-identical against the previous recursive
+          version: byte-for-byte diff of hmake's output across all
+          `tools/hmake/samples` makefiles (multi-target, pattern rules,
+          auto-vars, errors, wildcard, variable-override) under the FPC
+          build. Not yet re-verified on real MSX-DOS2 hardware; (TODO)
 5. Operating system environment variables access by makefile; (WIP)
     - Runtime variable availability checking (when executing a command); (OK)
     - FPC implementation; (OK)
