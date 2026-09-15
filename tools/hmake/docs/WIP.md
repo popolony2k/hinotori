@@ -27,10 +27,19 @@
             - PHONY target support (OK);
             - Target-pattern rules implementation (%.o: %.c %.h); (OK)
                 - Add automatic variables processing ($@, $<, $^, $+, $*); (OK)
-                    - $%, $? not yet implemented (stubbed to empty string); (TODO)
+                    - $? — prerequisites newer than the target; recomputed
+                      in __ReplaceAutoVars against the target's real prereq
+                      list (re-checked at command-execution time, so it
+                      reflects prereqs' post-build mtimes); (OK)
+                    - $% — archive-member name; not applicable without
+                      archive-member target syntax (lib(member.o)), which
+                      this implementation does not support. Stubbed to
+                      empty string; (TODO, low priority — obscure/unused
+                      for this project's target platform)
                     - Add directory part processing ($@D, $<D, $^D, $+D, $*D); (OK)
                     - Add file part processing ($@F, $<F, $^F, $+F, $*F); (OK)
-                    - $%D, $%F, $?D, $?F stubbed to empty (depends on $%/$?); (TODO)
+                    - $?D, $?F implemented alongside $?; (OK)
+                    - $%D, $%F stubbed to empty (depends on $%); (TODO)
                 - Implement wildcard processing (eg. $(wildcard *.c)); (OK)
     - OS Specific command calls (MkExecCommand); (WIP)
         - FPC implementation; (OK)

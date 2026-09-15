@@ -9,17 +9,19 @@
 #   $^  all prerequisites    $^D/$^F  dir/file parts of all prereqs
 #   $+  all prereqs (dupes)  $+D/$+F  same as $^D/$^F here
 #   $*  stem of pattern      $*D/$*F  dir/file part of stem
+#   $?  out-of-date prereqs  $?D/$?F  dir/file parts of out-of-date prereqs
 #
 # Run all:      hmake -f makefile.test_auto_vars
 # Run one:      hmake -f makefile.test_auto_vars <target>
 
 all: test_at test_lt test_caret test_plus test_multi test_combined \
      test_pattern.o test_pattern_stem.x \
-     test_dir_at test_dir_lt test_dir_stem
+     test_dir_at test_dir_lt test_dir_stem \
+     test_question test_dir_question
 	echo "--- all auto-var tests passed ---"
 
 .PHONY: all test_at test_lt test_caret test_plus test_multi test_combined \
-        test_dir_at test_dir_lt test_dir_stem
+        test_dir_at test_dir_lt test_dir_stem test_question test_dir_question
 
 #
 # $@ : name of the target being built
@@ -131,3 +133,19 @@ test_dir_stem: sub/foo.x2
 
 sub/foo.c:
 	echo "sub/foo.c"
+
+#
+# $? : prerequisites newer than the target. None of these targets ever
+# produce a real file on disk, so the target is always missing and every
+# prerequisite is reported out-of-date (same set as $^ here).
+# Expected: outdated=[prereq_1 prereq_2 prereq_3]
+#
+test_question: prereq_1 prereq_2 prereq_3
+	echo "test_question: outdated=[$?]"
+
+#
+# $?D / $?F — directory and file parts of the out-of-date prerequisite list
+# Expected: dirs=[sub] files=[prereq]
+#
+test_dir_question: sub/prereq
+	echo "dir_question: dirs=[$?D] files=[$?F]"

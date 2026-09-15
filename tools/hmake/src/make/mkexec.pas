@@ -209,21 +209,30 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
                                pTgt             : PTarget;
                                pInstPreReq      : PLinkedList );
   var
-      strPreReqs      : TIdentifierValue;
-      strFirstPreReq  : TIdentifierValue;
-      strPreReqsDirs  : TIdentifierValue;
-      strPreReqsFiles : TIdentifierValue;
-      strValue        : TIdentifierValue;
-      pItem           : PLinkedListItem;
-      bFirst          : boolean;
+      strPreReqs        : TIdentifierValue;
+      strFirstPreReq    : TIdentifierValue;
+      strPreReqsDirs    : TIdentifierValue;
+      strPreReqsFiles   : TIdentifierValue;
+      strOutOfDate      : TIdentifierValue;
+      strOutOfDateDirs  : TIdentifierValue;
+      strOutOfDateFiles : TIdentifierValue;
+      strValue          : TIdentifierValue;
+      checkPair         : TIdentifierPair;
+      pItem             : PLinkedListItem;
+      bFirst            : boolean;
+      bOutOfDateFirst   : boolean;
 
   begin
     (* Use instantiated list for pattern rules, else the target's own list *)
-    strFirstPreReq  := '';
-    strPreReqs      := '';
-    strPreReqsDirs  := '';
-    strPreReqsFiles := '';
-    bFirst          := true;
+    strFirstPreReq    := '';
+    strPreReqs        := '';
+    strPreReqsDirs    := '';
+    strPreReqsFiles   := '';
+    strOutOfDate      := '';
+    strOutOfDateDirs  := '';
+    strOutOfDateFiles := '';
+    bFirst            := true;
+    bOutOfDateFirst   := true;
 
     if( pInstPreReq <> nil )  then
       pItem := pInstPreReq^.pFirstItem
@@ -249,6 +258,31 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
         strPreReqsFiles := strPreReqsFiles + ' ' + __FilePart( strValue );
       end;
 
+      (* $? : prerequisites newer than the target (or target still
+         missing). Re-checked here, against the target's real prereq
+         list, rather than reused from whatever __ExecTarget saw earlier
+         — by the time commands run, prerequisites have already been
+         (re)built, so this reflects their current, post-build mtimes. *)
+      checkPair.strName  := strTargetName;
+      checkPair.strValue := strValue;
+
+      if( not MkCheckTarget( checkPair ) )  then
+      begin
+        if( bOutOfDateFirst )  then
+        begin
+          strOutOfDate      := strValue;
+          strOutOfDateDirs  := __DirPart( strValue );
+          strOutOfDateFiles := __FilePart( strValue );
+          bOutOfDateFirst   := false;
+        end
+        else
+        begin
+          strOutOfDate      := strOutOfDate      + ' ' + strValue;
+          strOutOfDateDirs  := strOutOfDateDirs  + ' ' + __DirPart( strValue );
+          strOutOfDateFiles := strOutOfDateFiles + ' ' + __FilePart( strValue );
+        end;
+      end;
+
       pItem := pItem^.pNextItem;
     end;
 
@@ -265,8 +299,8 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     ReplaceAll( strCommand, '$*F', __FilePart( strStem ) );
     ReplaceAll( strCommand, '$%D', '' );
     ReplaceAll( strCommand, '$%F', '' );
-    ReplaceAll( strCommand, '$?D', '' );
-    ReplaceAll( strCommand, '$?F', '' );
+    ReplaceAll( strCommand, '$?D', strOutOfDateDirs );
+    ReplaceAll( strCommand, '$?F', strOutOfDateFiles );
 
     (* Base automatic variables *)
     ReplaceAll( strCommand, '$@', strTargetName );
@@ -274,10 +308,12 @@ function MkExecute( var handle : TMakeHandle; pUsrTargetList : PLinkedList ) : b
     ReplaceAll( strCommand, '$^', strPreReqs );
     ReplaceAll( strCommand, '$+', strPreReqs );
     ReplaceAll( strCommand, '$*', strStem );
+    ReplaceAll( strCommand, '$?', strOutOfDate );
 
-    (* $%, $? — not yet implemented; replace with empty to avoid shell expansion *)
+    (* $% — archive-member name; not applicable without archive-member
+       target syntax (lib(member.o)), which this implementation does not
+       support. Replaced with empty to avoid shell expansion. *)
     ReplaceAll( strCommand, '$%', '' );
-    ReplaceAll( strCommand, '$?', '' );
   end;
 
   (**

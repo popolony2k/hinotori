@@ -154,7 +154,7 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 **Wildcard expansion** (`MkWildcard` in `mkoscall.pas`): platform-specific glob expansion. FPC implementation uses `FindFirst`/`FindNext`; directory prefix from the pattern is prepended to each result filename. MSX-DOS stub returns empty string.
 
-**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`), `$*` (pattern stem). Directory/file suffix variants (`$@D`, `$@F`, `$<D`, `$<F`, `$^D`, `$^F`, `$+D`, `$+F`, `$*D`, `$*F`) also implemented — D/F variants replaced before base vars to prevent token collision. `$%`, `$?` replaced with empty string (not yet implemented).
+**Automatic variable expansion** (`__ReplaceAutoVars` in `mkexec.pas`): called from `__ExecCommands` after `MkReplaceReferences`. Resolves `$@` (target name), `$<` (first prereq), `$^` (all prereqs), `$+` (same as `$^`), `$*` (pattern stem), `$?` (prereqs newer than the target, checked fresh via `MkCheckTarget` against the target's real prereq list). Directory/file suffix variants (`$@D`, `$@F`, `$<D`, `$<F`, `$^D`, `$^F`, `$+D`, `$+F`, `$*D`, `$*F`, `$?D`, `$?F`) also implemented — D/F variants replaced before base vars to prevent token collision. `$%` (archive-member name) replaced with empty string — not applicable without archive-member target syntax, which this implementation does not support.
 
 **Pattern-rule matching** (`mkhelper.pas`):
 - `MkMatchPattern` — tests a concrete name against a `%`-pattern; on match, returns the stem
@@ -179,8 +179,8 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 - Multi-line command joining before execution
 - FPC `MkExecCommand` / `MkGetEnv` / `MkWildcard` implementations
 - **`MkCheckTarget`** (`fpc/mkoscall.pas`) — fixed two bugs: (1) `faAnyFile` matched directories causing targets named after dirs to be silently skipped; (2) timestamp comparison now runs when target IS found, not when missing; (3) directory attribute guard on prereq; (4) `pair.strValue <> ''` guard against uninitialised value
-- Automatic variables `$@`, `$<`, `$^`, `$+`, `$*` — implemented in `__ReplaceAutoVars` (`mkexec.pas`)
-- Directory/file suffix auto-var variants: `$@D`/`$@F`, `$<D`/`$<F`, `$^D`/`$^F`, `$+D`/`$+F`, `$*D`/`$*F`
+- Automatic variables `$@`, `$<`, `$^`, `$+`, `$*`, `$?` — implemented in `__ReplaceAutoVars` (`mkexec.pas`). `$?` (prerequisites newer than the target) is recomputed there against the target's real prereq list — re-checking `MkCheckTarget` at command-execution time rather than reusing state from `__ExecTarget`'s earlier pass, so it reflects prereqs' post-build mtimes and stays correct even when unrelated targets are chained on one command line
+- Directory/file suffix auto-var variants: `$@D`/`$@F`, `$<D`/`$<F`, `$^D`/`$^F`, `$+D`/`$+F`, `$*D`/`$*F`, `$?D`/`$?F`
 - TAB-indentation enforcement: TAB-prefixed lines with existing targets are always `IDENT_COMMAND`
 - **Target-pattern rules** (`%.o: %.c`) — fully implemented and tested
   - `MkMatchPattern` + `MkFindPatternTarget` in `mkhelper.pas`
@@ -198,7 +198,7 @@ Parsing (`MkBuild`) and execution (`MkExecute`) are separate phases.
 
 ### Not yet implemented
 
-- `$%`, `$?` — replaced with empty string; logic not written
+- `$%` (archive-member name) — replaced with empty string; not applicable without archive-member target syntax (`lib(member.o)`), which this implementation does not support
 - **MSX-DOS `MkExecCommand`** — stub only. MSX-DOS2 has no MS-DOS-style EXEC call; running an external program means resolving it via PATH, loading it at 0100h, and `CALL`ing it directly (`_FORK`/`_JOIN` only isolate file handles around that). Needs real-hardware validation before implementing
 
 ### Wish list (future)
